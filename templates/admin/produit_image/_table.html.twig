@@ -1,0 +1,86 @@
+   
+        {% if type == "thead" %}
+        <tr id="thead_produit_image" class="text-nowrap">
+            <th>Action</th>
+            <th>Image</th>
+            <th>Date de création</th>
+        </tr>
+        {% elseif type == "tbody" %}
+        <tr id="tbody_produit_image" class="text-nowrap">
+            <td>
+                <a href="#" onclick="return openModalUpdateImage({{liste.id}})" class="mx-1"><i class="bi bi-pencil-fill"></i></a>
+                <a href="#" onclick="return deleteStock({{liste.id}})" class="mx-1"><i class="bi bi-trash text-danger"></i></a>
+            </td>
+            <td>
+                <img src="{{asset('uploads/APP_' ~ application.id ~'/product/' ~ liste.image)}}" alt="" style="width: 40px; height: 40px; border-radius: 100%;">
+            </td>
+            <td> {{liste.dateCreation|date('d-m-Y')}} </td>
+            
+        </tr>
+         {% endif %}
+<script>
+    
+    function deleteStock(id = null) {
+        var anchorName = document.location.hash.substring(1);
+
+        if (confirm('Voulez vous vraiment supprimer cette image?')) {
+            $.ajax({
+                url: '/admin/produit/image/delete/'+id,
+                type: 'POST',
+                data: {category: id},
+                success: function (response) {
+                    var nextLink = $('#sidebar').find('li#stock').find('a');
+                    setTimeout(function () {
+                        toastr.options = {
+                            closeButton: true,
+                            progressBar: true,
+                            showMethod: 'slideDown',
+                            timeOut: 1000
+                        };
+                        toastr.success('Avec succèss', 'Suppression effectuée');
+
+                        //$(".loadBody").css('display', 'none');
+
+                    }, 800);
+                    if (anchorName) {
+                        window.location.hash = anchorName;
+                    }
+                   listImageByProduitSession();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de la suppression de stock.');
+                }
+            });
+        }
+    }
+
+    function openModalUpdateImage(id = null) {
+        var anchorName = document.location.hash.substring(1);
+
+        $.ajax({
+                url: '/admin/produit/image/edit/'+id,
+                type: 'POST',
+                data: {id: id},
+                success: function (response) {
+                    if (response.html != "") {
+                        $("#blocModalProduitImageEmpty").empty();
+                        $("#blocModalProduitImageEmpty").append(response.html);
+
+                        $('#modalUpdateImage').modal('show');
+                        if (anchorName) {
+                            window.location.hash = anchorName;
+                        }
+
+                    }
+                    
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de la mise à jour de stock.');
+                }
+            });
+    }
+
+   
+</script>

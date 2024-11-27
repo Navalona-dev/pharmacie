@@ -1,0 +1,227 @@
+
+<div class="modal fade" id="modalUpdateStock" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content p-4 modal-categorie">
+            <div class="modal-header modal-header-center">
+                <h5 class="modal-title fw-bold" id="modalNewLabel">Mise à jour stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <span class="qtt-vendu" data-qttvendu="{{qttVendu}}"></span>
+                <span class="qtt-restant" data-qttrestant="{{qttRestant}}"></span>
+                <span class="qtt" data-qtt="{{quantity}}"></span>
+                <span class="total-stock" data-totalstock="{{totalStock}}"></span>
+
+                <span class="volume-gros" data-volume="{{produitCategorie.volumeGros}}"></span>
+                <span class="presentation-gros" data-presentation="{{produitCategorie.presentationGros}}"></span>
+                <span class="unite-gros" data-unite="{{produitCategorie.uniteVenteGros}}"></span>
+                {{ form_start(form, {'attr': {'id': 'updateStock', 'action': path('stocks_edit', {'stock': id}) }}) }}
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Quantité ({{qttFinal}}) </label>
+                        <div class="row">
+                            <div class="col-10">
+                                {{ form_widget(form.qtt) }}
+                            </div>
+                            <div class="col-2">
+                                ({{sacs}})
+                            </div>
+                        </div>
+                         
+                        <span class="text-success text-qtt-stock"></span>
+                    </div>  
+                    {% if produitCategorie.volumeGros > 1 %}
+                        <div class="form-group mb-3">
+                            <label for="" class="mb-2">Qtt en plus</label>
+                            <div class="row">
+                                <div class="col-10">
+                                    <input type="text" name="qtt-plus-stock-update" id="qtt-plus-stock-update" class="form-control form-control-md" autocomplete="off" readonly>
+                                </div>
+                                <div class="col-2">
+                                    ({{unite}})
+                                </div>
+                            </div>
+                             
+                            <span class="text-success text-qtt-plus"></span>
+                        </div>
+                    {% endif %}
+                      <input type="hidden" name="oldQtt" value = "{{oldQtt}}" />
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Date de peremption</label>
+                        {{ form_widget(form.datePeremption) }}
+                    </div>  
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-sm px-3" style="width: 100%;">Modifier stock</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+    <div id="id-produit-update" data-produit="{{idProduit}}"></div>
+</div>
+<script src="{{ asset('assets/js/script_utile.js')}}"></script>
+
+<script>
+
+    $(document).ready(function () {
+        var dateFormat = 'dd/mm/yyyy';
+        var dateNow = new Date();
+        dateNow.setDate(dateNow.getDate() + 1);
+
+        $('#stock_datePeremption #stock_datePeremption_date').datepicker({
+            format: dateFormat,
+            todayHighlight: true,
+            startDate: dateNow,
+            language: 'fr',
+            autoclose: true,
+
+        });
+
+
+
+       $('#updateStock').on('submit', function (e) {
+            e.preventDefault();
+            var idProduit = $('#id-produit-update').data('produit');
+            let form = $(this);
+            var totalStock = $('.total-stock').data('totalstock');
+            var quantityTransferer = $('.qtt').data('qtt');
+            var qttRestant = $('.qtt-restant').data('qttrestant');
+            var qttVendu = $('.qtt-vendu').data('qttvendu');
+            var totalQttTraiter = qttRestant + quantityTransferer + qttVendu;
+            var qttUpdated = $('#stock_qtt').val();
+            var totalQtt = totalStock;
+            if (null != qttUpdated && qttUpdated != "" && qttUpdated != undefined) {
+                qttUpdated = parseFloat(qttUpdated);
+                totalQtt = totalQtt + qttUpdated;
+            }
+            
+            if (totalQtt < totalQttTraiter || totalQtt > totalQttTraiter) {
+                //return false;
+            }
+            
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: form.serialize(),
+                success: function (response) {
+                    $('#modalUpdateStock').modal('hide');
+                    var nextLink = $('#sidebar').find('li#stock').find('a');
+                    setTimeout(function () {
+                        toastr.options = {
+                            closeButton: true,
+                            progressBar: true,
+                            showMethod: 'slideDown',
+                            timeOut: 1000
+                        };
+                        toastr.success('Avec succèss', 'Mise à jour effectuée');
+
+                        //$(".loadBody").css('display', 'none');
+
+                    }, 800);
+                    listStock(idProduit);
+                
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de la mise à jour de stock.');
+                }
+            });
+        });
+    });
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        var qttStock = $('#stock_qtt');
+        var volumeGros = $('.volume-gros').data('volume');
+        var presentationGros = $('.presentation-gros').data('presentation');
+        var uniteVenteGros = $('.unite-gros').data('unite');
+
+        $('#qtt-plus-stock-update').on('click', function() {
+            if(qttStock.val() === "") {
+                var message = 'Veuillez d\'abord compléter le champ quantité';
+                toastrNotification('error', message);
+            } else {
+                $(this).removeAttr('readonly');
+            }
+        });
+
+        $('#stock_qtt').on('input', function() {
+            var initialQttStock = parseFloat(qttStock.val());
+            // Enregistrer la valeur dans la session (si vous avez une fonction pour cela)
+            sessionStorage.setItem('initialQttStock', initialQttStock);
+        });
+
+        var typingTimer; // Timer variable
+        var doneTypingInterval = 500; // Délai de 500ms
+
+        $('#qtt-plus-stock-update').on('input', function() {
+            clearTimeout(typingTimer); // Effacer le timer précédent
+            var inputField = $(this);
+
+            typingTimer = setTimeout(function() {
+                // Convertir les valeurs en nombres
+                var qttPlusValue = parseFloat(inputField.val());
+                var volumeGrosValue = parseFloat(volumeGros);
+
+                // Si le champ de quantité est vide
+                if (inputField.val().trim() === "") {
+                    // Réinitialiser les affichages et le stock
+                    $('.text-qtt-plus').text('');
+                    $('.text-qtt-stock').text('');
+                    qttStock.val(sessionStorage.getItem('initialQttStock'));
+                    return;
+                } else {
+                    // Vérifier si qttPlusValue est inférieur à volumeGrosValue
+                    if (qttPlusValue >= volumeGrosValue) {
+                        inputField.css('background-color', '#fc8b8b');
+                        inputField.val("");
+                        var message = 'La quantité plus ne doit pas être supérieure ou égale au volume de gros' + volumeGrosValue;
+                        toastrNotification('error', message);
+                    } else {
+                        inputField.css('background-color', '#fff');
+
+                        // Calculer qttPlusFinal et arrondir à deux décimales
+                        var qttPlusFinal = parseFloat((qttPlusValue / volumeGrosValue));
+
+                        // Obtenir et convertir le stock restant
+                        var stockRestantValue = parseFloat(sessionStorage.getItem('initialQttStock')); // Défaut à 0 si la valeur est vide
+
+                        // Ajouter qttPlusFinal au stock restant
+                        var stockRestantValueFinale = parseFloat((stockRestantValue + qttPlusFinal));
+
+                        // Mettre à jour les textes
+                        var textQttPlus = qttPlusFinal + ' ' + presentationGros + '(' + qttPlusValue + uniteVenteGros + ')';
+                        $('.text-qtt-plus').text(textQttPlus);
+
+                        var stockRestantText = stockRestantValue + ' ' + presentationGros + ' et ' + qttPlusValue + ' ' + uniteVenteGros;
+                        $('.text-qtt-stock').text(stockRestantText);
+
+                        qttStock.val(stockRestantValueFinale);
+                    }
+                }
+
+                
+            }, doneTypingInterval); // Délai d'attente avant d'exécuter la fonction
+        });
+
+        // Optionnel : Vous pouvez également gérer le cas où l'utilisateur efface le champ
+        $('#qtt-plus-stock-update').on('keydown', function() {
+            clearTimeout(typingTimer); // Effacez le timer si l'utilisateur commence à taper
+        });
+
+        // Fonction Toastr notification pour éviter les répétitions de code
+        function toastrNotification(type, message) {
+            setTimeout(function () {
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    showMethod: 'slideDown',
+                    timeOut: 2000
+                };
+                toastr[type](message);
+            }, 800);
+        }
+        
+    })
+</script>

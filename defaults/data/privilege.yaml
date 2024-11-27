@@ -1,0 +1,19 @@
+privilege1:
+  title: super_admin
+  description: Super administrateur
+  permisisonIds: 
+
+privilege2:
+  title: responsable_vente
+  description: Responsable de vente
+  permisisonIds: "4,5,6,7,9,11,12,13"
+
+privilege3:
+  title: responsable_stock
+  description: Responsable de stock
+  permisisonIds: "3"
+
+privilege4:
+  title: responsable_caisse
+  description: Responsable caisse
+  permisisonIds: "8,10,13,14,15"

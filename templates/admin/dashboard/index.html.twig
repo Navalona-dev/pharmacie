@@ -1,0 +1,1214 @@
+<style>
+  .dropdown-item{
+    cursor: pointer;
+  }
+</style>
+<div class="pagetitle">
+    <h1>Tableau de board</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{path('app_admin')}}">Accueil</a></li>
+        <li class="breadcrumb-item active">Tableau de board</li>
+      </ol>
+    </nav>
+  </div>
+<section class="section dashboard">
+    <div class="row">
+      <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+        <div class="card info-card orders-card">
+            <div class="filter">
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                        <h6>Filtrer</h6>
+                    </li>
+                    <li><a class="dropdown-item order-filter" data-period="today">Aujourd'hui</a></li>
+                    <li><a class="dropdown-item order-filter" data-period="yesterday">Hier</a></li>
+                    <li><a class="dropdown-item order-filter" data-period="this-week">Cette semaine</a></li>
+                    <li><a class="dropdown-item order-filter" data-period="last-week">Semaine dernière</a></li>
+                    <li><a class="dropdown-item order-filter" data-period="this-month">Ce mois-ci</a></li>
+                    <li><a class="dropdown-item order-filter" data-period="last-month">Mois dernier</a></li>
+                    <li><a class="dropdown-item order-filter" data-period="this-year">Cette année</a></li>
+                    <li><a class="dropdown-item order-filter" data-period="last-year">Année dernière</a></li>
+                </ul>
+            </div>
+    
+            <div class="card-body">
+                <h5 class="card-title">Commandes <span id="period-text">| Aujourd'hui</span></h5>
+                <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="bi bi-cart"></i>
+                    </div>
+                    <div class="ps-3">
+                        <h6 id="order-count">0</h6>
+                        {#<span class="text-success small pt-1 fw-bold" id="percentage-change">0%</span>
+                        <span class="text-muted small pt-2 ps-1">variation</span>#}
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+        <div id="order-data" style="display: none;">
+          <span id="count-today"> {{countAffaireToday | default(0)}} </span>
+          <span id="count-yesterday"> {{countAffaireYesterday | default(0)}} </span>
+          <span id="count-this-week"> {{countAffaireThisWeek |default(0) }} </span>
+          <span id="count-last-week"> {{countAffaireLastWeek | default(0)}} </span>
+          <span id="count-this-month"> {{countAffaireThisMonth | default(0)}} </span>
+          <span id="count-last-month"> {{countAffaireLastMonth | default(0)}} </span>
+          <span id="count-this-year"> {{countAffaireThisYear | default(0)}} </span>
+          <span id="count-last-year"> {{countAffaireLastYear | default(0)}} </span>
+        </div>
+
+        <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+          <a href="#tab-produit-date-peremption" onclick="return showTabProduitDatePeremption()">
+            <div class="card info-card dates-card">
+  
+              <div class="card-body">
+                <h5 class="card-title">Peremption proche</h5>
+                <div class="d-flex align-items-center">
+                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-calendar-x text-danger"></i>
+                  </div>
+                  <div class="ps-3">
+                    <h6 id="date-peremption-count"> {{countProduitDatePeremption | default(0)}} </h6>
+                    {#<span class="text-danger small pt-1 fw-bold">12%</span> 
+                    <span class="text-muted small pt-2 ps-1">decrease</span>#}
+    
+                  </div>
+                </div>
+    
+              </div>
+            </div>
+          </a>
+        </div>
+
+      <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+
+        <div class="card info-card produit-card">
+
+          <div class="filter">
+            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+              <li class="dropdown-header text-start">
+                <h6>Filtrer</h6>
+              </li>
+
+              <li><a class="dropdown-item produit-filter" data-period="today">Aujourd'hui</a></li>
+              <li><a class="dropdown-item produit-filter" data-period="yesterday">Hier</a></li>
+              <li><a class="dropdown-item produit-filter" data-period="this-week">Cette semaine</a></li>
+              <li><a class="dropdown-item produit-filter" data-period="last-week">Semaine dernière</a></li>
+              <li><a class="dropdown-item produit-filter" data-period="this-month">Ce mois-ci</a></li>
+              <li><a class="dropdown-item produit-filter" data-period="last-month">Mois dernier</a></li>
+              <li><a class="dropdown-item produit-filter" data-period="this-year">Cette année</a></li>
+              <li><a class="dropdown-item produit-filter" data-period="last-year">Année dernière</a></li>
+            </ul>
+          </div>
+
+          <div class="card-body">
+            <h5 class="card-title">Produits <span id="period-text-produit">| Aujourd'hui</span></h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-box"></i>
+              </div>
+              <div class="ps-3">
+                <h6 id="produit-count">0</h6>
+                {#<span class="text-danger small pt-1 fw-bold">12%</span> 
+                <span class="text-muted small pt-2 ps-1">decrease</span>#}
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div id="produit-data" style="display: none;">
+        <span id="count-produit-today"> {{countProduitToday | default(0)}} </span>
+        <span id="count-produit-yesterday"> {{countProduitYesterday | default(0)}} </span>
+        <span id="count-produit-this-week"> {{countProduitThisWeek | default(0)}} </span>
+        <span id="count-produit-last-week"> {{countProduitLastWeek | default(0)}} </span>
+        <span id="count-produit-this-month"> {{countProduitThisMonth | default(0)}} </span>
+        <span id="count-produit-last-month"> {{countProduitLastMonth | default(0)}} </span>
+        <span id="count-produit-this-year"> {{countProduitThisYear | default(0)}} </span>
+        <span id="count-produit-last-year"> {{countProduitLastYear | default(0)}} </span>
+      </div>
+
+      <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+        <div class="card info-card stocks-card">
+            {#<div class="filter">
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                        <h6>Filtrer</h6>
+                    </li>
+                    <li><a class="dropdown-item stock-filter" data-period="today">Aujourd'hui</a></li>
+                    <li><a class="dropdown-item stock-filter" data-period="yesterday">Hier</a></li>
+                    <li><a class="dropdown-item stock-filter" data-period="this-week">Cette semaine</a></li>
+                    <li><a class="dropdown-item stock-filter" data-period="last-week">Semaine dernière</a></li>
+                    <li><a class="dropdown-item stock-filter" data-period="this-month">Ce mois-ci</a></li>
+                    <li><a class="dropdown-item stock-filter" data-period="last-month">Mois dernier</a></li>
+                    <li><a class="dropdown-item stock-filter" data-period="this-year">Cette année</a></li>
+                    <li><a class="dropdown-item stock-filter" data-period="last-year">Année dernière</a></li>
+                </ul>
+            </div>#}
+    
+            <div class="card-body">
+                <h5 class="card-title">Stocks {#<span id="period-text-stock">| Aujourd'hui</span>#}</h5>
+                <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="bi bi-box"></i>
+                    </div>
+                    <div class="ps-3">
+                      {% set formattedCountStock = countStock|number_format(2, '.', '') %}
+                        <h6 id="stock-count"> 
+                          {% if formattedCountStock ends with '.00' %}
+                              {{ countStock|number_format(0, '.', '')| default(0) }} 
+                          {% else %}
+                            {{formattedCountStock| default(0)}}
+                          {% endif %}
+                        </h6>
+                        {#<span class="text-success small pt-1 fw-bold" id="percentage-change">0%</span>
+                        <span class="text-muted small pt-2 ps-1">variation</span>#}
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    
+      {#<div id="stock-data" style="display: none;">
+        <span id="count-stock-today"> {{countStockToday | default(0)}} </span>
+        <span id="count-stock-yesterday"> {{countStockYesterday | default(0)}} </span>
+        <span id="count-stock-this-week"> {{countStockThisWeek | default(0)}} </span>
+        <span id="count-stock-last-week"> {{countStockLastWeek |default(0)}} </span>
+        <span id="count-stock-this-month"> {{countStockThisMonth |default(0)}} </span>
+        <span id="count-stock-last-month"> {{countStockLastMonth | default(0)}} </span>
+        <span id="count-stock-this-year"> {{countStockThisYear | default(0)}} </span>
+        <span id="count-stock-last-year"> {{countStockLastYear | default(0)}} </span>
+      </div>#}
+
+      <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+        <div class="card info-card stock-restant-card">
+            {#<div class="filter">
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                        <h6>Filtrer</h6>
+                    </li>
+                    <li><a class="dropdown-item stock-restant-filter" data-period="today">Aujourd'hui</a></li>
+                    <li><a class="dropdown-item stock-restant-filter" data-period="yesterday">Hier</a></li>
+                    <li><a class="dropdown-item stock-restant-filter" data-period="this-week">Cette semaine</a></li>
+                    <li><a class="dropdown-item stock-restant-filter" data-period="last-week">Semaine dernière</a></li>
+                    <li><a class="dropdown-item stock-restant-filter" data-period="this-month">Ce mois-ci</a></li>
+                    <li><a class="dropdown-item stock-restant-filter" data-period="last-month">Mois dernier</a></li>
+                    <li><a class="dropdown-item stock-restant-filter" data-period="this-year">Cette année</a></li>
+                    <li><a class="dropdown-item stock-restant-filter" data-period="last-year">Année dernière</a></li>
+                </ul>
+            </div>#}
+    
+            <div class="card-body">
+                <h5 class="card-title">Stocks restants {#<span id="period-text-stock-restant">| Aujourd'hui</span>#}</h5>
+                <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="bi bi-box"></i>
+                    </div>
+                    <div class="ps-3">
+                      {% set formattedCountStockRestant = countStockRestant|number_format(2, '.', '') %}
+                        <h6 id="stock-restant-count"> 
+                          {% if formattedCountStockRestant ends with '.00' %}
+                              {{ countStockRestant|number_format(0, '.', '')| default(0) }} 
+                          {% else %}
+                            {{formattedCountStockRestant| default(0)}}
+                          {% endif %}
+                        </h6>
+                        {#<span class="text-success small pt-1 fw-bold" id="percentage-change">0%</span>
+                        <span class="text-muted small pt-2 ps-1">variation</span>#}
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    
+      {#<div id="stock-restant-data" style="display: none;">
+        <span id="count-stock-restant-today"> {{countStockRestantToday | default(0)}} </span>
+        <span id="count-stock-restant-yesterday"> {{countStockRestantYesterday | default(0)}} </span>
+        <span id="count-stock-restant-this-week"> {{countStockRestantThisWeek | default(0)}} </span>
+        <span id="count-stock-restant-last-week"> {{countStockRestantLastWeek | default(0)}} </span>
+        <span id="count-stock-restant-this-month"> {{countStockRestantThisMonth | default(0)}} </span>
+        <span id="count-stock-restant-last-month"> {{countStockRestantLastMonth | default(0)}} </span>
+        <span id="count-stock-restant-this-year"> {{countStockRestantThisYear | default(0)}} </span>
+        <span id="count-stock-restant-last-year"> {{countStockRestantLastYear | default(0)}} </span>
+      </div>#}
+
+      <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+        <div class="card info-card produit-vendu-card">
+            <div class="filter">
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                        <h6>Filtrer</h6>
+                    </li>
+                    <li><a class="dropdown-item stock-vendu-filter" data-period="today">Aujourd'hui</a></li>
+                    <li><a class="dropdown-item stock-vendu-filter" data-period="yesterday">Hier</a></li>
+                    <li><a class="dropdown-item stock-vendu-filter" data-period="this-week">Cette semaine</a></li>
+                    <li><a class="dropdown-item stock-vendu-filter" data-period="last-week">Semaine dernière</a></li>
+                    <li><a class="dropdown-item stock-vendu-filter" data-period="this-month">Ce mois-ci</a></li>
+                    <li><a class="dropdown-item stock-vendu-filter" data-period="last-month">Mois dernier</a></li>
+                    <li><a class="dropdown-item stock-vendu-filter" data-period="this-year">Cette année</a></li>
+                    <li><a class="dropdown-item stock-vendu-filter" data-period="last-year">Année dernière</a></li>
+                </ul>
+            </div>
+    
+            <div class="card-body">
+                <h5 class="card-title">Stock vendus <span id="period-text-stock-vendu">| Aujourd'hui</span></h5>
+                <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="bi bi-basket"></i>
+                    </div>
+                    <div class="ps-3">
+                        <h6 id="stock-vendu-count">0</h6>
+                        {#<span class="text-success small pt-1 fw-bold" id="percentage-change">0%</span>
+                        <span class="text-muted small pt-2 ps-1">variation</span>#}
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    
+      <div id="stock-vendu-data" style="display: none;">
+        <span id="count-stock-vendu-today"> 
+          {% set formattedCountStockVenduToday = countStockVenduToday|number_format(2, '.', '') %}
+          {% if formattedCountStockVenduToday ends with '.00' %}
+              {{ countStockVenduToday|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountStockVenduToday| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-stock-vendu-yesterday"> 
+          {% set formattedCountStockVenduYesterday = countStockVenduYesterday|number_format(2, '.', '') %}
+          {% if formattedCountStockVenduYesterday ends with '.00' %}
+              {{ countStockVenduYesterday|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountStockVenduYesterday| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-stock-vendu-this-week"> 
+          {% set formattedCountStockVenduThisWeek = countStockVenduThisWeek|number_format(2, '.', '') %}
+          {% if formattedCountStockVenduThisWeek ends with '.00' %}
+              {{ countStockVenduThisWeek|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountStockVenduThisWeek| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-stock-vendu-last-week"> 
+          {% set formattedCountStockVenduLastWeek = countStockVenduLastWeek|number_format(2, '.', '') %}
+          {% if formattedCountStockVenduLastWeek ends with '.00' %}
+              {{ countStockVenduLastWeek|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountStockVenduLastWeek| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-stock-vendu-this-month"> 
+          {% set formattedCountStockVenduThisMonth = countStockVenduThisMonth|number_format(2, '.', '') %}
+          {% if formattedCountStockVenduThisMonth ends with '.00' %}
+              {{ countStockVenduThisMonth|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountStockVenduThisMonth| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-stock-vendu-last-month"> 
+          {% set formattedCountStockVenduLastMonth = countStockVenduLastMonth|number_format(2, '.', '') %}
+          {% if formattedCountStockVenduLastMonth ends with '.00' %}
+              {{ countStockVenduLastMonth|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountStockVenduLastMonth| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-stock-vendu-this-year"> 
+          {% set formattedCountStockVenduThisYear = countStockVenduThisYear|number_format(2, '.', '') %}
+          {% if formattedCountStockVenduThisYear ends with '.00' %}
+              {{ countStockVenduThisYear|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountStockVenduThisYear| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-stock-vendu-last-year"> 
+          {% set formattedCountStockVenduLastYear = countStockVenduLastYear|number_format(2, '.', '') %}
+          {% if formattedCountStockVenduLastYear ends with '.00' %}
+              {{ countStockVenduLastYear|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountStockVenduLastYear| default(0)}}
+          {% endif %}
+        </span>
+      </div>
+
+      <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+
+        <div class="card info-card stocks-card">
+
+          <div class="filter">
+            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+              <li class="dropdown-header text-start">
+                <h6>Filtrer</h6>
+              </li>
+
+              <li><a class="dropdown-item transfert-filter" data-period="today">Aujourd'hui</a></li>
+              <li><a class="dropdown-item transfert-filter" data-period="yesterday">Hier</a></li>
+              <li><a class="dropdown-item transfert-filter" data-period="this-week">Cette semaine</a></li>
+              <li><a class="dropdown-item transfert-filter" data-period="last-week">Semaine dernière</a></li>
+              <li><a class="dropdown-item transfert-filter" data-period="this-month">Ce mois-ci</a></li>
+              <li><a class="dropdown-item transfert-filter" data-period="last-month">Mois dernier</a></li>
+              <li><a class="dropdown-item transfert-filter" data-period="this-year">Cette année</a></li>
+              <li><a class="dropdown-item transfert-filter" data-period="last-year">Année dernière</a></li>
+            </ul>
+          </div>
+
+          <div class="card-body">
+            <h5 class="card-title">Stocks transferés <span id="period-text-transfert">| Aujourd'hui</span></h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-box"></i>
+              </div>
+              <div class="ps-3">
+                <h6 id="transfert-count">0</h6>
+                {#<span class="text-danger small pt-1 fw-bold">12%</span> 
+                <span class="text-muted small pt-2 ps-1">decrease</span>#}
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div id="transfert-data" style="display: none;">
+        <span id="count-transfert-today"> 
+          {% set formattedCountTransfertToday = countTransfertToday|number_format(2, '.', '') %}
+          {% if formattedCountTransfertToday ends with '.00' %}
+              {{ countTransfertToday|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountTransfertToday| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-transfert-yesterday"> 
+          {% set formattedCountTransfertYesterday = countTransfertYesterday|number_format(2, '.', '') %}
+          {% if formattedCountTransfertYesterday ends with '.00' %}
+              {{ countTransfertYesterday|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountTransfertYesterday| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-transfert-this-week"> 
+          {% set formattedCountTransfertThisWeek = countTransfertThisWeek|number_format(2, '.', '') %}
+          {% if formattedCountTransfertThisWeek ends with '.00' %}
+              {{ countTransfertThisWeek|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountTransfertThisWeek| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-transfert-last-week"> 
+          {% set formattedCountTransfertLastWeek = countTransfertLastWeek|number_format(2, '.', '') %}
+          {% if formattedCountTransfertLastWeek ends with '.00' %}
+              {{ countTransfertLastWeek|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountTransfertLastWeek| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-transfert-this-month"> 
+          {% set formattedCountTransfertThisMonth = countTransfertThisMonth|number_format(2, '.', '') %}
+          {% if formattedCountTransfertThisMonth ends with '.00' %}
+              {{ countTransfertThisMonth|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountTransfertThisMonth| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-transfert-last-month"> 
+          {% set formattedCountTransfertLastMonth = countTransfertLastMonth|number_format(2, '.', '') %}
+          {% if formattedCountTransfertLastMonth ends with '.00' %}
+              {{ countTransfertLastMonth|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountTransfertLastMonth| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-transfert-this-year"> 
+          {% set formattedCountTransfertThisYear = countTransfertThisYear|number_format(2, '.', '') %}
+          {% if formattedCountTransfertThisYear ends with '.00' %}
+              {{ countTransfertThisYear|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountTransfertThisYear| default(0)}}
+          {% endif %}
+        </span>
+        <span id="count-transfert-last-year"> 
+          {% set formattedCountTransfertLastYear = countTransfertLastYear|number_format(2, '.', '') %}
+          {% if formattedCountTransfertLastYear ends with '.00' %}
+              {{ countTransfertLastYear|number_format(0, '.', '')| default(0) }} 
+          {% else %}
+            {{formattedCountTransfertLastYear| default(0)}}
+          {% endif %}
+        </span>
+      </div>
+
+      <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+
+        <div class="card info-card customers-card">
+
+          <div class="filter">
+            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+              <li class="dropdown-header text-start">
+                <h6>Filtrer</h6>
+              </li>
+
+              <li><a class="dropdown-item client-filter" data-period="today">Aujourd'hui</a></li>
+              <li><a class="dropdown-item client-filter" data-period="yesterday">Hier</a></li>
+              <li><a class="dropdown-item client-filter" data-period="this-week">Cette semaine</a></li>
+              <li><a class="dropdown-item client-filter" data-period="last-week">Semaine dernière</a></li>
+              <li><a class="dropdown-item client-filter" data-period="this-month">Ce mois-ci</a></li>
+              <li><a class="dropdown-item client-filter" data-period="last-month">Mois dernier</a></li>
+              <li><a class="dropdown-item client-filter" data-period="this-year">Cette année</a></li>
+              <li><a class="dropdown-item client-filter" data-period="last-year">Année dernière</a></li>
+            </ul>
+          </div>
+
+          <div class="card-body">
+            <h5 class="card-title">Clients <span id="period-text-client">| Aujourd'hui</span></h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-people"></i>
+              </div>
+              <div class="ps-3">
+                <h6 id="client-count">0</h6>
+                {#<span class="text-danger small pt-1 fw-bold">12%</span> 
+                <span class="text-muted small pt-2 ps-1">decrease</span>#}
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div id="client-data" style="display: none;">
+        <span id="count-client-today"> {{countClientToday | default(0)}} </span>
+        <span id="count-client-yesterday"> {{countClientYesterday | default(0)}} </span>
+        <span id="count-client-this-week"> {{countClientThisWeek | default(0)}} </span>
+        <span id="count-client-last-week"> {{countClientLastWeek | default(0)}} </span>
+        <span id="count-client-this-month"> {{countClientThisMonth | default(0)}} </span>
+        <span id="count-client-last-month"> {{countClientLastMonth | default(0)}} </span>
+        <span id="count-client-this-year"> {{countClientThisYear | default(0)}} </span>
+        <span id="count-client-last-year"> {{countClientLastYear | default(0)}} </span>
+      </div>
+
+      <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+
+        <div class="card info-card customers-card">
+
+          <div class="filter">
+            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+              <li class="dropdown-header text-start">
+                <h6>Filtrer</h6>
+              </li>
+
+              <li><a class="dropdown-item fournisseur-filter" data-period="today">Aujourd'hui</a></li>
+              <li><a class="dropdown-item fournisseur-filter" data-period="yesterday">Hier</a></li>
+              <li><a class="dropdown-item fournisseur-filter" data-period="this-week">Cette semaine</a></li>
+              <li><a class="dropdown-item fournisseur-filter" data-period="last-week">Semaine dernière</a></li>
+              <li><a class="dropdown-item fournisseur-filter" data-period="this-month">Ce mois-ci</a></li>
+              <li><a class="dropdown-item fournisseur-filter" data-period="last-month">Mois dernier</a></li>
+              <li><a class="dropdown-item fournisseur-filter" data-period="this-year">Cette année</a></li>
+              <li><a class="dropdown-item fournisseur-filter" data-period="last-year">Année dernière</a></li>
+            </ul>
+          </div>
+
+          <div class="card-body">
+            <h5 class="card-title">Fournisseurs <span id="period-text-fournisseur">| Aujourd'hui</span></h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-people"></i>
+              </div>
+              <div class="ps-3">
+                <h6 id="fournisseur-count">0</h6>
+                {#<span class="text-danger small pt-1 fw-bold">12%</span> 
+                <span class="text-muted small pt-2 ps-1">decrease</span>#}
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div id="fournisseur-data" style="display: none;">
+        <span id="count-fournisseur-today"> {{countFournisseurToday | default(0)}} </span>
+        <span id="count-fournisseur-yesterday"> {{countFournisseurYesterday | default(0)}} </span>
+        <span id="count-fournisseur-this-week"> {{countFournisseurThisWeek | default(0)}} </span>
+        <span id="count-fournisseur-last-week"> {{countFournisseurLastWeek | default(0)}} </span>
+        <span id="count-fournisseur-this-month"> {{countFournisseurThisMonth | default(0)}} </span>
+        <span id="count-fournisseur-last-month"> {{countFournisseurLastMonth | default(0)}} </span>
+        <span id="count-fournisseur-this-year"> {{countFournisseurThisYear | default(0)}} </span>
+        <span id="count-fournisseur-last-year"> {{countFournisseurLastYear | default(0)}} </span>
+      </div>
+
+
+      {#chart graphique#}
+      <div class="col-12">
+        <div class="card">
+            <div class="filter">
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                        <h6>Filtrer</h6>
+                    </li>
+                    <li><a class="dropdown-item report-filter" onclick="updateChartData('thisWeek')">Cette semaine</a></li>
+                    <li><a class="dropdown-item report-filter" onclick="updateChartData('lastWeek')">Semaine dernière</a></li>
+                    <li><a class="dropdown-item report-filter" onclick="updateChartData('thisYear')">Cette année</a></li>
+                    <li><a class="dropdown-item report-filter" onclick="updateChartData('lastYear')">Année dernière</a></li>
+                </ul>
+            </div>
+    
+            <div class="card-body">
+                <h5 class="card-title">Rapports <span>/Cette semaine</span></h5>
+    
+                <div id="reportsChart"></div>
+    
+                
+            </div>
+        </div>
+      </div>
+
+      {# meilleure commande #}
+
+      <div class="col-12">
+        <div class="card top-selling overflow-auto">
+
+          <div class="filter">
+            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+              <li class="dropdown-header text-start">
+                <h6>Filtrer</h6>
+              </li>
+              <li><a class="dropdown-item best-order-filter" id="best-order-filter-today">Ajourd'hui</a></li>
+              <li><a class="dropdown-item best-order-filter" id="best-order-filter-yesterday">Hier</a></li>
+              <li><a class="dropdown-item best-order-filter" id="best-order-filter-this-week">Cette semaine</a></li>
+              <li><a class="dropdown-item best-order-filter" id="best-order-filter-last-week">Semaine dernière</a></li>
+              <li><a class="dropdown-item best-order-filter" id="best-order-filter-this-month">Ce mois-ci</a></li>
+              <li><a class="dropdown-item best-order-filter" id="best-order-filter-last-month">Mois dernier</a></li>
+              <li><a class="dropdown-item best-order-filter" id="best-order-filter-this-year">Cette année</a></li>
+              <li><a class="dropdown-item best-order-filter" id="best-order-filter-last-year">Année dernière</a></li>
+            </ul>
+          </div>
+
+          <div class="card-body pb-0">
+            <h5 class="card-title">Meilleures ventes <span class="best-order-filter-text">| Ajourd'hui</span></h5>
+
+            <table class="table table-borderless">
+              <thead>
+                <tr>
+                  <th scope="col">Client</th>
+                  <th scope="col">Référence</th>
+                  <th scope="col">Produit</th>
+                  <th scope="col">Prix</th>
+                  <th scope="col">Quantité</th>
+                  <th scope="col">Total</th>
+                </tr>
+              </thead>
+              <tbody id="best-order-table-today">
+                {% for item in bestOrderToday %}
+                <tr>
+                  <td> {{item.order.compte.nom}} </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.reference}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.nom}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "detail" %}
+                        {{(product.qtt * product.prixVenteDetail)|number_format(2, ',', '.')}} € <br/>
+                      {% else %}
+                      {{(product.qtt * product.prixVenteGros)|number_format(2, ',', '.')}} € <br/>
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.qtt}} 
+                      {% if product.typeVente == "detail" %}
+                        {{product.produitCategorie.uniteVenteGros}}
+                      {% elseif product.typeVente == "gros" %}
+                        {{product.produitCategorie.presentationGros}}{% if product.qtt > 1 %}s{% endif %}
+                      {% endif %}
+                      <br/>
+                    {% endfor %}
+                  </td>
+                 
+                  <td>
+                    
+                    {% set montantHt = 0 %}
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "detail" %}
+                        {% set montantHt = (montantHt + (product.qtt * product.prixVenteDetail)) - product.remise %}
+                      {% else %}
+                          {% set montantHt = (montantHt + (product.qtt * product.prixVenteGros)) - product.remise %}
+                      {% endif %}
+                    {% endfor %}
+                    {{montantHt|number_format(2, ',', '.')}} €
+                  </td>
+                </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="6">Aucune meilleure commande pour aujourd'hui</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tbody id="best-order-table-yesterday">
+                {% for item in bestOrderYesterday %}
+                <tr>
+                  <td> {{item.nomCompte}} </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.reference}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.nom}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "gros" %}
+                      {{(product.qtt * product.prixVenteGros)|number_format(2, ',', '.')}} € <br/>
+                      {% else %}
+                      {{(product.qtt * product.prixVenteDetail)|number_format(2, ',', '.')}} € <br/>
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.qtt}} <br/>
+                    {% endfor %}
+                  </td>
+                 
+                  <td>
+                    
+                    {% set montantHt = 0 %}
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "gros" %}
+                      {% set montantHt = (montantHt + (product.qtt * product.prixVenteGros)) - product.remise %}
+                      {% else %}
+                          {% set montantHt = (montantHt + (product.qtt * product.prixVenteDetail)) - product.remise %}
+                      {% endif %}
+                    {% endfor %}
+                    {{montantHt|number_format(2, ',', '.')}} €
+                  </td>
+                </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="6">Aucune meilleure commande pour hier</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tbody id="best-order-table-this-week">
+                {% for item in bestOrderThisWeek %}
+                <tr>
+                  <td> {{item.order.compte.nom}} </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.reference}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.nom}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "gros" %}
+                        {{(product.qtt * product.prixVenteGros)|number_format(2, ',', '.')}} € <br/>
+                      {% else %}
+                      {{(product.qtt * product.prixVenteDetail)|number_format(2, ',', '.')}} € <br/>
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.qtt}} <br/>
+                    {% endfor %}
+                  </td>
+                 
+                  <td>
+                    
+                    {% set montantHt = 0 %}
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "detail" %}
+                        {% set montantHt = (montantHt + (product.qtt * product.prixVenteDetail)) - product.remise %}
+                      {% else %}
+                          {% set montantHt = (montantHt + (product.qtt * product.prixVenteGros)) - product.remise %}
+                      {% endif %}
+                    {% endfor %}
+                    {{montantHt|number_format(2, ',', '.')}} €
+                  </td>
+                </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="6">Aucune meilleure commande pour cette semaine</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tbody id="best-order-table-last-week">
+                {% for item in bestOrderLastWeek %}
+                <tr>
+                  <td> {{item.nomCompte}} </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.reference}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.nom}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "gros" %}
+                        {{(product.qtt * product.prixVenteGros)|number_format(2, ',', '.')}} € <br/>
+                      {% else %}
+                        {{(product.qtt * product.prixVenteDetail)|number_format(2, ',', '.')}} € <br/>
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.qtt}} <br/>
+                    {% endfor %}
+                  </td>
+                 
+                  <td>
+                    
+                    {% set montantHt = 0 %}
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "gros" %}
+                      {% set montantHt = (montantHt + (product.qtt * product.prixVenteGros)) - product.remise %}
+                      {% else %}
+                          {% set montantHt = (montantHt + (product.qtt * product.prixVenteDetail)) - product.remise %}
+                      {% endif %}
+                    {% endfor %}
+                    {{montantHt|number_format(2, ',', '.')}} €
+                  </td>
+                </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="6">Aucune meilleure commande pour la semaine dernière</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tbody id="best-order-table-this-month">
+                {% for item in bestOrderThisMonth %}
+                <tr>
+                  <td> {{item.nomCompte}} </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.reference}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.nom}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "detail" %}
+                        {{(product.qtt * product.prixVenteDetail)|number_format(2, ',', '.')}} € <br/>
+                      {% else %}
+                      {{(product.qtt * product.prixVenteGros)|number_format(2, ',', '.')}} € <br/>
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.qtt}} <br/>
+                    {% endfor %}
+                  </td>
+                 
+                  <td>
+                    
+                    {% set montantHt = 0 %}
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "detail" %}
+                        {% set montantHt = (montantHt + (product.qtt * product.prixVenteDetail)) - product.remise %}
+                      {% else %}
+                          {% set montantHt = (montantHt + (product.qtt * product.prixVenteGros)) - product.remise %}
+                      {% endif %}
+                    {% endfor %}
+                    {{montantHt|number_format(2, ',', '.')}} €
+                  </td>
+                </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="6">Aucune meilleure commande pour ce mois</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tbody id="best-order-table-last-month">
+                {% for item in bestOrderLastMonth %}
+                <tr>
+                  <td> {{item.order.compte.nom}} </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.reference}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.nom}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "detail" %}
+                          {{(product.qtt * product.prixVenteDetail)|number_format(2, ',', '.')}} € <br/>
+                      {% else %}
+                      {{(product.qtt * product.prixVenteGros)|number_format(2, ',', '.')}} € <br/>
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.qtt}} <br/>
+                    {% endfor %}
+                  </td>
+                 
+                  <td>
+                    
+                    {% set montantHt = 0 %}
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "detail" %}
+                          {% set montantHt = (montantHt + (product.qtt * product.prixVenteDetail)) - product.remise %}
+                      {% else %}
+                          {% set montantHt = (montantHt + (product.qtt * product.prixVenteGros)) - product.remise %}
+                      {% endif %}
+                    {% endfor %}
+                    {{montantHt|number_format(2, ',', '.')}} €
+                  </td>
+                </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="6">Aucune meilleure commande pour le mois dernier</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tbody id="best-order-table-this-year">
+                {% for item in bestOrderThisYear %}
+                <tr>
+                  <td> {{item.nomCompte}} </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.reference}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.nom}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "detail" %}
+                          {{(product.qtt * product.prixVenteDetail)|number_format(2, ',', '.')}} € <br/>
+                      {% else %}
+                      {{(product.qtt * product.prixVenteGros)|number_format(2, ',', '.')}} € <br/>
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.qtt}} <br/>
+                    {% endfor %}
+                  </td>
+                 
+                  <td>
+                    
+                    {% set montantHt = 0 %}
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "detail" %}
+                          {% set montantHt = (montantHt + (product.qtt * product.prixVenteDetail)) - product.remise %}
+                      {% else %}
+                          {% set montantHt = (montantHt + (product.qtt * product.prixVenteGros)) - product.remise %}
+                      {% endif %}
+                    {% endfor %}
+                    {{montantHt|number_format(2, ',', '.')}} €
+                  </td>
+                </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="6">Aucune meilleure commande pour cette année</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tbody id="best-order-table-last-year">
+                {% for item in bestOrderLastYear %}
+                <tr>
+                  <td> {{item.order.compte.nom}} </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.reference}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.nom}} <br/>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "gros" %}
+                      {{(product.qtt * product.prixVenteGros)|number_format(2, ',', '.')}} € <br/>
+                      {% else %}
+                      {{(product.qtt * product.prixVenteDetail)|number_format(2, ',', '.')}} € <br/>
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% for product in item.order.products %}
+                      {{product.qtt}} <br/>
+                    {% endfor %}
+                  </td>
+                 
+                  <td>
+                    
+                    {% set montantHt = 0 %}
+                    {% for product in item.order.products %}
+                      {% if product.typeVente == "gros" %}
+                      {% set montantHt = (montantHt + (product.qtt * product.prixVenteGros)) - product.remise %}
+                      {% else %}
+                          {% set montantHt = (montantHt + (product.qtt * product.prixVenteDetail)) - product.remise %}
+                      {% endif %}
+                    {% endfor %}
+                    {{montantHt|number_format(2, ',', '.')}} €
+                  </td>
+                </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="6">Aucune meilleure commande pour l'année dernière</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script src="{{ asset('assets/js/jquery-3.6.0.js') }}"></script>
+
+  <script src="{{asset('assets/js/filter.js')}}"></script>
+
+  <script>
+    $(document).ready(function() {
+        $('#tab-fiche-fournisseur').removeClass('active').empty();
+        $('#tab-quantite-vendu').removeClass('active').empty();
+        $('#tab-notification').removeClass('active').empty();
+        $('#tab-historique-produit').removeClass('active').empty();
+        $('#tab-historique-affaire').removeClass('active').empty();
+        $('#tab-produit-date-peremption').removeClass('active').empty();
+        $('#tab-stock').removeClass('active');
+         $('#tab-compte_1').removeClass('active');
+        $('#tab-compte_2').removeClass('active');
+        $('#tab-compte_2').removeClass('active');
+        $('#tab-inventaire-produit').css('display','none');
+      
+        $('#affaires_fournisseur').removeClass('active').empty();
+    
+        $('.tab-categorie').removeClass('active');
+        $('#tab-produit-categorie').removeClass('active');
+        $('.tab-produit-categorie').removeClass('active');
+        $('#tab-categorie').removeClass('active');
+        $('.tab-import-produit').css('display', 'none');
+        $('#tab-import-produit').css('display', 'none');
+
+        $('.tab-user').removeClass('active');
+        $('#tab-utilisateur').removeClass('active');
+
+        $('.tab-permission').removeClass('active');
+        $('.tab-privilege').removeClass('active');
+        $('.tab-cat-permission').removeClass('active');
+        $('#tab-categorie-permission').removeClass('active');
+        
+        $('#tab-profile').removeClass('active');
+      
+        $('#tab-permission').removeClass('active');
+        $('#tab-privilege').removeClass('active');
+        $('#tab-transfert-produit').css('display', 'none');
+     
+        $('#tab-application').removeClass('active');
+        $('#tab-profile').removeClass('active');
+        $('#tab-produit-type').removeClass('active');
+        $('.tab-produit-type').removeClass('active');
+        $('#tab-financier-affaire').css('display', 'none');
+        $('#tab-import-produit').css('display', 'none');
+        $('#tab-facture').css('display', 'none');
+        $('#tab-facture-affaire').css('display', 'none');
+        $('#affaires_client').css('display', 'none');
+        $('#tab-info-affaire').css('display', 'none');
+        $('#tab-dashboard').addClass('active');
+        $('#tab-nouveau-facture').css('display','none');
+        $('#tab-devis').css('display','none');
+        $('#tab-commande').css('display','none');
+        $('#tab-echeance').css('display','none');
+        $('#tab-produit-image').removeClass('active');
+        $('#tab-stock').removeClass('active');
+        $('#tab-depot').css('display', 'none');
+        $('#tab-comptabilite').css('display', 'none');
+        $('#tab-vente').css('display', 'none');
+        $('#tab-benefice').css('display', 'none');
+         $('#tab-fourchette').css('display', 'none');
+        $('#tab-comptabilite-detail').css('display', 'none');
+                $('#tab-comptabilite-liste').removeClass('active');
+
+
+
+    });
+   
+  </script>
+
+<script>
+  // Variable globale pour le graphique
+  var chart;
+
+  // Initialiser le graphique ApexCharts
+  document.addEventListener("DOMContentLoaded", () => {
+      chart = new ApexCharts(document.querySelector("#reportsChart"), {
+          series: [{
+              name: 'Produit vendu',
+              data: {{ countProductsSoldThisWeekByDay|json_encode|raw }},
+          }, {
+              name: 'Commande',
+              data: {{ countOrderByDayThisWeek|json_encode|raw }},
+          }, {
+              name: 'Clients',
+              data: {{ countClientByDayThisWeek|json_encode|raw }},
+          }],
+          chart: {
+              height: 350,
+              type: 'area',
+              toolbar: {
+                  show: false
+              },
+          },
+          markers: {
+              size: 4
+          },
+          colors: ['#4154f1', '#2eca6a', '#ff771d'],
+          fill: {
+              type: "gradient",
+              gradient: {
+                  shadeIntensity: 1,
+                  opacityFrom: 0.3,
+                  opacityTo: 0.4,
+                  stops: [0, 90, 100]
+              }
+          },
+          dataLabels: {
+              enabled: false
+          },
+          stroke: {
+              curve: 'smooth',
+              width: 2
+          },
+          xaxis: {
+              categories: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+          },
+          yaxis: {
+            title: {
+                text: 'Quantité'
+            },
+            min: 0,
+            max: 100,
+            tickAmount: 10,
+            labels: {
+              formatter: function (val) {
+                  return Math.round(val); 
+              }
+            }
+        },
+      });
+      chart.render();
+  });
+
+  // Définir la fonction pour mettre à jour les données du graphique
+  function updateChartData(selectedOption) {
+      if (!chart) {
+          console.error("Chart is not initialized");
+          return;
+      }
+
+      if (selectedOption === 'thisWeek') {
+        chart.updateOptions({
+            xaxis: {
+                categories: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+            }
+        });
+          chart.updateSeries([
+              { name: 'Produit vendu', data: {{ countProductsSoldThisWeekByDay|json_encode|raw }} },
+              { name: 'Commande', data: {{ countOrderByDayThisWeek|json_encode|raw }} },
+              { name: 'Clients', data: {{ countClientByDayThisWeek|json_encode|raw }} }
+          ]);
+      } else if (selectedOption === 'lastWeek') {
+        chart.updateOptions({
+            xaxis: {
+                categories: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+            }
+        });
+          chart.updateSeries([
+              { name: 'Produit vendu', data: {{ countProductsSoldLastWeekByDay|json_encode|raw }} },
+              { name: 'Commande', data: {{ countOrderByDayLastWeek|json_encode|raw }} },
+              { name: 'Clients', data: {{ countClientByDayLastWeek|json_encode|raw }} }
+          ]);
+      } else if (selectedOption === 'thisYear') {
+        chart.updateOptions({
+            xaxis: {
+                categories: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Decembre']
+            }
+        });
+          chart.updateSeries([
+              { name: 'Produit vendu', data: {{countProductsSoldThisYearByDay|json_encode|raw}} },
+              { name: 'Commande', data: {{ countOrderByMonthThisYear|json_encode|raw }} },
+              { name: 'Client', data: {{countClientByDayThisYear|json_encode|raw}} },
+
+          ]);
+      } else if (selectedOption === 'lastYear') {
+        chart.updateOptions({
+            xaxis: {
+                categories: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Decembre']
+            }
+        });
+          chart.updateSeries([
+              { name: 'Produit vendu', data: {{countProductsSoldLastYearByDay|json_encode|raw}} },
+              { name: 'Commande', data: {{ countOrderByMonthLastYear|json_encode|raw }} },
+              { name: 'Produit vendu', data: {{countClientByDayLastYear|json_encode|raw}} },
+
+          ]);
+      }
+
+  }
+</script>
+

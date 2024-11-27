@@ -1,0 +1,321 @@
+<style>
+  .dataTables_scroll {
+    margin-top: 50px !important;
+    margin-bottom: 30px !important;
+  }
+  td, tr {
+    border-bottom: none !important;
+  }
+
+  .icon-reload {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+.icon-excel {
+  background-color: #198754 !important;
+}
+
+
+.filter-icon {
+  padding: 3px 8px !important;
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: 20px;
+  color: #fff;
+  border-radius: 5px;
+}
+ 
+</style>
+
+<div class="pagetitle">
+    <h1>Tous les <span class="compte-title">clients</span> </h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{path('app_admin')}}">Tableau de board</a></li>
+        <li class="breadcrumb-item active">Liste</li>
+      </ol>
+    </nav>
+  </div>
+<section class="section">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card p-3 p-lg-5" style="border-radius: 20px; border: 1px solid #2a4ce8;">
+          <div class="row">
+            <div class="col-xl-10 col-lg-10 col-md-12 col-sm-12 mb-3">
+              <div class="row">
+                <div class="col-md-4 col-12 mb-3">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="user-icon">
+                            <i class="bi bi-person"></i>
+                        </span>
+                    </div>
+                      <input id="nom_compte" type="text" name="nom_compte" class="form-control form-control-sm" autocomplete="off" />
+                       <input id="genre" type="hidden" name="genre" value="{{genre}}" />
+                    {# <select class="form-control form-control-sm chosen-select" id="user-select">
+                        <option value="" selected disabled class="option-compte">Nom du client</option>
+                        {% for liste in listes %}
+                          <option value="{{liste.id}}"> {{liste.nom}} </option>
+                        {% endfor %}
+                    </select> #}
+                    {#<div class="input-group-append">
+                        <span class="input-group-text" id="search-icon">
+                            <i class="bi bi-search"></i>
+                        </span>
+                    </div>#}
+                  </div>
+                </div>
+                <div class="col-md-4 col-12 mb-3">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="user-icon">
+                            <i class="bi bi-calendar"></i>
+                        </span>
+                    </div>
+                    <input type="text" class="form-control form-control-sm date-start" id="dateDu" placeholder="Date de début" />
+                  </div>
+                </div>
+                <div class="col-md-4 col-12 mb-3">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="user-icon">
+                            <i class="bi bi-calendar"></i>
+                        </span>
+                    </div>
+                    <input type="text" class="form-control form-control-sm date-end" id="dateAu" placeholder="Date fin" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 mb-3">
+              <div class="form-group d-flex justify-content-center">
+                <a href="#" onclick="return searchCompte({{genre}})" class="filter-icon"><i class="bi bi-check"></i></a>
+                {#<a href="#" class="filter-icon icon-excel"><i class="bi bi-file-earmark-excel"></i></a>#}
+                <a href="#" onclick="return showTabCompte({{genre}})" class="filter-icon icon-reload"><i class="bi bi-arrow-clockwise"></i></a>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" id="compteList">
+          <div class="d-flex justify-content-end mb-3 pt-2 px-2" title="Nouveau">
+            <button class="btn btn-primary" onclick="return newCompte(true, {{genre}})" >
+                 <i class="bi bi-plus-circle ml-2"></i>
+            </button>
+          </div>
+          <div class="card-body px-5 pb-5">
+            <table class="table table-striped" id="liste-table-compte" style="width: 100%;">
+              <thead>
+                    {% include 'admin/comptes/_table.html.twig' with { 'type': 'thead', 'genre': genre } %}
+              </thead>
+              <tbody>
+                {% if listes|length > 0 %}
+
+                  {% for liste in listes %}
+                      {% include 'admin/comptes/_table.html.twig' with { 'type': 'tbody', 'liste': liste, 'genre': genre } %}
+                  {% endfor %}
+                
+                {% else %}
+                    <tr class="text-nowrap">
+                        <td colspan="{% if genre == 1 %} 6 {% elseif genre == 2 %} 4 {% endif %} ">Aucun enregistrement trouvé</td>
+                         <td></td>
+                          <td></td>
+                          <td></td>
+                          {% if genre == 1 %}
+                          <td></td>
+                          <td></td>
+                          {% endif %}
+                    </tr>
+                {% endif %}
+                
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+ <div id="blocModalCompteEmpty">
+            </div>
+  </section>
+
+  <script>
+    //datatable
+    $(document).ready(function() {
+        $('.tab-compte_1').addClass('active');
+        $('.tab-user').removeClass('active');
+        $('.tab-permission').removeClass('active');
+        $('.tab-privilege').removeClass('active');
+        $('.tab-cat-permission').removeClass('active');
+        $('#tab-dashboard').removeClass('active');
+        $('#tab-profile').removeClass('active');
+        $('#tab-utilisateur').removeClass('active');
+        $('#tab-permission').removeClass('active');
+        $('#tab-privilege').removeClass('active');
+        $('#categorie-permission').removeClass('active');
+        $('#tab-categorie-permission').removeClass('active');
+        $('#tab-application').removeClass('active');
+        $('.tab-categorie').removeClass('active');
+        $('#tab-produit-categorie').removeClass('active');
+        $('.tab-produit-categorie').removeClass('active');
+        $('#tab-categorie').removeClass('active');  
+        $('#tab-produit-type').removeClass('active');
+        $('#tab-produit-image').removeClass('active');
+        $('#tab-stock').removeClass('active');
+        $('.tab-import-produit').css('display', 'none');
+        $('#tab-import-produit').css('display', 'none');
+        $('#tab-transfert-produit').css('display', 'none');
+        $('#affaires_client').removeClass('active').empty();
+        $('#affaires_fournisseur').removeClass('active').empty();
+        $('#tab-facture').css('display', 'none');
+        $('#tab-facture-affaire').css('display', 'none');
+
+        $('#tab-info-affaire').removeClass('active').empty();
+        $('#tab-financier-affaire').removeClass('active').empty();
+        $('#tab-fiche-client').removeClass('active').empty();
+        $('#tab-fiche-fournisseur').removeClass('active').empty();
+        $('#tab-quantite-vendu').removeClass('active').empty();
+        $('#tab-notification').removeClass('active').empty();
+        $('#tab-historique-produit').removeClass('active').empty();
+        $('#tab-historique-affaire').removeClass('active').empty();
+        $('#tab-produit-date-peremption').removeClass('active').empty();
+        $('#tab-inventaire-produit').css('display','none');
+        $('#tab-nouveau-facture').css('display','none');
+        $('#tab-devis').css('display','none');
+        $('#tab-commande').css('display','none');
+        $('#tab-echeance').css('display','none');
+        $('#tab-produit-image').removeClass('active');
+        $('#tab-stock').removeClass('active');
+        $('#tab-depot').css('display', 'none');
+        $('#tab-comptabilite').css('display', 'none');
+        $('#tab-vente').css('display', 'none');
+        $('#tab-benefice').css('display', 'none');
+         $('#tab-fourchette').css('display', 'none');
+        $('#tab-comptabilite-detail').css('display', 'none');
+                $('#tab-comptabilite-liste').removeClass('active');
+
+
+     
+    });
+
+     //date-picker
+
+ $(document).ready(function() {
+  var dateFormat = 'dd/mm/yyyy';
+  var dateNow = new Date();
+  dateNow.setDate(dateNow.getDate() + 1)
+
+  $('.date-start, .date-end').datepicker({
+      format: dateFormat,
+      todayHighlight: true,
+      //daysOfWeekDisabled: '0',
+      //startDate: dateNow,
+      language: 'fr',
+      autoclose: true,
+
+  });
+
+});
+
+function newCompte(isNew = false, genre = 1) {
+    $.ajax({
+        url: '/admin/comptes/new',
+        type: 'POST',
+        data: {
+            isNew: isNew,
+            genre: genre 
+        },
+        success: function (response) {
+    
+            $("#blocModalCompteEmpty_" + genre).empty();
+            $("#blocModalCompteEmpty_" + genre).append(response.html);
+            if(genre == 1) {
+                $('#modalNewClient').modal('show');
+                //showTabCompte(1);
+            } else if(genre == 2) {
+                $('#modalNewFournisseur').modal('show');
+                //showTabCompte(2);
+            }
+
+            
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            // Gérer l'erreur (par exemple, afficher un message d'erreur)
+            alert('Erreur lors de l\'ajout de client.');
+        }
+    });
+}
+
+  </script>
+
+<script>
+
+  function showSpinner() {
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+  }
+
+  function hideSpinner() {
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+  }
+
+  // Fonction pour convertir une date au format d-m-Y en Date
+  function parseDate(dateStr) {
+      var parts = dateStr.split('/');
+      return new Date(parts[2], parts[1] - 1, parts[0]);
+  }
+
+  // Fonction appelée lors du clic sur l'icône de recherche
+  function searchCompte() {
+    var anchorName = document.location.hash.substring(1);
+
+    showSpinner();
+    
+    setTimeout(function() {
+        // Récupération des valeurs des filtres
+        var nomCompte = $('#nom_compte').val().toLowerCase();
+        var dateDebut = $('#dateDu').val();
+        var dateFin = $('#dateAu').val();
+
+        // Réinitialiser les filtres
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            var dateSearch = parseDate(data[2].trim()); // La première colonne est la date
+            var startDateDebut = dateDebut ? parseDate(dateDebut) : null;
+            var endDateFin = dateFin ? parseDate(dateFin) : null;
+
+            var compteMatch = data[0].toLowerCase().indexOf(nomCompte) !== -1;
+            var dateMatch = true;
+            if (startDateDebut && dateSearch < startDateDebut) {
+                dateMatch = false;
+            }
+            if (endDateFin && dateSearch > endDateFin) {
+                dateMatch = false;
+            }
+
+            return compteMatch && dateMatch;
+        });
+
+        // Mettre à jour DataTables avec les nouveaux filtres
+        $('#liste-table-compte').DataTable().draw();
+
+        // Réinitialiser les filtres après utilisation
+        $.fn.dataTable.ext.search.pop();
+
+        if (anchorName) {
+            window.location.hash = anchorName;
+        }
+
+        hideSpinner();
+    }, 2000);
+}
+
+
+  // Ajout de l'événement click à l'icône de recherche
+  document.addEventListener('DOMContentLoaded', function() {
+      var searchButton = document.querySelector('.icon-check');
+      searchButton.addEventListener('click', searchFacture);
+  });
+</script>

@@ -1,0 +1,95 @@
+<div class="modal fade" id="modalTransfertProduitCategorie" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content p-4">
+            <div class="modal-header modal-header-center">
+                <h5 class="modal-title fw-bold" id="modalNewLabel">Transferer produit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger error">
+                    La quantité que vous avez saisi ne doit pas supérieur à la quantité restant {{stock.qttRestant}}
+                </div>
+                <div class="alert alert-info">
+                    Stocks restant : {{produitCategorie.stockRestant}} <br>
+                    Quantité restant : {{stock.qttRestant}} <br>
+                </div>
+                <span class="id-produit" data-produit="{{produitCategorie.id}}"></span>
+                
+                {{ form_start(form, {'attr': {'id': 'transfertProduitCategorie', 'action': path('stocks_transfert', {'stock': id}) }}) }}
+                    
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Application</label>
+                        <span class="text-danger"> {{form_errors(form.application)}} </span>
+                        <div id="application-widget" data-application-name="{{ applicationName }}"></div>
+                        {{ form_widget(form.application) }}
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Quantité</label>
+                        <span class="text-danger"> {{form_errors(form.quantity)}} </span>
+                        {{form_widget(form.quantity)}}
+                    </div>
+                    <div class="form-group mb-3">
+                        <input type="checkbox" id="ischangePrice" name="is_change_price" />
+                        <label for="">Prix à changer?</label>
+                    </div>
+                        
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-sm px-5 mt-3" style="width: 100%;">Transférer produit</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script src="{{ asset('assets/js/script_utile.js')}}"></script>
+<script>
+
+    $(document).ready(function () {
+        var idProduit = $('.id-produit').data('produit');
+        $('.error').hide();
+
+       $('#transfertProduitCategorie').on('submit', function (e) {
+            e.preventDefault();
+            let form = $(this);
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: form.serialize(),
+                success: function (response) {
+                    if (response && response.status === 'error') {
+                        $('#modalTransfertProduitCategorie').modal('show');
+                        $('.error').show();
+                    } else {
+                        $('#modalTransfertProduitCategorie').modal('hide');
+                        var nextLink = $('#sidebar').find('li#produit-categorie').find('a');
+                        //
+                        setTimeout(function () {
+                            toastr.options = {
+                                closeButton: true,
+                                progressBar: true,
+                                showMethod: 'slideDown',
+                                timeOut: 2000
+                            };
+                            toastr.success('Avec succèss', 'Transfert effectuée');
+
+                            //$(".loadBody").css('display', 'none');
+
+                        }, 800);
+                        listStock(idProduit);
+                    }
+                   
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de transfert de produit.');
+                }
+            });
+        });
+    });
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,135 @@
+<div class="modal fade" id="modalRemise_{{ type }}" tabindex="-1"  aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight" style="position: relative;">
+
+            <form id="formRemise" name="remise_{{ type }}" action="{{ path('affaires_valide_add_remise_product_ajax') }}" method="post">
+
+                <div class="modal-header d-flex justify-content-between align-items-center">
+                    <h4 class="modal-title fw-bold text-center w-100">
+                        {% if type == "produit" %}
+                            <span>Remise produit:</span> <br>
+                            <span style="color: #1ab394; font-size: 16px !important;">{{ produit.nom|raw }}</span>
+                            <input name="idProduit" value="{{ produit.id }}" type="hidden">
+                            <input name="idAffaire" value="{{ idAffaire }}" type="hidden">
+                        {% else %}
+                            <span>Remise pour l'affaire :</span> <br>
+                            <span style="color: #1ab394;">{{ affaire.nom|raw }}</span>
+                            <input name="idAffaire" value="{{ affaire.id }}" type="hidden">
+                        {% endif %}
+                    </h4>
+                    <button style="margin-top: -5rem !important; font-size: 30px; margin-right: -20px !important;" type="button" class="close btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                
+
+            {% set hasRemiseProduit = (type != "affaire") and (montantPourcent or montantRemise) %}
+
+            <input type="hidden" name="type" value="{{ type }}">
+                <input type="hidden" name="montantInitial" value="{{ montantTotal }}">
+                <input type="hidden" name="montantRemiseFinale" id="montantRemiseFinale" value="{{ montantRemise }}">
+                <input type="hidden" value="{{ uri }}" name="uri">
+
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-6 col-12">
+                        <div class="form-group {% if hasRemiseProduit %} d-none {% endif %}">
+                            <input type="radio" {% if montantPourcent %}checked{% elseif montantRemise is null %}checked{% endif %} onclick="return changeTypeRemise(this);" name="typeremise" value="1" id="type_remise_2"> 
+                            <label for="type_remise_2">en %</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <div class="form-group {% if hasRemiseProduit %} d-none {% endif %}">
+                            <input type="radio" {% if montantPourcent is null and montantRemise %}checked{% else %}{% endif %} onclick="return changeTypeRemise(this);" name="typeremise" value="2" id="type_remise_1"> 
+                            <label for="type_remise_1">en montant</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="mb-2">Montant </label>
+                    <div class="row">
+                        <div class="col-md-10 col-12">
+                            <input {% if montantPourcent %}value="{{ montantPourcent }}" {% elseif montantRemise %} value="{{ montantRemise }}" {% endif %} required onchange="return changeMontantRemise(this.value);" type="text" name="montantRemise" class="form-control" {% if hasRemiseProduit %} disabled {% endif %}>
+                        </div>
+                        <div class="col-md-2 col-12">
+                            <span class="typeRemiseMontant">{% if montantPourcent %}% {% if montantRemise %} ({{ montantRemise }}&euro;){% endif %}{% elseif montantRemise %}€{% else %}%{% endif %}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if type == "affaire" %}
+                    {# <div class="form-group row"><label class="col-lg-4 col-form-label text-right">Tva </label>
+
+                        <div class="col-lg-2">
+                            <select  name="tva" class="form-control">
+                                <option value="0">0%</option>
+                                {% for un_tvaVente in tvaVentes %}
+                                    <option value="{{ un_tvaVente.tva }}" {% if un_tvaVente.isDefault == 1 %}selected{% endif %}>{{ un_tvaVente.tva }}%</option>
+                                {% endfor %}
+                            </select>
+
+                        </div>
+                    </div> #}
+
+
+                    <div class="form-group row"><label class="col-lg-4 col-form-label text-right">Titre </label>
+
+                        <div class="col-lg-4">
+                            <input type="text" name="titreRemise" value="Remise globale" class="form-control">
+
+                        </div>
+                    </div>
+
+
+
+                {% endif %}
+
+                {#<div class="row">
+                    <div class="col-md-6 text-right">
+                        <strong>Montant actuel:</strong> <span class="nowMontant">{{ montantTotal }} &euro;</span>
+                    </div>
+
+                    <div class="col-md-6 text-left">
+                        <strong>Nouvelle montant :</strong> <span style="color: red; text-decoration: blink;" class="newMontant">{% if montantRemise %}{{ montantTotal  }}€ {% endif %}</span>
+                    </div>
+
+                </div>#}
+
+            </div>
+            <div class="modal-footer {% if hasRemiseProduit %} text-left {% else %} text-center {% endif %}" style="display: block;">
+                <button type="reset" class="btn btn-sm btn-warning px-4" data-bs-dismiss="modal">Annuler</button>
+                <button onclick="return saveRemise('{{ type }}', '');" type="submit" class="btn btn-primary btn-sm px-4 {% if hasRemiseProduit %} d-none {% endif %}">Enregistrer</button>
+
+            </div>
+
+
+            </form>
+
+            {% if montantRemise %}
+                <form style="position: absolute;bottom: 15px;right: 10%;" id="deleteRemise" name="deleteRemise" action="{{ path('affaires_delete_add_remise_product_ajax') }}" method="post">
+
+                    <input type="hidden" name="type" value="{{ type }}">
+                    <input type="hidden" value="{{ uri }}" name="uri">
+                    {% if type == "produit" %}
+                        <input name="idProduit" value="{{ produit.id }}" type="hidden">
+                        <input name="idAffaire" value="{{ idAffaire }}" type="hidden">
+                        <input type="hidden" name="montantRemiseFinale" id="montantRemiseFinale" value="{{ montantRemise }}">
+                    {% else %}
+                        <input name="idAffaire" value="{{ affaire.id }}" type="hidden">
+                        <input type="hidden" name="montantRemiseFinale" id="montantRemiseFinale" value="{{ montantRemise }}">
+                    {% endif %}
+                    <button type="submit" onclick="return deleteRemiseProduitAffaire('{{ type }}', '{{idAffaire}}');"  class="btn btn-danger">Supprimer</button>
+
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<script type="application/javascript">
+    function changeTypeReduction(elt) {
+        var typeReduction = elt.options[elt.selectedIndex].text;
+
+        $("input[name='titreRemise']").val(typeReduction);
+    }
+</script>

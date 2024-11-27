@@ -1,0 +1,136 @@
+   
+        {% if type == "thead" %}
+        <tr id="thead_stock" class="text-nowrap">
+            <th>Action</th>
+            <th>Quantité</th>
+            <th>Quantité restant</th>
+            <th>Date de création</th>
+            <th>Date de peremption</th>
+        </tr>
+        {% elseif type == "tbody" %}
+        <tr id="tbody_stock" class="text-nowrap">
+            <td>
+                <a href="#" onclick="return openModalUpdateStock({{liste.id}}, {{liste.qtt}}, {{totalQtt}}, {{quantity}}, {{qttVendu}})" class="mx-1" title="Modifier"><i class="bi bi-pencil-fill"></i></a>
+                <a href="#" onclick="return deleteStock({{liste.id}})" class="mx-1" title="Supprimer"><i class="bi bi-trash text-danger"></i></a>
+                <a href="#" onclick="return transfertStock({{liste.id}})" title="Transferer"><i class="mx-2 bi bi-arrow-left-right"></i></a>
+            </td>
+            <td> 
+                {% set sacs = liste.qtt|round(0, 'floor') %}
+                {% set decimal = liste.qtt - sacs %}
+                {% set unite = decimal * liste.produitCategorie.volumeGros %}
+                {{sacs}} {{liste.produitCategorie.presentationGros}} {% if unite > 0 %} et {{unite|number_format(2,'.','')}} {{liste.produitCategorie.uniteVenteGros}} {% endif %}
+            </td>
+            <td> 
+                {% set sacs = liste.qttRestant|round(0, 'floor') %}
+                {% set decimal = liste.qttRestant - sacs %}
+                {% set unite = decimal * liste.produitCategorie.volumeGros %}
+                {{sacs}} {{liste.produitCategorie.presentationGros}} {% if unite > 0 %} et {{unite|number_format(2,'.','')}} {{liste.produitCategorie.uniteVenteGros}} {% endif %}
+            </td>
+            <td> {{liste.dateCreation|date('d-m-Y')}} </td>
+            <td>
+                {{ liste.datePeremption is not null ? liste.datePeremption.date|date('d-m-Y') : '' }}
+            </td>
+            
+        </tr>
+         {% endif %}
+<script>
+    
+    function deleteStock(id = null) {
+        var anchorName = document.location.hash.substring(1);
+
+        if (confirm('Voulez vous vraiment supprimer stock?')) {
+            $.ajax({
+                url: '/admin/stock/delete/'+id,
+                type: 'POST',
+                data: {category: id},
+                success: function (response) {
+                    var nextLink = $('#sidebar').find('li#stock').find('a');
+                    setTimeout(function () {
+                        toastr.options = {
+                            closeButton: true,
+                            progressBar: true,
+                            showMethod: 'slideDown',
+                            timeOut: 2000
+                        };
+
+                        if (response && response.status === 'success') {
+                        toastr.success('Avec succèss', 'Suppression effectuée');
+
+                        } else {
+                            toastr.error(response.message)
+
+                        }
+                        //$(".loadBody").css('display', 'none');
+
+                    }, 800);
+                    if (anchorName) {
+                        window.location.hash = anchorName;
+                    }
+                   listStock(response.idProduit);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de la suppression de stock.');
+                }
+            });
+        }
+    }
+
+    function openModalUpdateStock(id = null, oldQtt = null, totalQtt = 0, quantity = 0, qttVendu = 0) {
+        var anchorName = document.location.hash.substring(1);
+        //qttVendu
+        $.ajax({
+                url: '/admin/stock/edit/'+id,
+                type: 'POST',
+                data: {id: id, oldQtt: oldQtt,totalQtt: totalQtt, quantity: quantity, qttVendu: qttVendu},
+                success: function (response) {
+                    if (response.html != "") {
+                        $("#blocModalStockEmpty").empty();
+                        $("#blocModalStockEmpty").append(response.html);
+
+                        $('#modalUpdateStock').modal('show');
+                        if (anchorName) {
+                            window.location.hash = anchorName;
+                        }
+
+                    }
+                    
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de la mise à jour de stock.');
+                }
+            });
+    }
+
+    function transfertStock(id = null) {
+    var anchorName = document.location.hash.substring(1);
+
+        $.ajax({
+                url: '/admin/stock/transfert/'+id,
+                type: 'POST',
+                data: {id: id},
+                success: function (response) {
+                    if (response.html != "") {
+                        $("#blocModalStockEmpty").empty();
+                        $("#blocModalStockEmpty").append(response.html);
+
+                        $('#modalTransfertStock').modal('show');
+
+                        if (anchorName) {
+                                window.location.hash = anchorName;
+                        }
+
+                    }
+                    
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de transfert de produit.');
+                }
+            });
+    }
+   
+
+   
+</script>

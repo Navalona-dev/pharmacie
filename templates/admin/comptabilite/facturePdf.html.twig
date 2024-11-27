@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+     
+    </style>
+</head>
+<body>
+    <div>
+        {% if application.logoFile is not null %}
+            <img src="{{ absolute_url(vich_uploader_asset(application, 'logoFile')) }}" alt="" style="width: 300px; height: 150px;">
+        {% endif %}
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <p style="margin-left: 500px;">Date : <strong style="margin-left: 15px;">{{factureComptabilite.date|date('d/m/Y')}}</strong></p>
+    </div>
+
+    <div style="margin-bottom: 30px;">
+        <table class="table" style="width: 100%;">
+            <tr>
+                <th style="width: 50%; border: 1px solid #000;">
+                    <p style="font-size: 15px;"> {{application.entreprise}} </p>
+                    <p style="font-size: 15px;">{{application.adresse}}</p>
+                    <p style="font-size: 15px;">NIF: {{application.nif}}</p>
+                    <p style="font-size: 15px;">STAT: {{application.stat}}</p>
+                    <p style="font-size: 15px;">TEL <span style="margin-left: 100px;">{{application.telephone}}</span></p>
+                </th>
+                <th style="width: 50%; border: 1px solid #000;">
+                    <p style="text-align: center; font-size: 15px; text-transform: uppercase;"> Comptabilité </p>
+                    <p style="font-size: 15px;">**************</p>
+                </th>
+            </tr>
+        </table>
+    </div>
+    <div style="margin-bottom: 30px;">
+        <p style="text-align: center; font-size: 30px;"> 
+            <strong>
+                Facture / 
+                {% if factureComptabilite.statut == "annule" %}
+                    FAC/VSM/Encaissement-{{factureComptabilite.numero}}-{{ factureComptabilite.date|date('y') }}
+                {% elseif factureComptabilite.statut == "regle" or factureComptabilite.statut == "encours" %}
+                    FAC/VSM/Encaissement-{{factureComptabilite.numero}}-{{ factureComptabilite.date|date('y') }}
+                {% endif %}
+            </strong>
+        </p>
+    </div>
+    <div style="margin-bottom: 30px;">
+        <table width="100%">
+            <thead>
+                <tr style="background-color: #504f4f81; color: #fff;">
+                    <th width="24%">
+                        Désignation
+                    </th>
+                    <th width="20%">
+                        Factures(commandes)
+                    </th>
+                    <th width="14%">
+                        Gagné
+                    </th>
+                    <th width="12%">
+                        Dépense
+                    </th>
+                    <th width="20%">
+                        Encaissé
+                    </th>
+                    <th width="10%">Date</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+                    <td width="24%">
+                        {{comptabilite.designation}}
+                    </td>
+                    <td width="20%">
+                        {% for facture in benefice.factures %}
+                            {% if facture.isEcheance is not null and facture.isEcheance == true %}
+                                FAC/VSM/{{facture.numero}}-E{{facture.echeanceNumero}}-{{ facture.date|date('y')}}
+                            {% elseif facture.isDepot is not null and facture.isDepot == true %}
+                                FAC/VSM/{{facture.numero}}-D{{facture.depotNumero}}-{{ facture.date|date('y')}}
+                            {% else %}
+                                FAC/VSM/{{facture.numero}}-{{ facture.date|date('y')}}
+                            {% endif %} <br>
+                        {% endfor %}
+                    </td>
+                    <td width="14%">
+                        {{benefice.total|number_format(0,',',' ')}} Ariary
+                    </td>
+                    <td width="12%">
+                        {{ totalDepense|number_format(0,',',' ') }} Ar
+                    </td>
+                    <td width="20%">
+                        {{ comptabilite.reste|number_format(0, ',', ' ') }} Ar
+                    </td>
+                    <td width="10%">
+                        {{comptabilite.dateComptabilite|date('d-m-Y')}}
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <div class="">
+        <p><strong>Status : entre {{comptabilite.fourchette.minVal|number_format(0,',',' ')}} Ar et {{comptabilite.fourchette.maxVal|number_format(0,',',' ')}} Ar ({{comptabilite.fourchette.status}}) </strong></p>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <p style="border: 1px solid #000; padding: 10px 50px; width: 40%;">
+                TOTAL À ENCAISSER 
+            <br><br>
+            <span> {{comptabilite.reste|number_format(0,',',' ')}} Ar </span>
+        </p>
+    </div>
+
+    <div>
+        <p>
+            <strong>Responsable</strong> <br><br>
+            <span>{{user.nom}}</span>
+        </p>
+    </div>
+    
+
+</body>
+</html>

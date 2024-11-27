@@ -1,0 +1,42 @@
+body {
+  background-image: url('../images/bg-1.webp');
+  background-repeat: no-repeat;
+  background-size: 100%;
+}
+/*#7fb99a*/
+
+
+.title {
+  font-size: 40px;
+  text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+
+}
+
+div .btn-submit {
+  background-color: #1d7154 !important;
+  border: none;
+  width: 100%;
+}
+
+div .btn-submit:hover {
+  background-color: #1d7154 !important;
+}
+
+@media screen and (max-width: 750px) {
+  .login-content {
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+    margin-top: 100px !important;
+  }
+
+  body {
+    background: none !important;
+  }
+
+  .title {
+    color: #1d7154 !important;
+    font-size: 30px !important;
+  }
+}
+
+

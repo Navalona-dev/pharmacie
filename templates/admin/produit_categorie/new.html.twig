@@ -1,0 +1,616 @@
+{% form_theme form 'admin/produit_categorie/_collection.html.twig' %}
+
+<div class="modal fade" id="modalNewProduitCategorie" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content p-4 modal-produit-categorie">
+            <div class="modal-header modal-header-center">
+                <h5 class="modal-title fw-bold" id="modalNewLabel">Nouveau produit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                
+                {{ form_start(form, {'attr': {'id': 'newProduitCategorie', 'action': path('produit_categories_create') }}) }}
+                    
+                    <div class="row">
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Nom <sup class="text-danger">*</sup></label>
+                                {{form_widget(form.nom)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Référence <sup class="text-danger">*</sup></label>
+                                <p class="text-danger error" style="font-size: 12px;">Cette référence existe déjà pour cette application</p>
+                                {{form_widget(form.reference)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Volume gros <sup class="text-danger">*</sup></label>
+                                {{form_widget(form.volumeGros)}}
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Unité vente de gros <sup class="text-danger">*</sup></label>
+                                {{form_widget(form.uniteVenteGros)}}
+                            </div>
+                        </div>
+                         <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Présentation gros <sup class="text-danger">*</sup></label>
+                                {{form_widget(form.presentationGros)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Présentation détail <sup class="text-danger">*</sup></label>
+                                {{form_widget(form.presentationDetail)}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Unité vente détail <sup class="text-danger">*</sup></label>
+                                {{form_widget(form.uniteVenteDetail)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Fournisseur</label>
+                                {# {{form_widget(form.comptes)}} #}
+                                <select id="produit_categorie_comptes" name="produit_categorie_compte" class="form-control form-control-md mb-3 chosen-select form-select" style="display: none;">
+                                <option value="0">Choisir fournisseur</option>
+                                    {% for fournisseur in fournisseurs %}
+                                    <option value="{{fournisseur.id}}">{{fournisseur.nom}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Catégorie</label>
+                                {{form_widget(form.categorie)}}
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 col-12">
+                            <div class="row">
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                                    <div class="form-group mb-3">
+                                        <label for="" class="mb-2">Stock Restant</label>
+                                        {{ form_widget(form.stockRestant, {'attr': {'readonly': true}}) }}
+                                        <span style="font-size: 12px;" class="text-success text-stock-restant"></span>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                                    <div class="form-group mb-3">
+                                        <label for="" class="mb-2">Qtt en plus</label>
+                                        <input type="text" name="qtt-plus" id="qtt-plus" class="form-control form-control-md" autocomplete="off" readonly>
+                                        <span style="font-size: 12px;" class="text-success text-qtt-plus"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Type</label>
+                                {{form_widget(form.type)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Volume détail</label>
+                                {{form_widget(form.volumeDetail)}}
+                            </div>
+                        </div>
+                     </div>
+
+                    <div class="row">
+
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Tva</label>
+                                {{form_widget(form.tva)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Prix vente de gros</label>
+                                {{form_widget(form.prixVenteGros)}}
+                            </div>
+                        </div>
+                       
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Prix vente détail</label>
+                                {{form_widget(form.prixVenteDetail)}}
+                            </div>
+                        </div>
+                    </div>
+                     <div class="row">
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Prix TTC</label>
+                                {{form_widget(form.prixTTC)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Prix d'achat</label>
+                                {{form_widget(form.prixAchat)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Prix HT</label>
+                                {{form_widget(form.prixHt)}}
+                            </div>
+                        </div>
+                     </div>
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Description</label>
+                        {{form_widget(form.description)}}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Produit images</label>
+                        {{form_widget(form.productImages)}}
+                    </div>
+                        
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-sm px-5 mt-3" style="width: 100%;">Ajouter catégorie</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script src="{{ asset('assets/js/script_utile.js')}}"></script>
+<script>
+  
+    $(document).ready(function () {
+        $('.error').hide();
+       $('#newProduitCategorie').on('submit', function (e) {
+            e.preventDefault();
+            let form = $(this);
+          
+            // Create an FormData object
+            let formData = new FormData(form[0]);
+            formData.append('isNew', false);
+
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if(response.status == "error") {
+                        $('.error').show()
+                        $('#modalNewProduitCategorie').modal('show');
+
+                    } else {
+                        $('#modalNewProduitCategorie').modal('hide');
+                        var nextLink = $('#sidebar').find('li#produit-categorie').find('a');
+                        setTimeout(function () {
+                            toastr.options = {
+                                closeButton: true,
+                                progressBar: true,
+                                showMethod: 'slideDown',
+                                timeOut: 1000
+                            };
+                            toastr.success('Avec succèss', 'Enregistrement effectuée');
+
+                            //$(".loadBody").css('display', 'none');
+
+                        }, 800);
+                        showTabProduitCategorie();
+                    }
+                  
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de l\'ajout du produit catégorie.');
+                }
+            });
+        });
+    });
+
+    $(document).ready(function() {
+        $("#add-image").click(function() {
+
+        const index = +$('#widgets-counter').val();
+
+        const tmpl = $('#produit_categorie_productImages').data('prototype').replace(/__name__/g, index);
+
+        $('#produit_categorie_productImages').append(tmpl);
+
+        $('#widgets-counter').val(index + 1);
+
+        handleDelete();
+        });
+
+        function handleDelete(){
+        $('a[data-action="delete"]').click(function() {
+            const target = this.dataset.target;
+            $(target).remove();
+        });
+        }
+
+        function updateCounter() {
+        const count = +$('#produit_categorie_productImages div.form-group').length;
+
+        $('#widgets-counter').val(count);
+        }
+
+        updateCounter();
+        handleDelete();
+    })
+    
+</script>
+
+<script>
+    $(document).ready(function() {
+
+        // On garde les références vers les éléments jQuery
+        var volumeGros = $('#produit_categorie_volumeGros');
+        var stockRestant = $('#produit_categorie_stockRestant');
+        var presentationGros = $('#produit_categorie_presentationGros');
+        var presentationDetail = $('#produit_categorie_presentationDetail');
+        var uniteVenteGros = $('#produit_categorie_uniteVenteGros');
+        var uniteVenteDetail = $('#produit_categorie_uniteVenteDetail');
+
+        $('#produit_categorie_stockRestant').on('click', function() {
+            // On vérifie si les champs ont une valeur valide
+            if (presentationGros.val() === "") {
+                var message = 'Veuillez d\'abord compléter le champ présentation gros';
+                toastrNotification('error', message);
+            } else if (presentationDetail.val() === "") {
+                var message = 'Veuillez d\'abord compléter le champ présentation detail';
+                toastrNotification('error', message);
+            } else if (uniteVenteGros.val() === "") {
+                var message = 'Veuillez d\'abord compléter le champ unité vente gros';
+                toastrNotification('error', message);
+            } else if (uniteVenteDetail.val() === "") {
+                var message = 'Veuillez d\'abord compléter le champ unité vente detail';
+                toastrNotification('error', message);
+            } else {
+                $(this).removeAttr('readonly');
+            }
+        });
+
+        $('#qtt-plus').on('click', function() {
+            if (volumeGros.val() === "") {
+                var message = 'Veuillez d\'abord compléter le champ volume de gros';
+                toastrNotification('error', message);
+            } else if (stockRestant.val() === "") {
+                var message = 'Veuillez d\'abord compléter le champ stock restant';
+                toastrNotification('error', message);
+            } else {
+                $('#qtt-plus').removeAttr('readonly');
+            }
+        });
+
+        // Fonction Toastr notification pour éviter les répétitions de code
+        function toastrNotification(type, message) {
+            setTimeout(function () {
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    showMethod: 'slideDown',
+                    timeOut: 2000
+                };
+                toastr[type](message);
+            }, 800);
+        }
+        
+        $('#produit_categorie_stockRestant').on('input', function() {
+            var initialStockRestantValue = parseFloat(stockRestant.val());
+            // Enregistrer la valeur dans la session (si vous avez une fonction pour cela)
+            sessionStorage.setItem('initialStockRestantValue', initialStockRestantValue);
+        })
+
+        var typingTimer; // Timer variable
+        var doneTypingInterval = 500; // Délai de 500ms
+
+        $('#qtt-plus').on('input', function() {
+            clearTimeout(typingTimer); // Effacer le timer précédent
+            var inputField = $(this);
+
+            typingTimer = setTimeout(function() {
+                // Convertir les valeurs en nombres
+                var qttPlusValue = parseFloat(inputField.val());
+                var volumeGrosValue = parseFloat(volumeGros.val());
+
+                // Si le champ de quantité est vide
+                if (inputField.val().trim() === "") {
+                    // Réinitialiser les affichages et le stock
+                    $('.text-qtt-plus').text('');
+                    $('.text-stock-restant').text('');
+                    stockRestant.val(sessionStorage.getItem('initialStockRestantValue'));
+                    return;
+                } else {
+                    // Vérifier si qttPlusValue est inférieur à volumeGrosValue
+                    if (qttPlusValue >= volumeGrosValue) {
+                        inputField.css('background-color', '#fc8b8b');
+                        inputField.val("");
+                        var message = 'La quantité plus ne doit pas être supérieure ou égale au volume de gros';
+                        toastrNotification('error', message);
+                    } else {
+                        inputField.css('background-color', '#fff');
+
+                        // Calculer qttPlusFinal et arrondir à deux décimales
+                        var qttPlusFinal = parseFloat((qttPlusValue / volumeGrosValue));
+
+                        // Obtenir et convertir le stock restant
+                        var stockRestantValue = parseFloat(sessionStorage.getItem('initialStockRestantValue')); // Défaut à 0 si la valeur est vide
+                        console.log(stockRestantValue);
+                        // Ajouter qttPlusFinal au stock restant
+                        var stockRestantValueFinale = parseFloat((stockRestantValue + qttPlusFinal));
+
+                        // Mettre à jour les textes
+                        var presentationGrosValue = presentationGros.val();
+                        var uniteVenteGrosValue = uniteVenteGros.val();
+
+                        var textQttPlus = qttPlusFinal + ' ' + presentationGrosValue + '(' + qttPlusValue + uniteVenteGrosValue + ')';
+                        $('.text-qtt-plus').text(textQttPlus);
+
+                        var stockRestantText = stockRestantValue + ' ' + presentationGrosValue + ' et ' + qttPlusValue + ' ' + uniteVenteGrosValue;
+                        $('.text-stock-restant').text(stockRestantText);
+
+                        stockRestant.val(stockRestantValueFinale);
+                    }
+                }
+
+                
+            }, doneTypingInterval); // Délai d'attente avant d'exécuter la fonction
+        });
+
+        // Optionnel : Vous pouvez également gérer le cas où l'utilisateur efface le champ
+        $('#qtt-plus').on('keydown', function() {
+            clearTimeout(typingTimer); // Effacez le timer si l'utilisateur commence à taper
+        });
+
+
+
+    });
+</script>
+
+<script>
+   $(document).ready(function() {
+        const $chosenResults = $('#produit_categorie_categorie_chosen .chosen-results');
+        const $chosenDrop = $('#produit_categorie_categorie_chosen .chosen-drop');
+        const $selectElement = $('#produit_categorie_categorie');
+
+        $('#produit_categorie_categorie_chosen .chosen-drop .chosen-search input').on('input', function() {
+            const inputValue = $(this).val().trim().toLowerCase(); // On passe tout en minuscule pour uniformiser la comparaison
+            let matchFound = false;
+
+            // Parcourir les options existantes pour vérifier s'il existe une correspondance partielle
+            $selectElement.find('option').each(function() {
+                const optionText = $(this).text().trim().toLowerCase();
+                if (optionText.startsWith(inputValue)) {
+                    matchFound = true;
+                    return false; // Si une correspondance est trouvée, on arrête la boucle
+                }
+            });
+
+            // Si l'input est vide, réinitialisez le résultat et supprimez le bouton "Créer"
+            if (inputValue === '') {
+                $chosenDrop.find('.btn-create-category').remove(); // Supprimez le bouton "Créer"
+            } else {
+                // Si aucune correspondance n'a été trouvée, affichez le bouton "Créer"
+                if (!matchFound && !$chosenDrop.find('.btn-create-category').length) {
+                    $chosenDrop.append(`<a href="#" id="btn-create-category" class="btn-create-category text-decoration-underline" style="margin-left:100px;">Créer</a>`);
+                } 
+                // Si une correspondance est trouvée, supprimez le bouton "Créer"
+                else if (matchFound) {
+                    $chosenDrop.find('.btn-create-category').remove();
+                }
+            }
+
+            // Gérer le clic sur le bouton "Créer"
+            $(document).off('click', '#btn-create-category').on('click', '#btn-create-category', function(e) {
+                e.preventDefault(); // Empêche le comportement par défaut du lien
+                
+                const inputValue = $('#produit_categorie_categorie_chosen .chosen-drop .chosen-search input').val().trim();
+                
+                // Ajouter une nouvelle option à l'élément <select> si la valeur n'est pas vide
+                if (inputValue !== '') {
+                    // Envoyer une requête AJAX pour créer la catégorie
+                    $.ajax({
+                        url: 'admin/produit/categorie/add/categorie',
+                        type: 'POST',
+                        data: { nom: inputValue },
+                        success: function(response) {
+                            const categorieId = response.id; // Récupérer l'ID de la catégorie créée
+                            
+                            if (categorieId) {
+                                // Ajouter une nouvelle option à l'élément <select>
+                                $selectElement.append(`<option value="${categorieId}" selected>${inputValue}</option>`);
+                                
+                                // Mettre à jour Chosen pour refléter les modifications
+                                $selectElement.trigger("chosen:updated");
+
+                                // Mettre à jour l'affichage de l'option choisie
+                                $('#produit_categorie_categorie_chosen .chosen-single span').text(inputValue);
+
+                                // Réinitialiser l'input et retirer les éléments non nécessaires
+                                $('#produit_categorie_categorie_chosen .chosen-drop .chosen-search input').val('');
+                                $chosenResults.find('.no-results').remove(); // Retirer le message "No results match"
+                                $chosenDrop.find('.btn-create-category').remove(); // Supprimer le bouton "Créer"
+                            }
+                        },
+                        error: function() {
+                            alert('Erreur lors de l\'ajout de la catégorie.');
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+
+
+    $(document).ready(function() {
+        const $chosenResults = $('#produit_categorie_type_chosen .chosen-results');
+        const $chosenDrop = $('#produit_categorie_type_chosen .chosen-drop');
+        const $selectElement = $('#produit_categorie_type'); // Corrigé l'élément $selectElement pour qu'il pointe vers le bon select
+
+        $('#produit_categorie_type_chosen .chosen-drop .chosen-search input').on('input', function() {
+            const inputValue = $(this).val().trim().toLowerCase();
+            let matchFound = false;
+
+            // Parcourir les options existantes pour vérifier s'il existe une correspondance partielle
+            $selectElement.find('option').each(function() {
+                const optionText = $(this).text().trim().toLowerCase();
+                if (optionText.startsWith(inputValue)) {
+                    matchFound = true;
+                    return false; // Si une correspondance est trouvée, on arrête la boucle
+                }
+            });
+
+            // Si l'input est vide, réinitialisez le résultat et supprimez le bouton "Créer"
+            if (inputValue === '') {
+                $chosenDrop.find('.btn-create-type').remove(); // Supprimez le bouton "Créer"
+            } else {
+                // Si aucune correspondance n'a été trouvée, affichez le bouton "Créer"
+                if (!matchFound && !$chosenDrop.find('.btn-create-type').length) {
+                    $chosenDrop.append(`<a href="#" id="btn-create-type" class="btn-create-type text-decoration-underline" style="margin-left:100px;">Créer</a>`);
+                } 
+                // Si une correspondance est trouvée, supprimez le bouton "Créer"
+                else if (matchFound) {
+                    $chosenDrop.find('.btn-create-type').remove();
+                }
+            }
+
+            // Gérer le clic sur le bouton "Créer"
+            $(document).off('click', '#btn-create-type').on('click', '#btn-create-type', function(e) {
+                e.preventDefault(); // Empêche le comportement par défaut du lien
+                
+                const inputValue = $('#produit_categorie_type_chosen .chosen-drop .chosen-search input').val().trim();
+                
+                // Ajouter une nouvelle option à l'élément <select> si la valeur n'est pas vide
+                if (inputValue !== '') {
+                    // Envoyer une requête AJAX pour créer le type
+                    $.ajax({
+                        url: 'admin/produit/categorie/add/type',
+                        type: 'POST',
+                        data: { nom: inputValue },
+                        success: function(response) {
+                            const typeId = response.id; // Récupérer l'ID du type créé
+                            
+                            if (typeId) {
+                                // Ajouter une nouvelle option à l'élément <select>
+                                $selectElement.append(`<option value="${typeId}" selected>${inputValue}</option>`);
+                                
+                                // Mettre à jour Chosen pour refléter les modifications
+                                $selectElement.trigger("chosen:updated");
+
+                                // Mettre à jour l'affichage de l'option choisie
+                                $('#produit_categorie_type_chosen .chosen-single span').text(inputValue);
+
+                                // Réinitialiser l'input et retirer les éléments non nécessaires
+                                $('#produit_categorie_type_chosen .chosen-drop .chosen-search input').val('');
+                                $chosenResults.find('.no-results').remove(); // Retirer le message "No results match"
+                                $chosenDrop.find('.btn-create-type').remove(); // Supprimer le bouton "Créer"
+                            }
+                        },
+                        error: function() {
+                            alert('Erreur lors de l\'ajout du type.');
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+
+    $(document).ready(function() {
+        const $chosenResults = $('#produit_categorie_comptes_chosen .chosen-results');
+        const $chosenDrop = $('#produit_categorie_comptes_chosen .chosen-drop');
+        const $selectElement = $('#produit_categorie_comptes'); // Corrigé l'élément $selectElement pour qu'il pointe vers le bon select
+
+        $('#produit_categorie_comptes_chosen .chosen-drop .chosen-search input').on('input', function() {
+            const inputValue = $(this).val().trim().toLowerCase();
+            let matchFound = false;
+
+            // Parcourir les options existantes pour vérifier s'il existe une correspondance partielle
+            $selectElement.find('option').each(function() {
+                const optionText = $(this).text().trim().toLowerCase();
+                if (optionText.startsWith(inputValue)) {
+                    matchFound = true;
+                    return false; // Si une correspondance est trouvée, on arrête la boucle
+                }
+            });
+
+            // Si l'input est vide, réinitialisez le résultat et supprimez le bouton "Créer"
+            if (inputValue === '') {
+                $chosenDrop.find('.btn-create-compte').remove(); // Supprimez le bouton "Créer"
+            } else {
+                // Si aucune correspondance n'a été trouvée, affichez le bouton "Créer"
+                if (!matchFound && !$chosenDrop.find('.btn-create-compte').length) {
+                    $chosenDrop.append(`<a href="#" id="btn-create-compte" class="btn-create-compte text-decoration-underline" style="margin-left:100px;">Créer</a>`);
+                } 
+                // Si une correspondance est trouvée, supprimez le bouton "Créer"
+                else if (matchFound) {
+                    $chosenDrop.find('.btn-create-compte').remove();
+                }
+            }
+
+            // Gérer le clic sur le bouton "Créer"
+            $(document).off('click', '#btn-create-compte').on('click', '#btn-create-compte', function(e) {
+                e.preventDefault(); // Empêche le comportement par défaut du lien
+                
+                const inputValue = $('#produit_categorie_comptes_chosen .chosen-drop .chosen-search input').val().trim();
+                
+                // Ajouter une nouvelle option à l'élément <select> si la valeur n'est pas vide
+                if (inputValue !== '') {
+                    // Envoyer une requête AJAX pour créer le type
+                    $.ajax({
+                        url: 'admin/produit/categorie/add/compte',
+                        type: 'POST',
+                        data: { nom: inputValue },
+                        success: function(response) {
+                            const typeId = response.id; // Récupérer l'ID du type créé
+                            
+                            if (typeId) {
+                                // Ajouter une nouvelle option à l'élément <select>
+                                $selectElement.append(`<option value="${typeId}" selected>${inputValue}</option>`);
+                                
+                                // Mettre à jour Chosen pour refléter les modifications
+                                $selectElement.trigger("chosen:updated");
+
+                                // Mettre à jour l'affichage de l'option choisie
+                                $('#produit_categorie_comptes_chosen .chosen-single span').text(inputValue);
+
+                                // Réinitialiser l'input et retirer les éléments non nécessaires
+                                $('#produit_categorie_comptes_chosen .chosen-drop .chosen-search input').val('');
+                                $chosenResults.find('.no-results').remove(); // Retirer le message "No results match"
+                                $chosenDrop.find('.btn-create-compte').remove(); // Supprimer le bouton "Créer"
+                            }
+                        },
+                        error: function() {
+                            alert('Erreur lors de l\'ajout du fournisseur.');
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+</script>
+
+{% endblock %}

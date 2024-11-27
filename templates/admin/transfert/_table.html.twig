@@ -1,0 +1,62 @@
+   
+        {% if type == "thead" %}
+        <tr id="thead_transfert" class="text-nowrap">
+            <th>Action</th>
+            <th>Quantité</th>
+            <th>Application</th>
+            <th>Date de création</th>
+        </tr>
+        {% elseif type == "tbody" %}
+        <tr id="tbody_transfert" class="text-nowrap">
+            <td>
+                <a href="#" onclick="return annuleTransfert({{liste.id}})" class="text-danger" title="Annuler"><i class="bi bi-x-circle-fill"></i></a>
+            </td>
+            <td> {{liste.quantity}} </td>
+            <td> {{liste.application.entreprise}} </td>
+            <td> {{liste.dateCreation|date('d-m-Y')}} </td>
+            
+        </tr>
+         {% endif %}
+<script>
+    
+    function annuleTransfert(id = null) {
+    var anchorName = document.location.hash.substring(1);
+    const idProduit = $('.id-produit-annule').data('produit');    
+    if (confirm('Voulez vous vraiment annuler ce transfert?')) {
+        $.ajax({
+                url: '/admin/transfert/annule/'+id,
+                type: 'POST',
+                data: {id: id},
+                success: function (response) {
+                    if (response && response.status === 'error') {
+                        $('.error').show();
+                    } else {
+
+                        if (anchorName) {
+                                window.location.hash = anchorName;
+                        }
+                        //
+                        setTimeout(function () {
+                            toastr.options = {
+                                closeButton: true,
+                                progressBar: true,
+                                showMethod: 'slideDown',
+                                timeOut: 2000
+                            };
+                            toastr.success('Avec succèss', 'annulation effectuée');
+                            listTransfert(idProduit);
+
+                        }, 800);
+                    }
+                    
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de transfert de produit.');
+                }
+            });
+        }
+    }
+   
+   
+</script>

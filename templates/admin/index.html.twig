@@ -1,0 +1,112 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Mon profil | CVB {% endblock %}
+
+{% block body %}
+        <div class="id-affaire" id="elementIdAffaire" data-affaire="{{idAffaire}}"></div>
+        <div class="id-compte" id="elementIdCompte" data-compte="{{idCompte}}"></div>
+        <div class="id-produit" id="elementIdProduit" data-produit="{{idProduit}}"></div>
+        <div class="id-facture" id="elementIdFacture" data-facture="{{idFacture}}"></div>
+        <div class="id-benefice" id="elementIdBenefice" data-benefice="{{idBenefice}}"></div>
+        <div class="count-affaire" id="countAffaire" data-affaire="{{countAffaires}}"></div>
+        <div class="id-comptabilite" id="elementIdCompta" data-comptabilite="{{idComptabilite}}"></div>
+
+        <div id="tab-dashboard" class="tab-pane active">
+                {% include 'admin/dashboard/index.html.twig' %}
+        </div> 
+        <div id="tab-categorie-permission" class="tab-pane">
+        </div>
+        <div id="tab-permission" class="tab-pane">
+        </div>  
+        <div id="tab-privilege" class="tab-pane">
+        </div>  
+        <div id="tab-utilisateur" class="tab-pane">
+        </div>
+        <div id="tab-application" class="tab-pane">
+        </div>
+        <div id="tab-profile" class="tab-pane">
+        </div>
+        <div id="tab-categorie" class="tab-pane">
+        </div>
+        <div id="tab-produit-categorie" class="tab-pane">
+        </div>
+        <div id="tab-compte_1" class="tab-pane">
+        </div>
+        <div id="tab-compte_2" class="tab-pane">
+        </div>
+        <div id="tab-produit-type" class="tab-pane">
+        </div>
+        <div id="tab-stock" class="tab-pane">
+        </div>
+        <div id="tab-produit-image" class="tab-pane">
+        </div>
+        <div id="blocModalCompteEmpty_1">
+        </div>
+        <div id="blocModalCompteEmpty_2">
+        </div>
+        <div id="tab-import-produit">
+        </div>
+        <div id="tab-transfert-produit">
+        </div>
+        <div id="blocModalPriceProduitEmpty">
+        </div>
+        <div id="affaires_client">
+        </div>
+        <div id="affaires_fournisseur">
+        </div>
+        <div id="tab-info-affaire">
+        </div>
+        <div id="tab-financier-affaire">
+        </div>
+        <div id="blocModaAffaireEmpty">
+        </div>
+        <div id="tab-fiche-client">
+        </div>
+        <div id="tab-fiche-fournisseur">
+        </div>
+        <div id="tab-facture">
+        </div>
+        <div id="tab-facture-affaire">
+        </div>
+        <div id="tab-quantite-vendu">
+        </div>
+        <div id="tab-inventaire-produit">
+        </div>
+        <div id="blocModalNotificationStockEmpty">
+        </div>
+         <div id="tab-notification">
+        </div>
+        <div id="tab-historique-produit">
+        </div>
+        <div id="tab-historique-affaire">
+        </div>
+        <div id="tab-produit-date-peremption">
+        </div>
+        <div id="tab-nouveau-facture">
+        </div>
+        <div id="tab-devis">
+        </div>
+         <div id="tab-commande">
+        </div>
+        <div id="tab-echeance">
+        </div>
+        <div id="tab-depot">
+        </div>
+        <div id="tab-comptabilite">
+        </div>
+        <div id="tab-benefice">
+        </div>
+        <div id="tab-vente">
+        </div>
+        <div id="tab-fourchette"></div>
+        <div id="blocModalNewFourchetteEmpty"></div>
+        <div id="blocModalDepenseEmpty"></div>
+        <div id="blockMethodePaiement"></div>
+        <div id="tab-comptabilite-liste"></div>
+        <div id="tab-comptabilite-detail"></div>
+        <div id="blocModalDetailPaiementEmpty"></div>
+
+        <div class="new-affaire" id="newAffaire" data-affaire="{{ affaires|json_encode|raw }}"></div>
+
+        
+{% endblock %}

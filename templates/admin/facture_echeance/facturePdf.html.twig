@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        .logo {
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    {% set compte = facture.affaire.compte %}
+
+    <div>
+        {% if application.logoFile is not null %}
+            <img src="{{ absolute_url(vich_uploader_asset(application, 'logoFile')) }}" alt="" style="width: 300px; height: 150px;">
+        {% endif %}
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <p style="margin-left: 500px;">Date : <strong style="margin-left: 15px;">{{facture.date|date('d/m/Y')}}</strong></p>
+    </div>
+ 
+    <div style="margin-bottom: 30px;">
+        <table class="table" style="width: 100%;">
+            <tr>
+                <th style="width: 50%; border: 1px solid #000;">
+                    <p style="font-size: 15px;"> {{application.entreprise}} </p>
+                    <p style="font-size: 15px;">{{application.adresse}}</p>
+                    <p style="font-size: 15px;">NIF: {{application.nif}}</p>
+                    <p style="font-size: 15px;">STAT: {{application.stat}}</p>
+                    <p style="font-size: 15px;">TEL <span style="margin-left: 100px;">{{application.telephone}}</span></p>
+                </th>
+                <th style="width: 50%; border: 1px solid #000;">
+                    <p style="text-align: center; font-size: 15px; text-transform: uppercase;"> {{compte.nom}} </p>
+                    <p style="font-size: 15px;">TEL <span style="margin-left: 50px;"> {{compte.telephone}} </span></p>
+                </th>
+            </tr>
+        </table>
+    </div>
+    <div style="margin-bottom: 30px;">
+        <p style="text-align: center; font-size: 30px;"> 
+            <strong>
+                Facture / 
+                {% if facture.statut == "annule" %}
+                    FAC/VSM/{{facture.numero}}-E{{echeanceNumero}}-{{ facture.date|date('y') }}
+                {% elseif facture.statut == "regle" or facture.statut == "encours" %}
+                    FAC/VSM/{{facture.numero}}-E{{echeanceNumero}}-{{ facture.date|date('y') }}
+                {% endif %}
+            </strong>
+        </p>
+    </div>
+
+    <div style="margin-bottom: 30px;">
+        <table width="100%">
+            <thead>
+                <tr style="background-color: #504f4f81; color: #fff;">
+                    <th width="10%">
+                        Référence
+                    </th>
+                    <th width="30%">
+                        Description
+                    </th>
+                    <th width="12%">
+                        QTT
+                    </th>
+                    <th width="24%">
+                        PU (Ariary)
+                    </th>
+                    <th width="24%">
+                        Remise (Ariary)
+                    </th>
+                    <th width="24%">
+                        Montant TTC (Ariary)
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set montantHt = 0 %}
+     
+                {% for produit in produits %}
+                <tr style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+                    <td width="10%">
+                        {{ produit.reference }}
+                    </td>
+                    <td width="30%">
+                        {{ produit.nom }}
+
+                    </td>
+                    <td width="12%">
+                        {{ produit.qtt }}
+                        {% if produit.typeVente == "gros" %}
+                            {{produit.produitCategorie.presentationGros}}
+                        {% elseif produit.typeVente == "detail" %}
+                            {{produit.produitCategorie.uniteVenteGros}}
+                        {% endif %}
+                    </td>
+                    <td width="24%">
+                        {% set prix = produit.prixVenteGros %}
+                        {% if produit.typeVente != "gros" %}
+                        {% set prix = produit.prixVenteDetail %}
+                        {% endif %}
+                        
+                        {{ prix|number_format(0, ',', ' ') }} Ar
+                    </td>
+                    <td width="24%">
+                        &nbsp;
+                            {% if produit.remise is not null %} {{produit.remise}} {% endif %}
+                    </td> 
+                    
+                    <td width="24%">
+                        {% if produit.typeVente == "gros" %}
+                        {{ ((produit.qtt  * prix) - produit.remise)|number_format(2, ',', ' ') }} Ar
+                        {% else %}
+                            {{ ((produit.qtt  * prix) - produit.remise)|number_format(2, ',', ' ') }} Ar
+                        {% endif %}
+                    </td>
+                </tr>
+                   {% if produit.typeVente == "gros" %}
+                        {% set montantHt = (montantHt + ((produit.qtt) * prix)) - produit.remise %}
+                   {% else %}
+                        {% set montantHt = (montantHt + (produit.qtt * prix)) - produit.remise %}
+                   {% endif %}  
+                
+
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <p>
+            <strong>Déjà payer : </strong>
+            {% if facture.reglement is not null or facture.reglement > 0 %}
+                {{facture.reglement|number_format(0,',',' ')}} Ar
+            {% else %}
+                0,00 Ar
+            {% endif %}
+
+        </p>
+        <p>
+            <strong>Écheances : </strong>
+            {% if factureEcheances|length > 0 %}
+                {{factureEcheance.delaiPaiement}} jours
+            {% else %}
+                pas d'écheance
+            {% endif %}
+        </p>
+
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <p style="border: 1px solid #000; padding: 10px 50px; width: 40%;">
+            {% if facture.affaire.paiement != "annule" %}
+                TOTAL À PAYER 
+            {% else %}
+                TOTAL À REMBOURSER 
+            {% endif %}
+            <br><br>
+            <span> {{montantHt|number_format(0,',',' ')}} Ar </span>
+        </p>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        {% if factureEcheances|length > 0 %}
+            {% set status = constant('App\\Entity\\FactureEcheance::STATUS') %}
+            <table style="width: 100%;">
+                <thead>
+                    <tr style="background-color: #504f4f81; color: #fff; text-align: center;">
+                        <th>Delais de paiement</th>
+                        <th>Date d'écheance</th>
+                        <th>Montant à payer</th>
+                        <th>Avance</th>
+                        <th>Reste à payer</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for factureEcheance in factureEcheances %}
+                        <tr style="text-align: center;">
+                            <td>{{factureEcheance.delaiPaiement}} jours</td>
+                            <td>{{factureEcheance.dateEcheance|date('d/m/Y')}}</td>
+                            <td>
+                               {{factureEcheance.montant|number_format(0,',',' ')}} Ar 
+                            </td>
+                            <td>{{factureEcheance.reglement|number_format(0,',',' ')}} Ar </td>
+                            <td>
+                                {% if factureEcheance.status != "regle" %}
+                                    {% if factureEcheance.reglement is not null or factureEcheance.reglement > 0 %}
+                                        {{(factureEcheance.montant - factureEcheance.reglement)|number_format(0,',',' ')}} Ar 
+                                    {% else %}
+                                        {{factureEcheance.montant|number_format(0,',',' ')}} Ar 
+                                    {% endif %}
+                                {% else %}
+                                    0,00 Ar
+                                {% endif %}
+                            </td>
+                            <td>{{status[factureEcheance.status]}}</td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+    <div>
+        <p>
+            <strong>Responsable</strong><br><br>
+            <span>{{user.nom}}</span>
+        </p>
+        <p style="margin-left: 500px; margin-top: -5rem;">
+            <strong>Client</strong>
+        </p>
+    </div>
+
+</body>
+</html>

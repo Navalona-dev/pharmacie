@@ -1,0 +1,11 @@
+cat1:
+  title: Application
+  description: gestion application
+
+cat2:
+  title: Stock
+  description: gestion produit
+
+cat3:
+  title: Commande
+  description: gestion de commande

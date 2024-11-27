@@ -1,0 +1,108 @@
+
+<div class="modal fade" id="modalNewComptabilite" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content p-4">
+            <div class="modal-header modal-header-center">
+                <h5 class="modal-title fw-bold" id="modalNewLabel">Nouveau comptabilité</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <span class="id-benefice-compta" data-benefice="{{beneficeId}}"></span>
+                {{ form_start(form, {'attr': {'id': 'newComptabilite', 'action': path('comptabilites_create') }}) }}
+                   
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Designation <sup class="text-danger">*</sup> </label>
+                        <span class="text-danger" style="font-size: 12px;"> {{form_errors(form.designation)}} </span>
+                        {{ form_widget(form.designation) }}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Date <sup class="text-danger">*</sup> </label>
+                        <span class="text-danger" style="font-size: 12px;"> {{form_errors(form.dateComptabilite)}} </span>
+                        {{ form_widget(form.dateComptabilite) }}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Fourchette <sup class="text-danger">*</sup> </label>
+                        <span class="text-danger" style="font-size: 12px;"> {{form_errors(form.fourchette)}} </span>
+                        {{ form_widget(form.fourchette) }}
+                    </div>
+                    <div class="alert alert-info">
+                        <h4 class="fw-bold text-center">Récapitulatif</h4>
+                        <p><strong>Gagnés : </strong> {{totalBenefice|number_format(0,',',' ')}} Ariary </p>
+                        <p><strong>Dépenses : </strong> {{totalDepense|number_format(0,',',' ')}} Ariary </p>
+                        <p><strong>Encaissé : </strong> {{(totalBenefice - totalDepense)|number_format(0,',',' ')}} Ariary </p>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-sm px-5 mt-3" style="width: 100%;">Ajouter comptabilité</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script src="{{ asset('assets/js/script_utile.js')}}"></script>
+<script>
+
+$(document).ready(function() {
+  var dateFormat = 'dd/mm/yyyy';
+  var dateNow = new Date();
+  dateNow.setDate(dateNow.getDate() + 1)
+
+  $('#comptabilite_dateComptabilite').datepicker({
+      format: dateFormat,
+      todayHighlight: true,
+      language: 'fr',
+      autoclose: true,
+
+  });
+
+});
+  
+    $(document).ready(function () {
+        const idBenefice = $('.id-benefice-compta').data('benefice');
+        
+        $('#newComptabilite').on('submit', function (e) {
+            e.preventDefault();
+            let form = $(this);
+            
+            // Create an FormData object
+            let formData = new FormData(form[0]);
+            formData.append('isNew', false);
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#modalNewComptabilite').modal('hide');
+                    var nextLink = $('#sidebar').find('li#benefice').find('a');
+                    setTimeout(function () {
+                        toastr.options = {
+                            closeButton: true,
+                            progressBar: true,
+                            showMethod: 'slideDown',
+                            timeOut: 1000
+                        };
+                        toastr.success('Avec succèss', 'Enregistrement effectuée');
+                        window.location.hash = "tab-benefice";
+
+                        showTabBenefice(idBenefice);
+                        if (response.pdfUrl) {
+                            window.open(response.pdfUrl, '_blank');
+                        }
+
+                    }, 800);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de l\'ajout de bénéfice.');
+                }
+            });
+        
+        });
+    });
+</script>
+
+{% endblock %}

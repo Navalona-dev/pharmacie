@@ -1,0 +1,383 @@
+<style>
+  .show-content {
+    display: block !important;
+  }
+
+  .hide-content {
+    display: none !important;
+  }
+</style>
+
+<header id="header" class="header fixed-top d-flex align-items-center">
+
+    <div class="d-flex align-items-center justify-content-between">
+      {% if app.user.appActive %}
+      <a href="{{path('app_admin')}}" class="logo d-flex align-items-center">
+        <img src="{{asset('assets/img/logo.png')}}" alt="">
+        <span class="d-none d-lg-block">{{ app.user.appActive.entreprise }}</span>
+      </a>
+      {% else %}
+      <a href="{{path('app_admin')}}" class="logo d-flex align-items-center">
+        <img src="{{asset('assets/img/logo.png')}}" alt="">
+        <span class="d-none d-lg-block">Point de vente</span>
+      </a>
+      {% endif %}
+      <i class="bi bi-list toggle-sidebar-btn"></i>
+    </div>
+
+    {#<div class="search-bar">
+      <form class="search-form d-flex align-items-center" method="POST" action="#">
+        <input type="text" name="query" placeholder="Search" title="Enter search keyword">
+        <button type="submit" title="Search"><i class="bi bi-search"></i></button>
+      </form>
+    </div>#}
+
+    <div class="dropdown" style="margin-left: 200px;">
+      <button class="btn btn-primary dropdown-toggle btn-sm px-4 btn-add-header" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-plus-circle"></i>
+        <span class="mx-2">Ajouter</span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" onclick="return newCompte(true, 1)">Ajouter un client</a></li>
+        <li><a class="dropdown-item" href="#" onclick="return newCompte(true, 2)">Ajouter un fournisseur</a></li>
+      </ul>
+    </div>
+    <a href="#" class="btn btn-primary btn-sm px-3 mx-3">Vente</a>
+
+    <nav class="header-nav ms-auto">
+      <ul class="d-flex align-items-center">
+
+        <li class="nav-item d-block d-lg-none">
+          <a class="nav-link nav-icon search-bar-toggle " href="#">
+            <i class="bi bi-search"></i>
+          </a>
+        </li>
+     
+        <li class="nav-item dropdown pe-3">
+          <a class="nav-link nav-profile d-flex align-items-center pe-0 dropdown-title" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-ui-checks-grid"></i>
+          </a>
+          <ul class="py-3 px-4 dropdown-menu dropdown-menu-end dropdown-menu-arrow profile list-app custom-dropdown-width">
+            <div class="mt-3 mb-5">
+              <input type="text" name="search-app" id="search-app" class="form-control form-control-sm" placeholder="Nom d'application">
+            </div>
+            <div id="no-results" class="text-center" style="display:none;">Aucune application trouvée</div>
+    
+            <div class="row" id="app-list">
+              {% if applications and app.user.applications|length >0 %}
+                {% for application in app.user.applications %}
+                  <div class="col-4  mb-3">
+                      <a class="app-content" href="{{ path('applications_change_appli', {'id': application.id}) }}?uri={{ app.request.uri }}">
+                        <div class="d-flex justify-content-center">
+                          <img src="{{asset('assets/img/logo.png')}}" alt="" class="img-fluid img-app">
+                        </div>
+                      <p class="text-center app-name"><small> {{application.entreprise}} </small></p>
+                      </a>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </ul>
+        </li>
+        <li class="nav-item dropdown pe-3">
+          <a class="nav-link nav-profile d-flex align-items-center pe-0 dropdown-title" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-laptop"></i>
+          </a>
+          <ul class="p-4 dropdown-menu dropdown-menu-end dropdown-menu-arrow profile list-app custom-dropdown-width">
+            <div class="row">
+              {% if app_authorization.isUserGrantedPrivilege('super_admin') %}
+              <div class="col-4 mb-3">
+                <a href="#tab-application" onclick="return showTabApplication()" class="work-post-content">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-app icons"></i>
+                  </div>
+                  <p class="text-center"><small>Applications</small></p>
+                </a>
+              </div>
+              <div class="col-4 mb-3">
+                <a href="#tab-categorie-permission" onclick="return showTabCategoriePermission()" class="work-post-content">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-folder icons"></i>
+                  </div>
+                  <p class="text-center"><small>Catégorie permission</small></p>
+                </a>
+              </div>
+              <div class="col-4 mb-3">
+                <a class="work-post-content" href="#tab-import-produit" onclick="return showTabImportProduit()">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-upload icons"></i>
+                  </div>
+                  <p class="text-center"><small>Import</small></p>
+                </a>
+              </div>
+              <div class="col-4 mb-3">
+                <a href="#tab-permission" onclick="return showTabPermission()" class="work-post-content">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-shield-lock icons"></i>
+                  </div>
+                  <p class="text-center"><small>Permissions</small></p>
+                </a>
+              </div>
+              <div class="col-4 mb-3">
+                <a href="#tab-privilege" onclick="return showTabPrivilege()" class="work-post-content">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-award icons"></i>
+                  </div>
+                  <p class="text-center"><small>Privilèges</small></p>
+                </a>
+              </div>
+               <div class="col-4 mb-3">
+                <a href="#tab-utilisateur" onclick="return showTabUtilisateur()" class="work-post-content">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-person icons"></i>
+                  </div>
+                  <p class="text-center"><small>Utilisateurs</small></p>
+                </a>
+              </div>
+              {% endif %}
+              {% if app_authorization.isUserGrantedPrivilege('responsable_caisse') %}
+                <div class="col-4 mb-3">
+                  <a href="#tab-comptabilite" onclick="return showTabComptabilite()" class="work-post-content">
+                    <div class="d-flex justify-content-center">
+                      <i class="bi-currency-dollar text-white" style="padding: 5px 10px; border-radius: 100%; background-color: #882525;"></i>
+                    </div>
+                    <p class="text-center"><small>Comptabilité</small></p>
+                  </a>
+                </div>
+              {% endif %}
+
+               <div class="col-4 mb-3">
+                <a href="#tab-compte_1" onclick="return showTabCompte(1)" class="work-post-content">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-people icons"></i>
+                  </div>
+                  <p class="text-center"><small>Clients</small></p>
+                </a>
+              </div>
+              <div class="col-4 mb-3">
+                <a href="#tab-fourchette" onclick="return showTabFourchette()" class="work-post-content">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-bar-chart text-white" style="padding: 5px 9px; border-radius: 100%; background-color: #16642a;"></i>
+                  </div>
+                  <p class="text-center"><small>Fourchette</small></p>
+                </a>
+              </div>
+              <div class="col-4 mb-3">
+                <a href="#tab-compte_2" onclick="return showTabCompte(2)" class="work-post-content">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-people icons"></i>
+                  </div>
+                  <p class="text-center"><small>Fournisseurs</small></p>
+                </a>
+              </div>
+
+              <div class="col-4 mb-3">
+                <a href="#tab-categorie" onclick="return showTabCategorie()" class="work-post-content">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-tags icons"></i>
+                  </div>
+                  <p class="text-center"><small>Catégories</small></p>
+                </a>
+              </div>
+              <div class="col-4 mb-3">
+                <a href="#tab-produit-categorie" onclick="return showTabProduitCategorie()"  class="work-post-content">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-basket icons"></i>
+                  </div>
+                  <p class="text-center"><small>Produits</small></p>
+                </a>
+              </div>
+             
+              <div class="col-4 mb-3">
+                <a class="work-post-content" href="#tab-produit-type" onclick="return showTabProduitType()">
+                  <div class="d-flex justify-content-center">
+                    <i class="bi bi-sliders icons"></i>
+                  </div>
+                  <p class="text-center"><small>Type de produit</small></p>
+                </a>
+              </div>
+              {% if app_authorization.isUserGrantedPrivilege('responsable_caisse') %}
+                <div class="col-4 mb-3">
+                  <a class="work-post-content" href="#tab-vente" onclick="return showTabVente()">
+                    <div class="d-flex justify-content-center">
+                      <i class="bi bi-cart-fill" style="padding: 5px 10px; border-radius: 100%; background-color: #026af1; color: #fff !important;"></i>
+                    </div>
+                    <p class="text-center"><small>Vente</small></p>
+                  </a>
+                </div>
+              {% endif %}
+              
+            </div>
+          </ul>
+        </li>
+
+        <li class="nav-item dropdown icon-notification">
+
+          <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-bell text-black"></i>
+            <span class="badge badge-number {% if countNotif > 0 %} badge-animation {% endif %} "> {{countNotif}} </span>
+          </a>
+
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+            <li class="dropdown-header">
+              Vous avez {{countNotif}} notifications
+              <a href="#tab-notification" onclick="return showTabNotification()"><span class="badge rounded-pill p-2 ms-2">Voir tous</span></a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            {% for notification in notifications %}
+              {% if notification.isStockMin == 1 %}
+                <a style="cursor: pointer;" onclick="return openModalNewStockByNotification({{notification.id}})">
+                  <li class="notification-item">
+                    <i class="bi bi-exclamation-circle text-danger"></i>
+                    <div>
+                        <h4 class="text-black">Stock presque épuisé</h4>
+                        <p>{{ notification.message|raw }}</p>
+                        <p>{{ notification.dateCreation|format_date }}</p>
+                    </div>
+                    
+                </li>
+                </a>
+              {% elseif notification.isStockMax == 1 %}
+                <a href="#tab-stock" onclick="return handleNotificationClick({{notification.produitCategorie.id}}, {{notification.id}})">
+                  <li class="notification-item">
+                    <i class="bi bi-exclamation-circle text-danger"></i>
+                    <div>
+                        <h4 class="text-black">Stock surchargé</h4>
+                        <p>{{ notification.message|raw }}</p>
+                        <p>{{ notification.dateCreation|format_date }}</p>
+                    </div>
+                    
+                </li>
+                </a>
+              {% else %}
+                <a href="#" onclick="return openModalUpdatePriceProduit({{notification.produitCategorie.id}})">
+                  <li class="notification-item">
+                    <i class="bi bi-exclamation-circle text-danger"></i>
+                    <div>
+                        <h4 class="text-black">Prix à changer</h4>
+                        <p>{{ notification.message|raw }}</p>
+                        <p>{{ notification.dateCreation|format_date }}</p>
+                    </div>
+                    
+                </li>
+                </a>
+              {% endif %}
+              <li>
+                  <hr class="dropdown-divider">
+              </li>
+          {% endfor %}
+
+
+            <li class="dropdown-footer">
+              <a href="#tab-notification" onclick="return showTabNotification()">Voir tous les notifications</a>
+            </li>
+
+          </ul>
+
+        </li>
+
+        {#<li class="nav-item dropdown hide-content" id="new-commande">
+
+          <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-cart-fill text-black"></i>
+            <span class="badge badge-number badge-commande {% if countAffaires > 0 %} badge-animation {% endif %} "> {{countAffaires}} </span>
+          </a>
+
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications notification-commande">
+            <li class="dropdown-header count-commande" id="count-commande">
+              Vous avez {{countAffaires}} Commandes
+              <a href="#tab-notification" onclick="return showTabNotification()"><span class="badge rounded-pill p-2 ms-2">Voir tous</span></a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            {% for affaire in affaires %}
+                <a href="#tab-financier-affaire" onclick="return financier({{affaire.id}})">
+                  <li class="notification-item item-commande">
+                    <i class="bi bi-exclamation-circle text-danger"></i>
+                    <div>
+                        <h4 class="text-black">Commande valider</h4>
+                        <p>{{ affaire.nom }}</p>
+                        {% if affaire.dateValidation is not null %}
+                        <p>{{ affaire.dateValidation|format_date }}</p>
+                        {% endif %}
+                    </div>
+                    
+                </li>
+                </a>
+             
+          {% endfor %}
+
+
+            <li class="dropdown-footer footer-commande">
+              <a href="#">Voir tous les commandes</a>
+            </li>
+
+          </ul>
+
+        </li>#}
+
+        {% if app_authorization.isUserGrantedPrivilege('responsable_caisse') %}
+          <li class="nav-item dropdown hide-content icon-notification" id="new-commande">
+            <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                <i class="bi bi-cart-fill text-black"></i>
+                <span class="badge badge-number badge-commande {% if countAffaires > 0 %} badge-animation {% endif %} "> {{countAffaires}} </span>
+            </a>
+        
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications notification-commande">
+                <li class="dropdown-header count-commande" id="count-commande">
+                    Vous avez {{countAffaires}} Commandes
+                    <a href="#tab-notification" onclick="return showTabNotification()"><span class="badge rounded-pill p-2 ms-2">Voir tous</span></a>
+                </li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+            </ul>
+          </li>
+        {% endif %}
+      
+           
+        <li class="nav-item dropdown pe-3">
+          {% if app.user is not null %}
+          <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+            <img src="{{asset('assets/img/profile.jpg')}}" alt="Profile" class="rounded-circle">
+            <span class="d-none d-md-block dropdown-toggle ps-2">{% if app.user.prenom is null %} {{app.user.nom|upper}} {% else %} {{ app.user.nom|slice(0, 1)|upper }} {{app.user.nom}}{% endif %} </span>
+          </a>
+          {% endif %}
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+            <li class="dropdown-header">
+              <h6>{% if app.user.prenom is null %} {{app.user.nom|upper}} {% else %} {{ app.user.nom|slice(0, 1)|upper }} {{app.user.nom}}{% endif %}</h6>
+            </li>
+
+            <li>
+              <a class="dropdown-item d-flex align-items-center" onClick="return showTabProfile()" href="#tab-profile">
+                <i class="bi bi-person"></i>
+                <span>Profile</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{{ path('app_logout') }}">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Déconnexion</span>
+              </a>
+            </li>
+
+          </ul>
+        </li>
+
+      </ul>
+    </nav>
+
+  </header>

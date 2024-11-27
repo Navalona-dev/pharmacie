@@ -1,0 +1,39 @@
+{% extends 'admin/security/base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block stylesheets %}
+
+{% endblock %}
+
+{% block body %}
+<section class="login">
+    <div class="container mt-3 ">
+        <a href="#" onclick="return openModalLogin()" class="text-white btn btn-sm btn-primary px-3" style="border: none; text-transform: uppercase; background-color: #1d7154;">Se connecter</a>
+    </div>
+</section>
+
+<div id="blocModalLogin"></div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+         function openModalLogin(isNew = false) {
+            $.ajax({
+                url: '/auth',
+                type: 'POST',
+                data: {isNew: isNew},
+                success: function (response) {
+                    $("#blocModalLogin").empty();
+                    $("#blocModalLogin").append(response.html);
+                    $('#modalLogin').modal('show');
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de l\'ajout du privilège.');
+                }
+            });
+    }
+    </script>
+{% endblock %}

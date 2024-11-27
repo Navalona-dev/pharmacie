@@ -1,0 +1,256 @@
+{% form_theme form 'admin/produit_categorie/_collection.html.twig' %}
+
+<div class="modal fade" id="modalUpdateProduitCategorie" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content p-4 modal-produit-categorie">
+            <div class="modal-header modal-header-center">
+                <h5 class="modal-title fw-bold" id="modalNewLabel">Modifier produit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                
+                {{ form_start(form, {'attr': {'id': 'updateProduitCategorie', 'action': path('produit_categories_edit', {'produitCategorie': id}) }}) }}
+                    
+                    <div class="row">
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Nom</label>
+                                {{form_widget(form.nom)}}
+                            </div>
+                        </div>
+                         <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Catégorie</label>
+                                {{form_widget(form.categorie)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Type</label>
+                                {{form_widget(form.type)}}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Fournisseur</label>
+                                <select id="produit_categorie_comptes" name="produit_categorie_compte" class="form-control form-control-md mb-3 chosen-select form-select" style="display: none;">
+                                <option value="0">Choisir fournisseur</option>
+                                    {% for fournisseur in fournisseurs %}
+                                    <option value="{{fournisseur.id}}">{{fournisseur.nom}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Stock minimum</label>
+                                {{form_widget(form.stockMin)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Stock maximum</label>
+                                {{form_widget(form.stockMax)}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Référence</label>
+                                {{form_widget(form.reference)}}
+                            </div>
+                        </div>
+                       
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Tva</label>
+                                {{form_widget(form.tva)}}
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Quantité</label>
+                                {{form_widget(form.qtt)}}
+                            </div>
+                        </div>
+                        
+                    </div>
+                 
+                    <div class="row">
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Unité vente de gros</label>
+                                {{form_widget(form.uniteVenteGros)}}
+                            </div>
+                        </div>
+                         <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Présentation gros</label>
+                                {{form_widget(form.presentationGros)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Prix vente de gros</label>
+                                {{form_widget(form.prixVenteGros)}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Unité vente détail</label>
+                                {{form_widget(form.uniteVenteDetail)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Présentation détail</label>
+                                {{form_widget(form.presentationDetail)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Prix vente détail</label>
+                                {{form_widget(form.prixVenteDetail)}}
+                            </div>
+                        </div>
+                        
+                       
+                    </div>
+                     <div class="row">
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Prix TTC</label>
+                                {{form_widget(form.prixTTC)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Prix d'achat</label>
+                                {{form_widget(form.prixAchat)}}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Prix HT</label>
+                                {{form_widget(form.prixHt)}}
+                            </div>
+                        </div>
+                     </div>
+                  <div class="row">
+                        <div class="col-md-6 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Volume gros</label>
+                                {{form_widget(form.volumeGros)}}
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Volume détail</label>
+                                {{form_widget(form.volumeDetail)}}
+                            </div>
+                        </div>
+                     </div>
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Description</label>
+                        {{form_widget(form.description)}}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Produit images</label>
+                        {{form_widget(form.productImages)}}
+                    </div>
+                        
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-sm px-5 mt-3" style="width: 100%;">Modifier produit</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script src="{{ asset('assets/js/script_utile.js')}}"></script>
+<script>
+    $(document).ready(function () {
+        {% if fournisseurId != "0" %}
+   $('#produit_categorie_comptes').val({{fournisseurId}});
+   $('.chosen-select').trigger('chosen:updated');
+        {% endif %}
+       $('#updateProduitCategorie').on('submit', function (e) {
+            e.preventDefault();
+            let form = $(this);
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: form.serialize(),
+                success: function (response) {
+                    $('#modalUpdateProduitCategorie').modal('hide');
+                    var nextLink = $('#sidebar').find('li#produit-categorie').find('a');
+                    //
+                    setTimeout(function () {
+                        toastr.options = {
+                            closeButton: true,
+                            progressBar: true,
+                            showMethod: 'slideDown',
+                            timeOut: 1000
+                        };
+                        toastr.success('Avec succèss', 'Mise à jour effectuée');
+
+                        //$(".loadBody").css('display', 'none');
+
+                    }, 800);
+                    showTabProduitCategorie();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de la mise à jour de produit.');
+                }
+            });
+        });
+    });
+
+    $(document).ready(function() {
+        $("#update-image").click(function() {
+
+        const index = +$('#widgets-counter-update').val();
+
+        const tmpl = $('#update_produit_categorie_productImages').data('prototype').replace(/__name__/g, index);
+
+        $('#update_produit_categorie_productImages').append(tmpl);
+
+        $('#widgets-counter-update').val(index + 1);
+
+        handleDelete();
+        });
+
+        function handleDelete(){
+        $('a[data-action="remove"]').click(function() {
+            const target = this.dataset.target;
+            $(target).remove();
+        });
+        }
+
+        function updateCounter() {
+        const count = +$('#update_produit_categorie_productImages div.form-group').length;
+
+        $('#widgets-counter-update').val(count);
+        }
+
+        updateCounter();
+        handleDelete();
+    })
+    
+</script>
+
+{% endblock %}

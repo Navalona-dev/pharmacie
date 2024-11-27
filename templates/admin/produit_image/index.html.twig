@@ -1,0 +1,146 @@
+<style>
+  .dataTables_scroll {
+    margin-top: 50px !important;
+    margin-bottom: 30px !important;
+  }
+  td, tr {
+    border-bottom: none !important;
+  }
+ 
+</style>
+
+<div class="pagetitle">
+    <h1>Liste images du produit {{produitCategory.nom}} </h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{path('app_admin')}}">Tableau de board</a></li>
+        <li class="breadcrumb-item active">Liste</li>
+      </ol>
+    </nav>
+  </div>
+<section class="section">
+    <div class="row">
+      <div class="col-lg-12 ">
+        {#{% include 'admin/tab/_nav_tab_produit.html.twig' %}#}
+
+        <div class="card">
+          <div class="d-flex justify-content-end mb-3 pt-2 px-2" title="Nouveau">
+            <a class="btn btn-primary mx-3" href="#tab-produit-categorie" onClick="return showTabProduitCategorie()"><i class="bi bi-list"></i> </a>
+            <button class="btn btn-primary" onclick="return newProduitImage(true)">
+                 <i class="bi bi-plus-circle ml-2"></i>
+            </button>
+          </div>
+          <div class="card-body px-3 pb-3 px-lg-5 pb-lg-5">
+            <table class="table table-striped" id="liste-table-produit-image" style="width: 100%;">
+              <thead>
+                    {% include 'admin/produit_image/_table.html.twig' with { 'type': 'thead' } %}
+              </thead>
+              <tbody>
+                {% if listes|length > 0 %}
+
+                  {% for liste in listes %}
+                      {% include 'admin/produit_image/_table.html.twig' with { 'type': 'tbody', 'liste': liste } %}
+                  {% endfor %}
+                
+                {% else %}
+                    <tr class="text-nowrap">
+                        <td colspan="3">Aucun enregistrement trouvé</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+                
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div id="blocModalProduitImageEmpty">
+    </div>
+  </section>
+
+  <script>
+    //datatable
+    
+    $(document).ready(function() {
+      $('#tab-produit-image').addClass('active');
+        $('#tab-fiche-fournisseur').removeClass('active').empty();
+        $('#tab-quantite-vendu').removeClass('active').empty();
+        $('#tab-notification').removeClass('active').empty();
+        $('#tab-historique-produit').removeClass('active').empty();
+        $('#tab-historique-affaire').removeClass('active').empty();
+        $('#tab-produit-date-peremption').removeClass('active').empty();
+        $('#tab-inventaire-produit').css('display','none');
+
+        $('.tab-categorie').removeClass('active');
+        $('#tab-produit-categorie').removeClass('active');
+        $('.tab-produit-categorie').removeClass('active');
+        $('#tab-categorie').removeClass('active');
+
+        $('.tab-user').removeClass('active');
+        $('#tab-utilisateur').removeClass('active');
+
+        $('.tab-permission').removeClass('active');
+        $('.tab-privilege').removeClass('active');
+        $('.tab-cat-permission').removeClass('active');
+        $('#tab-categorie-permission').removeClass('active');
+        
+        $('#tab-dashboard').removeClass('active');
+        $('#tab-profile').removeClass('active');
+      
+        $('#tab-permission').removeClass('active');
+        $('#tab-privilege').removeClass('active');
+        $('#tab-application').removeClass('active');
+        $('#tab-profile').removeClass('active');
+         $('#tab-compte_1').removeClass('active');
+        $('#tab-compte_2').removeClass('active');
+        $('#tab-produit-type').removeClass('active');
+        $('.tab-produit-type').removeClass('active');
+        $('#tab-stock').removeClass('active');
+        $('.tab-import-produit').css('display', 'none');
+        $('#tab-import-produit').css('display', 'none');
+        $('#tab-transfert-produit').css('display', 'none');
+        $('#affaires_client').removeClass('active').empty();
+        $('#affaires_fournisseur').removeClass('active').empty();
+        $('#tab-info-affaire').removeClass('active').empty();
+        $('#tab-financier-affaire').removeClass('active').empty();
+        $('#tab-fiche-client').removeClass('active').empty();
+        $('#tab-facture').css('display', 'none');
+        $('#tab-facture-affaire').css('display', 'none');
+        $('#tab-nouveau-facture').css('display','none');
+        $('#tab-devis').css('display','none');
+        $('#tab-commande').css('display','none');
+        $('#tab-echeance').css('display','none');
+        $('#tab-depot').css('display', 'none');
+        $('#tab-comptabilite').css('display', 'none');
+        $('#tab-vente').css('display', 'none');
+        $('#tab-benefice').css('display', 'none');
+         $('#tab-fourchette').css('display', 'none');
+        $('#tab-comptabilite-detail').css('display', 'none');
+                $('#tab-comptabilite-liste').removeClass('active');
+
+
+        
+    });
+
+    function newProduitImage(isNew = false) {
+      console.log('hello');
+            $.ajax({
+                url: '/admin/produit/image/new',
+                type: 'POST',
+                data: {isNew: isNew},
+                success: function (response) {
+                    $("#blocModalProduitImageEmpty").empty();
+                    $("#blocModalProduitImageEmpty").append(response.html);
+                    $('#modalNewProduitImage').modal('show');
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de l\'ajout de l\'image.');
+                }
+            });
+    }
+  </script>

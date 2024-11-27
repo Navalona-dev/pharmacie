@@ -1,0 +1,74 @@
+permission1:
+  title: modifier_application 
+  description: Modification application
+  categoryId: 1
+
+permission2:
+  title: supprimer_application
+  description: Suppression application
+  categoryId: 1
+
+permission3:
+  title: import_produit
+  description: Importer produit
+  categoryId: 2
+
+permission4:
+  title: ajout_commande
+  description: Ajout commande
+  categoryId: 3
+
+permission5:
+  title: suppression_commande
+  description: Suppression commande
+  categoryId: 3
+
+permission6:
+  title: edit_commande
+  description: Modification commande
+  categoryId: 3
+
+permission7:
+  title: validation_commande
+  description: Validation commande
+  categoryId: 3
+
+permission8:
+  title: paiement
+  description: Paiement
+  categoryId: 3
+
+permission9:
+  title: ajout_produit_commande
+  description: Ajouter des produits sur la commande
+  categoryId: 3
+
+permission10:
+  title: annuler_commande
+  description: Annulation commande
+  categoryId: 3
+
+permission11:
+  title: edit_ligne_produit
+  description: Modification quantité produit commandé
+  categoryId: 3
+
+permission12:
+  title: suppression_ligne_produit
+  description: Supprimer produit commander sur le financier
+  categoryId: 3
+
+permission13:
+  title: remise
+  description: Remise prix de vente de commande
+  categoryId: 3
+
+permission14:
+  title: paiement_depot
+  description: Paiement de commande en depot
+  categoryId: 3
+
+permission15:
+  title: echeance
+  description: Faire une echeance de commande
+  categoryId: 3
