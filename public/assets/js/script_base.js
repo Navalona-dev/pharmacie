@@ -173,6 +173,10 @@ $(document).ready(function() {
         showTabComptabiliteDetail(idComptabilite);
     }
 
+    if(anchorName == "tab-caisse") {
+        showTabCaisse(idAffaire);
+    }
+
 
 });
 
@@ -2900,6 +2904,8 @@ let newAffaires = $('#newAffaire').data('affaire');
 let countAffaires = $('#countAffaire').data('affaire');
 
 function validerCommande(id = null) {
+    var anchorName = document.location.hash.substring(1);
+
     if (confirm('Voulez-vous vraiment valider cette commande ?')) {
         $.ajax({
             url: '/admin/affaires/valider/' + id,
@@ -2910,6 +2916,9 @@ function validerCommande(id = null) {
                     // Notifiez le caissier directement ici si besoin
                     notifyCashier(response.affaireId, countAffaires, newAffaires);
                     financier(id);
+                }
+                if (anchorName) {
+                    window.location.hash = anchorName;
                 }
             },
             error: function(xhr, status, error) {
@@ -2946,13 +2955,26 @@ function notifyCashier(affaireId, countAffaires, newAffaires) {
     if (affaire) {
         const totalNotifications = notificationList.children('.notification-item').length;
         
-        notificationList.append(`
+        /*notificationList.append(`
             <a href="#tab-financier-affaire" onclick="return financier(${affaireId})">
                 <li><hr class="dropdown-divider"></li>
                 <li class="notification-item item-commande">
-                    <i class="bi bi-exclamation-circle text-danger"></i>
                     <div>
-                        <h4 class="text-black">Commande validée</h4>
+                        <h4 class="text-black"><i class="bi bi-check-circle text-success"></i>Commande validée</h4>
+                        <p>${affaire.nom}</p>
+                        ${affaire.dateValidation ? `<p>${affaire.dateValidation}</p>` : ''}
+                    </div>
+                </li>
+            </a>
+            
+        `);*/
+
+        notificationList.append(`
+            <a href="#tab-caisse" onclick="return showTabCaisse(${affaireId})">
+                <li><hr class="dropdown-divider"></li>
+                <li class="notification-item item-commande">
+                    <div>
+                        <h4 class="text-black"><i class="bi bi-check-circle text-success"></i>Commande validée</h4>
                         <p>${affaire.nom}</p>
                         ${affaire.dateValidation ? `<p>${affaire.dateValidation}</p>` : ''}
                     </div>
@@ -2962,6 +2984,51 @@ function notifyCashier(affaireId, countAffaires, newAffaires) {
         `);
 
     }
+}
+
+
+function showTabCaisse(id = null) {
+    showSpinner();
+    
+    $.ajax({
+            type: 'get',
+            url: '/admin/vente/caisse/'+id,
+            //data: {},
+            success: function (response) {
+                $("#tab-caisse").empty();
+                $("#tab-caisse").append(response.html);
+                $("#tab-caisse").addClass('active');
+                $("#tab-caisse").css('display', 'block');
+                $("#tab-info-affaire").css('display', 'none');
+                $('.sidebar-nav a[href="#tab-dashboard"]').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-permission"]').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-privilege"]').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-application"]').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-utilisateur"]').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-categorie-permission"]').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-categorie"]').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-compte_1"]').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-compte_2"]').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-produit-categorie"]').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-produit-type"]').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-historique-affaire"]').removeClass('active');
+                 $('.sidebar-nav a[href="#tab-historique-produit"]').removeClass('active');    
+                $('.sidebar-nav #historique a').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-devis"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-commande"]').addClass('collapsed');
+
+                $(".loadBody").css('display', 'none');
+                setTimeout(function() {
+                    hideSpinner();
+                }, 2000);
+            },
+            error: function () {
+                // $(".loadBody").css('display', 'none');
+                $(".chargementError").css('display', 'block');
+                hideSpinner();
+            }
+
+        });
 }
 
 

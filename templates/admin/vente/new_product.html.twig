@@ -1,0 +1,168 @@
+
+<div class="modal fade" id="modalNewProduct" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content p-4">
+            <div class="modal-header modal-header-center">
+                <h5 class="modal-title text-center fw-bold" id="modalNewLabel">Ajout produit à la vente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <span class="affaire-id" data-id="{{affaire.id}}"></span>
+                    <span class="unite-gros" data-unite="{{produitCategory.uniteVenteGros}}"></span>
+                    <span class="presentation-gros" data-presentation="{{produitCategory.presentationGros}}"></span>
+                    <p><strong>Référence :</strong> {{produitCategory.reference}}</p>
+                    <p><strong>Nom : </strong> {{produitCategory.nom}} </p>
+                    <p><strong>Stock restant : </strong> {{produitCategory.stockRestant}} {{produitCategory.presentationGros}} </p>
+                    <p>
+                        <strong>Qauntité réserver :</strong>
+                        {% if produitCategory.qttReserverGros is null and produitCategory.qttReserverDetail is null %}
+                            0 {{produitCategory.presentationGros}}
+                        {% elseif produitCategory.qttReserverGros is not null and produitCategory.qttReserverDetail is null %}
+                            {{produitCategory.qttReserverGros}} {{produitCategory.presentationGros}}
+                        {% elseif produitCategory.qttReserverDetail is not null and produitCategory.qttReserverGros is null %}
+                            {{produitCategory.qttReserverDetail}} {{produitCategory.uniteVenteGros}}
+                        {% elseif produitCategory.qttReserverGros is not null and produitCategory.qttReserverDetail is not null  %}
+                            {{produitCategory.qttReserverGros}} {{produitCategory.presentationGros}} et {{produitCategory.qttReserverDetail}} {{produitCategory.uniteVenteGros}}
+                        {% endif %}
+                    </p>
+                    <p><strong>Prix de vente gros : </strong> {{produitCategory.prixVenteGros|number_format(0,',','')}} Ar / {{produitCategory.presentationGros}} de {{produitCategory.volumeGros}} {{produitCategory.uniteVenteGros}} </p>
+                    <p><strong>Prix de vente détail : </strong> {{produitCategory.prixVenteDetail|number_format(0,',','')}} Ar / {{produitCategory.uniteVenteGros}} </p>
+                </div>
+                <div class="form">
+                    {{ form_start(form, {'attr': {'id': 'newProductInAffaire', 'action': path('ventes_produit_category', {'id' : produitCategory.id}) }}) }}
+                        <div class="form-group mb-3">
+                            <label for="" class="mb-2">Type de vente</label>
+                            {{form_widget(form.typeVente)}}
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="" class="mb-2">Quantité <span class="quantity"></span> </label>
+                            {{form_widget(form.qtt)}}
+                        </div>
+                        <div class="form-group mb-3">
+                            <button type="submit" class="btn btn-primary btn-sm px-3">Ajouter</button>
+                        </div>
+                    {{form_end(form)}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script src="{{ asset('assets/js/script_utile.js')}}"></script>
+<script src="{{ asset('assets/js/product.js?version=1.3')}}"></script>
+<script src="{{ asset('assets/js/remise_vente.js?version=1.1')}}"></script>
+<script>
+
+$(document).ready(function() {
+    // Vérifier si les champs existent
+    const typeVenteField = $('#product_typeVente');
+    const qttField = $('#product_qtt');
+
+    if (typeVenteField.length && qttField.length) {
+        // Écouter les changements dans le type de vente
+        let typeVal = '';
+
+        typeVenteField.on('change', function() {
+            typeVal = $(this).val();
+            qttField.removeAttr('readonly').removeClass('readonly');
+            if(qttField.val()) {
+                updateQuantityText();
+            }
+        });
+
+        qttField.on('click', function() {
+            if(!typeVal) {
+                setTimeout(function () {
+                    toastr.options = {
+                        closeButton: true,
+                        progressBar: true,
+                        showMethod: 'slideDown',
+                        timeOut: 1000
+                    };
+                    toastr.error('Veuillez d\'abord selectionner un type de vente');
+
+                    //$(".loadBody").css('display', 'none');
+
+                }, 1000);
+            }
+        })
+
+        // Écouter les changements dans le champ quantité
+        qttField.on('input', function() {
+            updateQuantityText();
+        });
+
+    } else {
+        console.error('Les champs typeVente ou qtt sont introuvables.');
+    }
+});
+
+// Fonction pour mettre à jour le texte en fonction des sélections
+function updateQuantityText() {
+    const unite = $('.unite-gros').data('unite');
+    const presentation = $('.presentation-gros').data('presentation');
+    
+    const typeVente = $('#product_typeVente').val(); // ID du champ type de vente
+    const qtt = $('#product_qtt').val(); // ID du champ quantité
+    let quantityText = '';
+
+    if (typeVente === 'gros') {
+        quantityText = `( ${qtt} ${presentation} )`;
+    } else if (typeVente === 'detail') {
+        quantityText = `( ${qtt} ${unite} )`;
+    }
+
+    // Mettre à jour le texte dans l'élément avec la classe 'quantity'
+    $('.quantity').text(quantityText);
+}
+
+  
+    $(document).ready(function () {
+
+        const idAffaire = $('.affaire-id').data('id');
+        
+       $('#newProductInAffaire').on('submit', function (e) {
+            e.preventDefault();
+            let form = $(this);
+          
+            // Create an FormData object
+            let formData = new FormData(form[0]);
+            formData.append('isNew', false);
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#modalNewProduct').modal('hide');
+                    var nextLink = $('#sidebar').find('li#vente').find('a');
+
+                    updateTable(idAffaire);
+
+                    setTimeout(function () {
+                        toastr.options = {
+                            closeButton: true,
+                            progressBar: true,
+                            showMethod: 'slideDown',
+                            timeOut: 1000
+                        };
+                        toastr.success('Avec succèss', 'Enregistrement effectuée');
+
+                        //$(".loadBody").css('display', 'none');
+
+                    }, 800);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de l\'ajout de produit');
+                }
+            });
+        });
+    });
+
+   
+</script>
+{% endblock %}

@@ -10,6 +10,17 @@
   .card-ticket {
     background-color: #b7cdb8;
   }
+
+  .btn-info, .btn-info:hover, .btn-info:focus {
+    background-color: #b7cdb8 !important;
+    border: none !important;
+  }
+
+  .bg-title {
+    background-color: #7fb99a;
+    padding: 5px;
+    color: #fff !important;
+  }
  
 </style>
 
@@ -29,31 +40,46 @@
             <div class="card-body px-3 py-3 px-lg-3 py-lg-4">
                 <div class="row">
                     <div class="col-md-10 col-12">
-                        <div class="row mb-3">
+                        <div class="mb-4">
+                            {{form_start(form, {'attr': {'id': 'newVente', 'action': path('ventes_new_commande') }})}}
+                                <div class="form-group form-nom">
+                                    <label for="" class="mb-2">Nom</label>
+                                    {{form_widget(form.nom)}}
+                                </div>
+                                <button type="submit" class="btn btn-info btn-sm px-3 btn-new-vente">Nouvelle vente</button>
+                            {{form_end(form)}}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h4 class="fw-bold title" style="font-size: 17px;"></h4>
+                        </div>
+                        
+                        <div class="row mb-3 filter-product">
                             <div class="col-md-4 col-12">
                                 <div class="form-group mb-3">
                                     <label for="" class="mb-2">Categories</label>
-                                    <select name="" id="" class="form-control form-control-sm">
+                                    <select name="category_liste" id="category_liste" class="form-control form-control-sm chosen-select">
                                         <option value="" selected disabled>Selectionner une catégorie</option>
-                                        <option value="1">Categorie 1</option>
-                                        <option value="2">Categorie 2</option>
-                                        <option value="3">Categorie 3</option>
+                                        {% for category in categories %}
+                                        <option value="{{category.id}}">{{category.nom}}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-8 col-12">
                                 <div class="form-group mb-3">
                                     <label for="" class="mb-2">Produits</label>
-                                    <select name="" id="" class="form-control form-control-sm">
+                                    <select name="produit_liste" id="produit_liste" class="form-control form-control-sm chosen-select">
                                         <option value="" selected disabled>Selectionner un produit</option>
-                                        <option value="1">Produit 1</option>
-                                        <option value="2">Produit 2</option>
-                                        <option value="3">Produit 3</option>
+                                        {% for produit in produitCategories %}
+                                            <option data-action="openModalProduitCategory({{ produit.id }})" value="{{produit.id}}" style="cursor: pointer;">{{produit.reference}} - {{produit.nom}}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="detail">
+                        
+                        <div class="detail" id="venteProduct">
                             <table class="table">
                                 <thead>
                                     <tr>
@@ -68,39 +94,38 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>Ref1</td>
-                                        <td>Produit 1</td>
-                                        <td>2</td>
-                                        <td>12000 Ar</td>
-                                        <td>Pas de remise</td>
-                                        <td>24000 Ar</td>
-                                        <td>
-                                            <a href="#" class="action-pencil d-block text-center mb-2"><i class="bi bi-pencil"></i></a>
-                                            <a href="#" class="action-trash d-block text-center mb-2"><i class="bi bi-trash-fill"></i></a>
-                                        </td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
                                     </tr>
                                 </tbody>
                             </table>
-                            <div class="d-flex justify-content-end">
-                                <div class="card p-4" style="border: 1px solid #b7cdb8;">
-                                    Total à payer : 24000 Ar <br>
-                                    Vola: 25000 Ar <br>
-                                    Famerim-bola: 1000 Ar
+                            <div class="montant-total">
+                                <div class="d-flex justify-content-end">
+                                    <div class="card p-4" style="border: 1px solid #b7cdb8;">
+                                        <p>Total à payer : <span class="montant-ht"></span> Ar</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end btn-action">
+                                    <a href="#" class="btn btn-primary btn-sm px-3">Valider</a>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end">
-                                <a href="#" class="btn btn-primary btn-sm px-3">Valider</a>
-                                <button type="submit" class="btn btn-sm btn-primary px-3 mx-3">Payer</button>
-                            </div>
+                            
+                           
                         </div>
                     </div>
                     <div class="col-md-2 col-12">
                         <div class="card p-3 card-ticket">
                             <h5 class="fw-bold text-center">Tickets</h5>
-                            <p><a href="#" class="text-black-50">14K4785kD59</a></p>
-                            <p><a href="#" class="text-black-50">14K4785kD59</a></p>
-                            <p><a href="#" class="text-black-50">14K4785kD59</a></p>
-                            <p><a href="#" class="text-black-50">14K4785kD59</a></p>
+                            <div class="list-affaire">
+                                {% for affaire in affaires %}
+                                <p class="text-black-50 ticket-name" style="cursor: pointer;" data-id="{{affaire.id}}" data-nom="{{affaire.nom}}">{{affaire.nom}}</p>
+                            {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -109,7 +134,10 @@
       </div>
     </div>
     <div id="blocModalVentesEmpty"></div>
-  </section>
+</section>
+
+<script src="{{ asset('assets/js/product.js?version=1.4')}}"></script>
+<script src="{{ asset('assets/js/remise_vente.js?version=1.1')}}"></script>
 
   <script>
   
@@ -169,6 +197,115 @@
 
     
     });
-
   
+  </script>
+
+  <script>
+    
+
+$(document).ready(function() {
+    $('.chosen-select').chosen({ width: "100%" });
+
+    // Écoutez l'événement de changement de sélection sur l'élément choisi
+    $('.chosen-select').on('change', function() {
+        var selectedOption = $(this).find(':selected');
+        if (selectedOption.length) {
+            var produitId = selectedOption.val();
+            if (produitId) {
+                openModalProduitCategory(produitId);
+            }
+        }
+    });
+});
+
+$(document).ready(function () {
+    $('.filter-product').hide();
+    $('.form-nom').hide();
+    $('.montant-total').hide();
+
+    // Gestionnaire d'événements avec délégation
+    $(document).on('click', '.ticket-name', function() {
+
+        $('.filter-product').show();
+        const affaireId = $(this).data('id');
+        const title = $(this).data('nom');
+        $('.title').text(title);
+        $('.ticket-name').removeClass('bg-title');
+        $(this).addClass('bg-title');
+
+
+        // Requête AJAX pour récupérer les produits associés à l'affaire
+        updateTable(affaireId);
+        
+    });
+
+   
+    // Lorsque le bouton est cliqué
+    $('.btn-new-vente').on('click', function (e) {
+        e.preventDefault(); // Empêche le comportement par défaut du bouton
+
+        // Génère un numéro de vente unique
+        const randomNumber = Math.floor(10000 + Math.random() * 90000);
+        const venteNom = `VENTE-${randomNumber}`;
+
+        // Remplit le champ "nom" avec la valeur générée
+        $('#affaire_nom').val(venteNom);
+
+        // Récupère le formulaire
+        let form = $('#newVente');
+
+        // Crée un FormData avec le contenu du formulaire
+        let formData = new FormData(form[0]);
+
+        // Effectue une requête AJAX pour envoyer les données
+        $.ajax({
+            url: form.attr('action'), // URL définie dans le formulaire
+            type: 'POST', // Méthode POST
+            data: formData,
+            processData: false, // Nécessaire pour FormData
+            contentType: false, // Nécessaire pour FormData
+            success: function (response) {
+                // Recharger la liste des affaires
+                $.ajax({
+                    url: '/admin/vente/affaire/update',
+                    type: 'GET',
+                    success: function (data) {
+                        let htmlContent = '';
+                        data.forEach(function(affaire) {
+                            htmlContent += `<p><a href="#" class="text-black-50 ticket-name" style="cursor: pointer;" data-id="${affaire.id}" data-nom="${affaire.nom}">${affaire.nom}</a></p>`;
+                        });
+
+                        $('.list-affaire').html(htmlContent);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log('Erreur lors de la récupération des affaires : ', textStatus);
+                    }
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Erreur lors de la création de la vente : ' + textStatus);
+            }
+        });
+    });
+});
+
+  </script>
+
+  <script>
+    function openModalProduitCategory(id = null){
+        $.ajax({
+            url: '/admin/vente/produit/category/'+id,
+            type: 'POST',
+            //data: {isNew: isNew},
+            success: function (response) {
+                $("#blocModalVentesEmpty").empty();
+                $("#blocModalVentesEmpty").append(response.html);
+                $('#modalNewProduct').modal('show');
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                alert('Erreur lors de l\'ajout de produit.');
+            }
+        });
+    }
   </script>

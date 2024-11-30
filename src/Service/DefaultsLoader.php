@@ -119,6 +119,7 @@ class DefaultsLoader
         $user =  $this->em->getRepository(User::class)->findOneBy(['id' => 1]);
         $privilege = $this->em->getRepository(Privilege::class)->findOneBy(['id' => 1]);
         $user->addPrivilege($privilege);
+        $privilege->addUser($user);
         $this->em->flush();
     }
 
