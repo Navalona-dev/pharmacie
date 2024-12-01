@@ -88,19 +88,19 @@
                                 </td>
                                 <td>
                                     {% if app_authorization.isUserAllowedOnFeature('remise') %}
-                                    {% if product.remise %} 
-                                        <span class="text-danger">-{{ product.remise|number_format(0,',',' ') }} Ar</span> 
-                                    {% else %}
-                                        {% if affaire.paiement == 'non' %} 
-                                            <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">
-                                                <i class="bi bi-percent btn-remise"></i> 
-                                            </a>
+                                        {% if product.remise %} 
+                                            <span class="text-danger">-{{ product.remise|number_format(0,',',' ') }} Ar</span> 
                                         {% else %}
-                                            <span class="text-info" style="font-size: 14px;">Pas de remise</span>
+                                            {% if affaire.paiement == 'non' %} 
+                                                <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">
+                                                    <i class="bi bi-percent btn-remise"></i> 
+                                                </a>
+                                            {% else %}
+                                                <span class="text-info" style="font-size: 14px;">Pas de remise</span>
+                                            {% endif %}
                                         {% endif %}
-                                    {% endif %}
 
-                                {% endif %}
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% set total = 0 %}
@@ -135,7 +135,7 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-end btn-action">
-                            <a href="#" class="btn btn-primary btn-sm px-3">Payer</a>
+                            <a href="#"  onclick="return paiement({{affaire.id}})" class="btn btn-primary btn-sm px-3">Payer</a>
                         </div>
                     </div>
                     
@@ -212,4 +212,44 @@
     
     });
   
+  </script>
+
+  <script>
+     function paiement(id = null) {
+        if (confirm('Voulez vous vraiment faire ce paiement?')) {
+            setTimeout(function() {
+                $.ajax({
+                url: '/admin/affaires/paiement/'+id,
+                type: 'POST',
+                data: {id: id},
+                success: function (response) {
+                    setTimeout(function () {
+                        toastr.options = {
+                            closeButton: true,
+                            progressBar: true,
+                            showMethod: 'slideDown',
+                            timeOut: 1000
+                        };
+                        toastr.success('Avec succèss', 'Paiement fait');
+                        
+                        showTabCaisse(id);
+
+                        if (response.pdfUrl) {
+                            window.open(response.pdfUrl, '_blank');
+                        }
+
+                    }, 800);
+                    
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de paiement.');
+                }
+            });
+        
+            }, 500);
+           
+        }
+    }
+
   </script>

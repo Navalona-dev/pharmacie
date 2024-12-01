@@ -165,7 +165,6 @@ function updateTable(id = null) {
                             <td>${produit.nom}</td>
                             <td>${produit.qtt} ${produit.unite} </td>
                             <td>${produit.puHt} Ar / ${produit.unite} </td> 
-                            <td>Pas de remise</td>
                             <td>${produit.total} Ar</td>
                             <td>
                                 <a href="#" class="action-pencil d-block text-center mb-2" onclick="return updateLigneProduct(this, ${produit.id}, ${id})"><i class="bi bi-pencil"></i></a>
