@@ -24,7 +24,8 @@ class CreateAdminCommand extends Command
     private $em;
     protected $passwordEncoder;
     private $applicationRepository;
-
+    private $adminRepository;
+    
     /**
      * CreateUserCommand constructor.
      * @param UserRepository $userRepository

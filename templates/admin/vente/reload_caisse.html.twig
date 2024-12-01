@@ -1,60 +1,5 @@
-<style>
-    .dataTables_scroll {
-      margin-top: 50px !important;
-      margin-bottom: 30px !important;
-    }
-    td, tr {
-      border-bottom: none !important;
-    }
-  
-    .card-ticket {
-      background-color: #b7cdb8;
-    }
-  
-    .btn-info, .btn-info:hover, .btn-info:focus {
-      background-color: #b7cdb8 !important;
-      border: none !important;
-    }
-  
-    .bg-title {
-      background-color: #7fb99a;
-      padding: 5px;
-      color: #fff !important;
-    }
-  
-    .btn-remise {
-      padding: 6px 8px;
-      border-radius: 100%;
-      background-color: #7a1820;
-      color: #fff;        
-    }
-  
-    .btn-remise:hover {
-      color: #fff;
-    }
-   
-  </style>
-  
-  <div class="pagetitle">
-      <h1>Caisse </h1>
-      <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{path('app_admin')}}">Tableau de board</a></li>
-          <li class="breadcrumb-item active">Caisse</li>
-        </ol>
-      </nav>
-  </div>
-  <section class="section">
-      <div class="row">
-        <div class="col-lg-12">
-          <div class="card">
-              <div class="card-body px-3 py-3 px-lg-3 py-lg-4">
-                  <div class="mb-3">
-                      <h4 class="fw-bold title" style="font-size: 17px;"> Nom de commande : {{affaire.nom}} </h4>
-                  </div>
-                  
-                  <div class="detail">
-                      <table class="table">
+ <div id="tableCaisse">
+ <table class="table">
                           <thead>
                               <tr>
                                   <th>Ref</th>
@@ -89,7 +34,8 @@
                                   <td>
                                       {% if app_authorization.isUserAllowedOnFeature('remise') %}
                                       {% if product.remise %} 
-                                          <span class="text-danger">-{{ product.remise|number_format(0,',',' ') }} Ar</span> 
+                                          {# <span class="text-danger">-{{ product.remise|number_format(0,',',' ') }} Ar</span>  #}
+                                          <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">{% if product.remise %} <span class="text-danger">{{ product.remise }}</span> {% else %} <i class="bi bi-percent btn-remise"></i> {% endif %}</a>
                                       {% else %}
                                           {% if affaire.paiement == 'non' %} 
                                               <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">
@@ -135,82 +81,7 @@
                               </div>
                           </div>
                           <div class="d-flex justify-content-end btn-action">
-                              <a href="#" class="btn btn-primary btn-sm px-3">Payer</a>
+                              <a href="#" class="btn btn-primary btn-sm px-3" onclick="return paiement({{affaire.id}})" class="btn btn-primary btn-sm px-3">Payer</a>
                           </div>
                       </div>
-                      
-                      
-                  </div>
-                      
-              </div>
-          </div>
-        </div>
-      </div>
-      <div id="modalRemiseCaisseEmpty"></div>
-  
-  </section>
-  
-  <script src="{{ asset('assets/js/product.js?version=1.4')}}"></script>
-  <script src="{{ asset('assets/js/remise_vente.js?version=1.1')}}"></script>
-  
-    <script>
-    
-      $(document).ready(function() {
-          $('#tab-ventes').css('display', 'block');
-          $('#tab-fiche-fournisseur').removeClass('active').empty();
-          $('#tab-quantite-vendu').removeClass('active').empty();
-          $('#tab-notification').removeClass('active').empty();
-          $('#tab-historique-produit').removeClass('active').empty();
-          $('#tab-historique-affaire').removeClass('active').empty();
-          $('#tab-produit-date-peremption').removeClass('active').empty();
-          $('#tab-inventaire-produit').css('display','none');
-  
-          $('.tab-user').addClass('active');
-          $('.tab-permission').removeClass('active');
-          $('.tab-privilege').removeClass('active');
-          $('.tab-cat-permission').removeClass('active');
-          $('#tab-dashboard').removeClass('active');
-          $('#tab-profile').removeClass('active');
-          $('#tab-utilisateur').addClass('active');
-          $('#tab-permission').removeClass('active');
-          $('#tab-privilege').removeClass('active');
-          $('#tab-categorie-permission').removeClass('active');
-          $('#tab-application').removeClass('active');
-          $('.tab-categorie').removeClass('active');
-          $('#tab-produit-categorie').removeClass('active');
-          $('.tab-produit-categorie').removeClass('active');
-          $('#tab-categorie').removeClass('active');  
-           $('#tab-compte_1').removeClass('active');
-          $('#tab-compte_2').removeClass('active');
-          $('#tab-produit-type').removeClass('active');
-          $('#tab-transfert-produit').css('display', 'none');
-          $('#affaires_client').removeClass('active').empty();
-          $('#affaires_fournisseur').removeClass('active').empty();
-          $('#tab-info-affaire').removeClass('active').empty();
-          $('#tab-financier-affaire').removeClass('active').empty();
-          $('#tab-fiche-client').removeClass('active').empty();
-          $('#tab-facture').css('display', 'none');
-          $('#tab-facture-affaire').css('display', 'none');
-          $('.tab-import-produit').css('display', 'none');
-          $('#tab-import-produit').css('display', 'none');
-          $('#tab-nouveau-facture').css('display','none');
-          $('#tab-stock').removeClass('active');
-          $('#tab-devis').css('display','none');
-          $('#tab-commande').css('display','none');
-          $('#tab-echeance').css('display','none');
-          $('#tab-produit-image').removeClass('active');
-          $('#tab-stock').removeClass('active');
-          $('#tab-depot').css('display', 'none');
-          $('#tab-comptabilite').css('display', 'none');
-          $('#tab-vente').css('display', 'none');
-          $('#tab-benefice').css('display', 'none');
-           $('#tab-fourchette').css('display', 'none');
-          $('#tab-comptabilite-detail').css('display', 'none');
-          $('#tab-comptabilite-liste').removeClass('active');
-          $('#tab-avoir').css('display', 'none');
-  
-      
-      });
-    
-    </script>
-  
+</div>

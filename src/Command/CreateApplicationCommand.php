@@ -19,6 +19,7 @@ class CreateApplicationCommand extends Command
     protected static $defaultName = 'app:create-application';
     private $applicationRepository;
     private $em;
+    private $adminRepository;
 
     /**
      * CreateUserCommand constructor.

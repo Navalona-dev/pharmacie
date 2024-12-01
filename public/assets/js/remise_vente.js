@@ -137,6 +137,7 @@ function saveRemise(type, id, isFrais = false) {
   formData.append("id", id);
   formData.append("applicationId", applicationID);
   showSpinner();
+  
   $.ajax({
     type: "POST",
     url: $("#formRemise").attr("action"),
@@ -144,9 +145,13 @@ function saveRemise(type, id, isFrais = false) {
     processData: false,
     contentType: false,
     error: function (jqXHR, textStatus, errorMessage) {
+
+  console.log("ici");
       console.log(errorMessage); // Optional
     },
     success: function (response) {
+
+  console.log(response);
       //reloadTabFinanciere(response);
 
       /*if (!isFrais) {
@@ -155,8 +160,8 @@ function saveRemise(type, id, isFrais = false) {
         $("#modalFraisTechnique_" + type).modal("hide");
       }*/
       $("#modalRemise_" + type).modal("hide");
-      $("#financiereProduct").empty();
-      $("#financiereProduct").replaceWith(response);
+      $("#tableCaisse").empty();
+      $("#tableCaisse").replaceWith(response);
       hideSpinner();
 
       //$(".loadBody").css("display", "none");
@@ -187,8 +192,8 @@ function deleteRemiseProduitAffaire(type, id, isFrais = false) {
       success: function (response) {
         //reloadTabFinanciere(response);
         $("#modalRemise_" + type).modal("hide");
-        $("#financiereProduct").empty();
-        $("#financiereProduct").replaceWith(response);
+        $("#tableCaisse").empty();
+        $("#tableCaisse").replaceWith(response);
         hideSpinner();
         //$(".loadBody").css("display", "none");
 

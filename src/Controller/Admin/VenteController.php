@@ -290,6 +290,99 @@ class VenteController extends AbstractController
      * @param Request $request
      * @param ProduitRepository $produitRepository
      * @param AffaireRepository $affaireRepository
+     * @Route("/deleteAddRemise/ajax", name="_delete_vente_add_remise_product_ajax", methods={"POST"})
+     * @return Response
+     */
+    public function deleteAddRemiseVente(Request $request, ProductRepository   $productRepository, AffaireRepository $affaireRepository, ProductService   $productService)
+    {
+        $idProduit = $request->get('idProduit');
+
+        $idAffaire = $request->get('idAffaire');
+
+        $type = $request->get('type');
+
+        $montantRemiseFinale = $request->get('montantRemiseFinale');
+
+        $uri = $request->get('uri');
+
+        $produit = [];
+
+        $affaire = [];
+        switch ($type) {
+            case "produit":
+                $produit = $productRepository->find($idProduit);
+
+                $affaires = $produit->getAffaires();
+
+                $affaire = $affaires[0];
+
+                $remiseAffaire = $affaire->getRemiseProduit();
+
+                if (null != $remiseAffaire) {
+                } else {
+                    $remiseAffaire = 0;
+                }
+
+                $affaire->setRemiseProduit($remiseAffaire - $produit->getRemise());
+
+                $produit->setRemise(null);
+
+                $produit->setRemisePourcent(null);
+
+                $productService->persist($produit);
+
+                $productService->persist($affaire);
+
+                break;
+
+            case "affaire":
+                $affaire = $affaireRepository->find($idAffaire);
+
+                $affaire->setRemise(null);
+
+                $affaire->setRemisePourcent(null);
+
+                $productService->persist($affaire);
+
+                break;
+        }
+
+        $productService->update();
+        
+       $products = $this->productService->findProduitAffaire($affaire);
+
+       $montantHt = 0;
+       $puHt = 0;
+
+       foreach($products as $product) {
+        if($product->getTypeVente() == "gros") {
+            $puHt = $product->getPrixVenteGros();
+        }elseif($product->getTypeVente() == "detail") {
+            $puHt = $product->getPrixVenteDetail();
+        }
+
+        $total = $puHt * $product->getQtt();
+        if($product->getRemise()) {
+            $total = $puHt * $product->getQtt() - $product->getRemise();
+        }
+
+        $montantHt = $montantHt + $total;
+       }
+
+       $request->getSession()->set('idAffaire', $affaire->getId());
+
+       return $this->render("admin/vente/reload_caisse.html.twig", [
+           'affaire' => $affaire,
+           'montantHt' => $montantHt,
+           'products' => $products
+
+       ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param ProduitRepository $produitRepository
+     * @param AffaireRepository $affaireRepository
      * @Route("/valideAddRemise/ajax", name="_valide_add_remise_product_ajax", methods={"POST"})
      * @return Response
      */
@@ -323,7 +416,6 @@ class VenteController extends AbstractController
         $produit = [];
 
         $affaire = [];
-
         switch ($type) {
             case "produit":
                 $produit = $productRepository->find($idProduit);
@@ -438,7 +530,7 @@ class VenteController extends AbstractController
 
          $montantHt = $montantHt + $total;
         }
-
+       
         $request->getSession()->set('idAffaire', $affaire->getId());
 
         return $this->render("admin/vente/reload_caisse.html.twig", [
@@ -454,7 +546,6 @@ class VenteController extends AbstractController
     {
         $data = [];
         try {
-            
            $affaire = $this->affaireRepo->findOneBy(['id' => $id]);
 
            $products = $affaire->getProducts();

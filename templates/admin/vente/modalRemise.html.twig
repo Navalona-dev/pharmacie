@@ -51,7 +51,7 @@
                             <input {% if montantPourcent %}value="{{ montantPourcent }}" {% elseif montantRemise %} value="{{ montantRemise }}" {% endif %} required onchange="return changeMontantRemiseVente(this.value);" type="text" name="montantRemise" class="form-control" {% if hasRemiseProduit %} disabled {% endif %}>
                         </div>
                         <div class="col-md-2 col-12">
-                            <span class="typeRemiseMontant">{% if montantPourcent %}% {% if montantRemise %} ({{ montantRemise }}&euro;){% endif %}{% elseif montantRemise %}€{% else %}%{% endif %}</span>
+                            <span class="typeRemiseMontant">{% if montantPourcent %}% {% if montantRemise %} ({{ montantRemise }}Ar){% endif %}{% elseif montantRemise %}€{% else %}%{% endif %}</span>
                         </div>
                     </div>
                 </div>
@@ -105,7 +105,7 @@
             </form>
 
             {% if montantRemise %}
-                <form style="position: absolute;bottom: 15px;right: 10%;" id="deleteRemise" name="deleteRemise" action="{{ path('affaires_delete_add_remise_product_ajax') }}" method="post">
+                <form style="position: absolute;bottom: 15px;right: 10%;" id="deleteRemise" name="deleteRemise" action="{{ path('ventes_delete_vente_add_remise_product_ajax') }}" method="post">
 
                     <input type="hidden" name="type" value="{{ type }}">
                     <input type="hidden" value="{{ uri }}" name="uri">
