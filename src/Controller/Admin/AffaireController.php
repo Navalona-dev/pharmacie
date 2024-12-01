@@ -1023,9 +1023,14 @@ class AffaireController extends AbstractController
             
             $request->getSession()->set('idFacture', $facture->getId());
 
+            $newAffaires = $this->affaireRepo->findBy(['paiement' => 'non', 'isValid' => true, 'application' => $this->application]);
+            
+            $countAffaires = count($newAffaires);
+        
             return new JsonResponse([
                 'status' => 'success',
                 'pdfUrl' => $pdfPath,
+                'countAffaires' => $countAffaires
             ]);
             
         }

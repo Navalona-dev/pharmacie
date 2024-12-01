@@ -268,6 +268,34 @@
                         if (response.pdfUrl) {
                             window.open(response.pdfUrl, '_blank');
                         }
+                        var countAffaires = response.countAffaires;
+                        var button = $("<button class='dropdown show-content icon-notification btn btn-primary btn-sm px-3' id='new-commande'></button>");
+                        var link = $("<a class='nav-link nav-icon' href='#' data-bs-toggle='dropdown'>Caisse</a>");
+                        var span = $("<span class='badge badge-number badge-commande badge-animation'> " + countAffaires + " </span>");
+                        link.append(span);
+                        button.append(link);
+                        
+                        var ul = $("<ul class='dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications notification-commande'></ul>");
+                       
+                        var li1 = $("<li class='dropdown-header count-commande' id='count-commande'>  Vous avez " + countAffaires + " Commandes</li>");
+
+                        var ali = $("<a href='#tab-notification' onclick='return showTabNotification()'></a>");
+
+                        var spanAli = $("<span class='badge rounded-pill p-2 ms-2'>Voir tous</span>");
+                        ali.append(spanAli);
+                        li1.append(ali);
+                        ul.append(li1);
+                        
+                       
+                        var li2 = $("<li></li>");
+                        var hr = $("<hr class='dropdown-divider'>");
+                        li2.append(hr);
+                        ul.append(li2);
+                        button.append(ul);
+                        console.log(countAffaires, button);
+                        $("#notif-caisse").empty();
+                        $("#notif-caisse").append(button);
+                       //location.reload();
 
                     }, 800);
                     

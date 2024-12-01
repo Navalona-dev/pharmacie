@@ -72,7 +72,8 @@
     {% if app_authorization.isUserGrantedPrivilege('responsable_caisse') %}
       {% if countAffaires > 0 %}
         {#<a href="#" class="btn btn-primary btn-sm px-3">Caisse</a>#}
-        <button class="dropdown hide-content icon-notification btn btn-primary btn-sm px-3" id="new-commande">
+        <div id="notif-caisse">
+            <button class="dropdown hide-content icon-notification btn btn-primary btn-sm px-3" id="new-commande">
           <a class="nav-link nav-icon " href="#" data-bs-toggle="dropdown">
               Caisse
               <span class="badge badge-number badge-commande {% if countAffaires > 0 %} badge-animation {% endif %} "> {{countAffaires}} </span>
@@ -88,6 +89,8 @@
               </li>
           </ul>
         </button>
+        </div>
+        
       {% endif %}
       <a href="#tab-avoir" onclick="return showTabAvoir()" class="btn btn-primary btn-sm px-3 mx-3">Avoir</a>
     {% endif %}
