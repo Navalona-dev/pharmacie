@@ -163,7 +163,7 @@ class ProduitCategorieController extends AbstractController
                         $data["stockRestant"] = $produitCategorie->getStockRestant();
                         $data["fournisseur"] = ($produitCategorie->getReference() != false && $produitCategorie->getReference() != null ? $produitCategorie->getReference() : null);
                         $data["typeSource"] = "Point de vente";
-                        $data["typeDestination"] = "Point de vente";;
+                        $data["typeDestination"] = "Point de vente";
                         $data["commande"] = null;
                         $data["commandeId"] = null;
                         $data["sourceId"] =  $this->application->getId();

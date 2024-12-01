@@ -32,6 +32,18 @@
   .btn-remise:hover {
     color: #fff;
   }
+
+  .btn-echeance {
+    background-color: #7a1820 !important;
+    border: none !important;
+    margin-left: 15px;
+  }
+
+  .statut {
+    background-color: #7a1820;
+    padding: 5px 10px;
+    color: #fff;
+  }
  
 </style>
 
@@ -49,9 +61,17 @@
       <div class="col-lg-12">
         <div class="card">
             <div class="card-body px-3 py-3 px-lg-3 py-lg-4">
-                <div class="mb-3">
-                    <h4 class="fw-bold title" style="font-size: 17px;"> Nom de commande : {{affaire.nom}} </h4>
+                <div class="mb-4 d-flex justify-content-between">
+                    <div>
+                        <h4 class="fw-bold title" style="font-size: 17px;"> Nom de commande : {{affaire.nom}} </h4>
+                        <h4 class="fw-bold title" style="font-size: 17px;"> Client : {{affaire.compte.nom}} </h4>
+                    </div>
+                    {% set statutPaiement = constant('App\\Entity\\Affaire::PAIEMENT') %}
+                    <p class="ms-auto"><strong>Status vente : </strong><span class="statut">
+                        {{statutPaiement[affaire.paiement]}}
+                    </span></p>
                 </div>
+                
                 
                 <div class="detail">
                     <table class="table">
@@ -135,7 +155,14 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-end btn-action">
+                            {% if affaire.paiement == "non" %}
                             <a href="#"  onclick="return paiement({{affaire.id}})" class="btn btn-primary btn-sm px-3">Payer</a>
+                            <a href="#"  onclick="return openModalFactureEcheance({{ affaire.id }})" class="btn btn-primary btn-sm px-3 btn-echeance">Echeance</a>
+                            {% else %}
+                            <a href="#tab-facture-affaire" onclick="return showTabFactureAffaire({{affaire.id}})" class="btn btn-primary btn-sm px-3">
+                                Factures
+                            </a>
+                            {% endif %}
                         </div>
                     </div>
                     
@@ -147,6 +174,7 @@
       </div>
     </div>
     <div id="modalRemiseCaisseEmpty"></div>
+    <div id="modalEcheanceCaisseEmpty"></div>
 
 </section>
 
@@ -252,4 +280,28 @@
         }
     }
 
+    function openModalFactureEcheance(id = null)
+    {
+        var anchorName = document.location.hash.substring(1);
+
+        $.ajax({
+                url: '/admin/vente/echeance/'+id,
+                type: 'post',
+                //data: {},
+                success: function (response) {
+                    $("#modalEcheanceCaisseEmpty").empty();
+                    $("#modalEcheanceCaisseEmpty").append(response.html);
+                    $('#modalVenteEcheance').modal('show');
+
+                    if (anchorName) {
+                        window.location.hash = anchorName;
+                    }
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                    alert('Erreur lors de facture echeance.');
+                }
+            });
+    }
   </script>

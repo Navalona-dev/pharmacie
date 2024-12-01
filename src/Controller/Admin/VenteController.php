@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Compte;
 use App\Entity\Affaire;
 use App\Entity\Product;
 use App\Form\AffaireType;
@@ -12,15 +13,22 @@ use App\Service\ProductService;
 use App\Service\CategorieService;
 use App\Service\ApplicationManager;
 use App\Service\ApplicationService;
+use App\Form\AddFactureEcheanceType;
+use App\Repository\CompteRepository;
+use App\Form\ChangeCompteAffaireType;
 use App\Repository\AffaireRepository;
 use App\Repository\ProductRepository;
+use App\Service\FactureEcheanceService;
+use App\Exception\PropertyVideException;
 use App\Service\ProduitCategorieService;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ApplicationRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\ProduitCategorieRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/admin/vente', name: 'ventes')]
@@ -37,6 +45,9 @@ class VenteController extends AbstractController
     private $affaireRepo;
     private $productRepo;
     private $productService;
+    private $entityManager;
+    private $compteRepo;
+    private $factureEcheanceService;
     
     public function __construct(
         ApplicationService $applicationService, 
@@ -49,7 +60,10 @@ class VenteController extends AbstractController
         ApplicationRepository $applicationRepo,
         AffaireRepository $affaireRepo,
         ProductRepository $productRepo,
-        ProductService $productService
+        ProductService $productService,
+        EntityManagerInterface $entityManager,
+        CompteRepository $compteRepo,
+        FactureEcheanceService $factureEcheanceService
 
         )
     {
@@ -64,6 +78,9 @@ class VenteController extends AbstractController
         $this->affaireRepo = $affaireRepo;
         $this->productRepo = $productRepo;
         $this->productService = $productService;
+        $this->entityManager = $entityManager;
+        $this->compteRepo = $compteRepo;
+        $this->factureEcheanceService = $factureEcheanceService;
     }
     
     #[Route('/', name: '_liste')]
@@ -653,6 +670,145 @@ class VenteController extends AbstractController
 
         return new JsonResponse();
 
+    }
+
+    #[Route('/add/compte', name: '_add_compte')]
+    public function addCompte(Request $request)
+    {
+        $data = []; 
+    
+        try {
+            // Récupérez le nom envoyé via la requête AJAX
+            $nom = $request->request->get('nom'); 
+    
+            // Créez une nouvelle instance de compte
+            $compte = new Compte();
+            
+            // Si vous avez un setter pour le nom dans compte$compte, utilisez-le
+            $compte->setNom($nom); 
+            $nom = $compte->getNom(); // Récupérer le nom
+            $nomSansEspaces = preg_replace('/\s+/', '', $nom); // Supprimer tous les espaces
+            $indiceFacture = strtoupper(substr($nomSansEspaces, 0, 2)); // Prendre les 2 premières lettres en majuscules
+
+            // Générer 3 chiffres aléatoires
+            $chiffres = str_pad(random_int(0, 999), 3, '0', STR_PAD_LEFT);
+
+            // Construire l'indice facture
+            $indiceFactureComplet = $indiceFacture . $chiffres;
+
+            // Affecter l'indice facture
+            $compte->setIndiceFacture($indiceFactureComplet);
+
+
+            $compte->setApplication($this->application);
+            $compte->setDateCreation(new \DateTime());
+            $compte->setGenre(1);
+    
+            $this->entityManager->persist($compte);
+            $this->entityManager->flush();
+
+            $data['id'] = $compte->getId();
+    
+            return new JsonResponse($data);
+        } catch (PropertyVideException $PropertyVideException) {
+            $data['exception'] = $PropertyVideException->getMessage();
+            $data["html"] = "";
+            return new JsonResponse($data);
+        } catch (\Exception $Exception) {
+            $data['exception'] = $Exception->getMessage();
+            return new JsonResponse($data);
+        }
+        
+        return new JsonResponse($data);
+    }
+
+    #[Route('/echeance/{affaire}', name: '_echeance_create')]
+    public function echeance(Affaire $affaire, Request $request): Response
+    {
+        $request->getSession()->set('idAffaire', $affaire->getId());
+        $applicationRevendeur = $affaire->getApplicationRevendeur();
+
+        $data = [];
+
+        try {
+            $produits = $this->productService->findProduitAffaire($affaire);
+            if ($produits == false) {
+                $produits = [];
+            }
+
+            $form = $this->createForm(AddFactureEcheanceType::class, null);
+            $form->handleRequest($request);
+
+            $form_affaire = $this->createForm(ChangeCompteAffaireType::class, null, [
+                'application' => $this->application
+            ]);
+            $form_affaire->handleRequest($request);
+
+            $facture = null;
+            $montant = 0;
+            $totalPayer = 0;
+
+            if($form->isSubmitted() && $form->isValid()) {
+                $compteId = (int) $request->get('compte-id');
+
+                $compte = null;
+
+                if($compteId) {
+                    $compte = $this->compteRepo->findOneBy(['id' => $compteId]);
+                }
+
+                $montantHt = $request->request->get('montantHt');
+
+                if ($request->isXmlHttpRequest()) {
+                    $documentFolder = $this->getParameter('kernel.project_dir'). '/public/uploads/APP_'.$this->application->getId().'/factures/valide/';
+                     // Chemin du dossier des échéances
+                    $echeanceFolder = $this->getParameter('kernel.project_dir') . '/public/uploads/APP_'.$this->application->getId().'/factures/echeance/';
+                    
+                    // Vérifier si le dossier des échéances existe, sinon le créer
+                    if (!is_dir($echeanceFolder)) {
+                        if (!mkdir($echeanceFolder, 0775, true)) {
+                            return new JsonResponse(['status' => 'error', 'message' => 'Le dossier des échéances ne peut pas être créé.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+                        }
+                    }
+                    list($pdfContent, $facture, $totalPayer) = $this->factureEcheanceService->add($affaire, $request, $documentFolder, $form, $montant, $totalPayer, $montantHt, $applicationRevendeur, $compte);
+                
+                    // Utiliser le numéro de la facture pour le nom du fichier
+                    $filename = $affaire->getCompte()->getIndiceFacture() . '-' . $facture->getNumero() . ".pdf";
+                    $pdfPath = '/uploads/APP_'.$this->application->getId().'/factures/echeance/' . $filename;
+                    file_put_contents($this->getParameter('kernel.project_dir') . '/public' . $pdfPath, $pdfContent);
+                    // Retourner le PDF en réponse
+
+                    if ($totalPayer > $montantHt) {
+                        return new JsonResponse(['status' => 'error', 'message' => 'Le total des montants sur les échéances et avances ne doit pas dépasser le montant à payer.'], Response::HTTP_OK);
+                        
+                    } elseif ($totalPayer < $montantHt)
+                    {
+                        return new JsonResponse(['status' => 'error', 'message' => 'Le total des montants sur les échéances et avances doit être égale au montant à payer.'], Response::HTTP_OK);
+                    }
+
+                    return new JsonResponse([
+                        'status' => 'success',
+                        'pdfUrl' => $pdfPath,
+                    ]);
+                    
+                }
+                
+            }
+
+            $data['exception'] = "";
+            $data["html"] = $this->renderView('admin/vente/modal_new_echeance.html.twig', [
+                'facture' => $facture,
+                'affaire' => $affaire,
+                'form' => $form->createView(),
+                'produits' => $produits,
+                'form_affaire' => $form_affaire
+            ]);
+           
+            return new JsonResponse($data);
+
+        } catch (PropertyVideException $PropertyVideException) {
+            throw $this->createNotFoundException('Exception' . $PropertyVideException->getMessage());
+        }
     }
     
 }

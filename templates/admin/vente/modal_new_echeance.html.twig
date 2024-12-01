@@ -1,0 +1,479 @@
+<style>
+    .error-message {
+            color: red;
+            display: none; /* Cacher le message par défaut */
+        }
+</style>
+{% form_theme form 'admin/vente/_collection.html.twig' %}
+<div class="affaire-id" data-affaire="{{affaire.id}}"></div>
+<div class="modal fade" id="modalVenteEcheance" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog ">
+        <div class="modal-content p-4 ">
+            <div class="modal-header modal-header-center">
+                <h5 class="modal-title fw-bold" id="modalNewLabel">Nouveau écheance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <hr>
+            </div>
+            <div class="modal-body">
+                {% set montantHt = 0 %}
+                {% for product in produits %}
+                    {% if product.typeVente == "gros" %}
+                    {% set montantHt = (montantHt + ((product.qtt)  * product.prixVenteGros)) - product.remise %}
+                    {% else %}
+                        {% set montantHt = (montantHt + (product.qtt * product.prixVenteDetail)) - product.remise %}
+                    {% endif %}
+                {% endfor %}
+                <p class="fw-bold mb-3">Client : {{affaire.compte.nom}} <span class="btn-change-compte text-primary" style="margin-left: 20px; cursor: pointer;">Changer client</span> </p>
+                <div class="form-affaire mb-4">
+                    {{form_start(form_affaire)}}
+                        <div class="form-group mb-3">
+                            <label for="" class="mb-2">Nom</label>
+                            {{form_widget(form_affaire.compte)}}
+                        </div>
+                    {{form_end(form_affaire)}}
+                </div>
+                <p class="fw-bold mb-4">Total à payer : {{ montantHt|number_format(0, ',', ' ') }} Ar</p>
+                <div class="alert alert-danger error">
+
+                </div>
+                {{ form_start(form, {'attr': {'id': 'newVenteEcheance', 'action': path('ventes_echeance_create', {'affaire': affaire.id}) }}) }}
+                    <input type="hidden" name="montantHt" value="{{ montantHt }}">
+                    <input type="hidden" name="compte-id" id="compte-id" class="form-control form-control-md">
+                    <span class="compte-delai-paiement" data-delais="{{affaire.compte.delaisPaiement}}"></span>
+                    <span class="montant-ht" data-montant="{{montantHt}}"></span>
+                    <div class="form-group mb-4">
+                        {% if affaire.compte.delaisPaiement is not null %} 
+                        <input type="checkbox" name="compte_delais_paiement" id="compte_delais_paiement" checked >
+                        <label for="" class="label-delais">Délais de paiement client</label>
+                        {% endif %}
+                        <input type="checkbox" name="paye_une_fois" id="paye_une_fois">
+                        <label for="" class="label-payer">Payer une seule fois</label>
+                    </div>
+
+                    <div class="form-group mb-4 avance">
+                        <label for="" class="mb-2">Avance</label>
+                        <div id="error-message" class="error-message">Veuillez entrer un nombre valide.</div>
+                        {{form_widget(form.reglement)}}
+                    </div>
+                    <div class="form-group mb-3">
+                        {{form_widget(form.factureEcheances)}}
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-sm px-5 mt-3" style="width: 100%;">Ajouter écheances</button>
+                    </div>
+                {{ form_end(form) }}               
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script src="{{ asset('assets/js/script_utile.js')}}"></script>
+<script>
+
+$(document).ready(function() {
+    const delaiCompte = $('.compte-delai-paiement').data('delais');
+    const montantHt = $('.montant-ht').data('montant');
+    const errorMessage = document.getElementById('error-message');
+
+    function handleCheckboxState() {
+        setTimeout(function() {
+        if ($('#compte_delais_paiement').is(':checked')) {
+            $('#add_facture_echeance_reglement').on('input', function(){
+                const reglementValue = $(this).val();
+                const montantHtFinal = montantHt - reglementValue;
+
+                if (isNaN(this.value)) {
+                    // Affiche le message d'erreur si ce n'est pas un nombre
+                    errorMessage.style.display = 'block';
+                    $('#add_facture_echeance_factureEcheances_0_montant').val(montantHt).prop('readonly', true);
+
+                } else if(this.value.trim() === '') {
+                    errorMessage.style.display = 'none';
+                    $('#add_facture_echeance_factureEcheances_0_montant').val(montantHt).prop('readonly', true);
+
+                }
+                else {
+                    // Cache le message d'erreur si la valeur est un nombre
+                    errorMessage.style.display = 'none';
+                    $('#add_facture_echeance_factureEcheances_0_montant').val(montantHtFinal).prop('readonly', true);
+
+                }
+            })
+            
+            $('#compte_delais_paiement').show();
+
+            $('#paye_une_fois').hide();
+            $('.label-payer').hide();
+
+            // Remplir le champ de délai de paiement avec la valeur de delaiCompte
+            $('#add_facture_echeance_factureEcheances_0_delaiPaiement').val(delaiCompte).prop('readonly', true);
+            $('#add_facture_echeance_factureEcheances_0_montant').val(montantHt).prop('readonly', true);
+            $('#add-echeance').hide();
+
+            // Appeler directement calculateDateEcheance après avoir défini le délai de paiement
+            calculateDateEcheance('#block_add_facture_echeance_factureEcheances_0');
+        } else {
+            // Réinitialiser le champ de délai de paiement si la case est décochée
+            $('#add_facture_echeance_factureEcheances_0_delaiPaiement').val('').prop('readonly', false);
+            $('#add_facture_echeance_factureEcheances_0_montant').val('').prop('readonly', false);
+
+            // Réinitialiser la date d'échéance et le texte associé
+            $('#block_add_facture_echeance_factureEcheances_0').find('input[name$="[dateEcheance]"]').val('');
+            $('#block_add_facture_echeance_factureEcheances_0').find('.date-echeance-text').text('');
+            
+            $('#add-echeance').show();
+            $('#compte_delais_paiement').show();
+            $('.label-delais').show();
+            $('#paye_une_fois').show();
+            $('.label-payer').show();
+        }
+    }, 500);
+    }
+
+    // Appeler la fonction au chargement de la page pour vérifier l'état initial de la checkbox
+    handleCheckboxState();
+
+    // Écouter le changement de la checkbox pour gérer les futures interactions
+    $('#paye_une_fois').change(function() {
+        if ($(this).is(':checked')) {
+            $('#compte_delais_paiement').hide();
+            $('.label-delais').hide();
+            $('.avance').hide();
+            
+            // Remplir le champ de délai de paiement avec la valeur de delaiCompte
+            $('#add_facture_echeance_factureEcheances_0_montant').val(montantHt).prop('readonly', true);
+            $('#add-echeance').hide();
+
+            // Appeler directement calculateDateEcheance après avoir défini le délai de paiement
+            calculateDateEcheance('#block_add_facture_echeance_factureEcheances_0');
+        } else {
+            // Réinitialiser le champ de délai de paiement si la case est décochée
+            $('#add_facture_echeance_factureEcheances_0_montant').val('').prop('readonly', false);
+
+            // Réinitialiser la date d'échéance et le texte associé
+            $('#block_add_facture_echeance_factureEcheances_0').find('input[name$="[dateEcheance]"]').val('');
+            $('#block_add_facture_echeance_factureEcheances_0').find('.date-echeance-text').text('');
+            
+            $('#add-echeance').show();
+            $('.avance').show();
+
+        }
+        
+    });
+
+    function calculateDateEcheance($element) {
+        const $dateEcheance = $($element).find('input[name$="[dateEcheance]"]');
+        const $delaiPaiement = $($element).find('input[name$="[delaiPaiement]"]');
+        const $dateEcheanceText = $($element).find('.date-echeance-text');
+
+        const delai = parseInt($delaiPaiement.val(), 10);
+
+        if (!isNaN(delai)) {
+            const today = moment().add(delai, 'days');
+
+            // Formatage de la date au format dd-mm-yyyy pour le champ input
+            const formattedDate = today.format('DD/MM/YYYY');
+
+            // Formatage de la date en lettres pour le texte
+            const formattedDateText = today.format('dddd DD MMMM YYYY');
+
+            // Définir la valeur du champ de date d'échéance
+            $dateEcheance.val(formattedDate);
+
+            // Afficher la date formatée en lettres
+            $dateEcheanceText.text(formattedDateText);
+        } else {
+            $dateEcheance.val('');
+            $dateEcheanceText.text('');
+        }
+    }
+});
+
+
+
+$(document).ready(function() {
+    function addEcheance() {
+        // Récupère l'index actuel basé sur le nombre d'échéances existantes
+        const index = +$('#widgets-counter').val();
+
+        let tmpl = $('#add_facture_echeance_factureEcheances').data('prototype').replace(/__name__/g, index);
+
+        // Convertir la chaîne tmpl en un objet jQuery pour manipulation
+        let $tmpl = $(tmpl);
+
+        // Modifier le numéro d'échéance
+        const echeanceNumber = index + 1;
+        $tmpl.find('.echeance-number').text(echeanceNumber);
+
+        // Ajouter l'élément au DOM
+        $('#add_facture_echeance_factureEcheances').append($tmpl);
+
+        // Incrémenter le compteur après avoir ajouté le nouvel élément
+        $('#widgets-counter').val(index + 1);
+
+        // Ajouter des écouteurs d'événements pour les champs de délai de paiement
+        $tmpl.find('input[name$="[delaiPaiement]"]').on('input', function() {
+            calculateDateEcheance($(this).closest('.form-content'));
+        });
+
+        handleDelete();
+    }
+
+    function initializeDefaultEcheances() {
+        // Réinitialiser le compteur en fonction du nombre d'échéances existantes
+        const $echeancesContainer = $('#add_facture_echeance_factureEcheances');
+        const $existingEcheances = $echeancesContainer.find('.form-group');
+        const initialCount = $existingEcheances.length;
+
+        // Mettre à jour le compteur
+        $('#widgets-counter').val(initialCount);
+
+        // Assigner les numéros aux éléments par défaut et ajouter les écouteurs d'événements
+        $existingEcheances.each(function(index) {
+            $(this).find('.echeance-number').text(index + 1);
+            // Ajouter des écouteurs d'événements pour les champs de délai de paiement
+            $(this).find('input[name$="[delaiPaiement]"]').on('input', function() {
+                calculateDateEcheance($(this).closest('.form-content'));
+            });
+        });
+    }
+
+    function handleDelete() {
+        $('a[data-action="delete"]').click(function() {
+            const target = this.dataset.target;
+            $(target).remove();
+            updateCounter();
+            updateEcheanceNumbers();
+        });
+    }
+
+    function updateCounter() {
+        // Mettre à jour le compteur basé sur le nombre d’échéances existantes
+        const count = $('#add_facture_echeance_factureEcheances .form-group').length;
+        $('#widgets-counter').val(count);
+    }
+
+    function updateEcheanceNumbers() {
+        // Recalculer les numéros d’échéance pour qu’ils soient consécutifs
+        $('#add_facture_echeance_factureEcheances .form-group').each(function(index) {
+            $(this).find('.echeance-number').text(index + 1);
+        });
+    }
+
+   
+    function calculateDateEcheance($element) {
+        const $dateEcheance = $element.find('input[name$="[dateEcheance]"]');
+        const $delaiPaiement = $element.find('input[name$="[delaiPaiement]"]');
+        const $dateEcheanceText = $element.find('.date-echeance-text');
+
+        const delai = parseInt($delaiPaiement.val(), 10);
+
+        if (!isNaN(delai)) {
+            const today = moment().add(delai, 'days');
+
+            // Formatage de la date au format dd-mm-yyyy pour le champ input
+            const formattedDate = today.format('DD/MM/YYYY');
+
+            // Formatage de la date en lettres pour le texte
+            const formattedDateText = today.format('dddd DD MMMM YYYY');
+
+            // Définir la valeur du champ de date d'échéance
+            $dateEcheance.val(formattedDate);
+
+            // Afficher la date formatée en lettres
+            $dateEcheanceText.text(formattedDateText);
+        } else {
+            $dateEcheance.val('');
+            $dateEcheanceText.text('');
+        }
+    }
+
+    // Initialisation : 
+    initializeDefaultEcheances(); // Affiche les éléments par défaut avec les indices corrects
+
+    // Ajouter une échéance au chargement de la page
+    addEcheance();
+
+    // Gestion du clic pour ajouter une nouvelle échéance
+    $("#add-echeance").click(function() {
+        addEcheance();
+    });
+
+    // Gérer les suppressions
+    handleDelete();
+});
+
+
+$(document).ready(function () {
+    var anchorName = document.location.hash.substring(1);
+    idAffaire = $('.affaire-id').data('affaire');
+    $('.error').hide();
+    $('#newVenteEcheance').on('submit', function (e) {
+         e.preventDefault();
+         let form = $(this);
+       
+         // Create an FormData object
+         let formData = new FormData(form[0]);
+       formData.append('isNew', false);
+         $.ajax({
+             url: form.attr('action'),
+             type: form.attr('method'),
+             data: formData,
+             processData: false,
+             contentType: false,
+             success: function (response) {
+
+                if(response.status == "error") {
+                     $('#modalVenteEcheance').modal('show');
+                     $('.error').show();
+                     $('.error').text(response.message);
+                } else {
+
+                 $('#modalVenteEcheance').modal('hide');
+                 var nextLink = $('#sidebar').find('li#financier').find('a');
+                 setTimeout(function () {
+                     toastr.options = {
+                         closeButton: true,
+                         progressBar: true,
+                         showMethod: 'slideDown',
+                         timeOut: 1000
+                     };
+                     toastr.success('Avec succèss', 'Enregistrement effectuée');
+
+                     if (response.pdfUrl) {
+                        window.open(response.pdfUrl, '_blank');
+                    }
+
+                 }, 800);
+                 if (nextLink.length > 0) {
+                     nextLink.click();
+                 }
+
+                 if (anchorName) {
+                    window.location.hash = anchorName;
+                }
+
+                showTabCaisse(idAffaire);
+            }
+             },
+             error: function (jqXHR, textStatus, errorThrown) {
+                 // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                 alert('Erreur lors de l\'ajout de facture écheance');
+             }
+         });
+     });
+ });
+
+</script>
+
+<script>
+    $(document).ready(function() {
+        var anchorName = document.location.hash.substring(1);
+        $('.form-affaire').hide(); // Cache le formulaire au début
+        $('.btn-change-compte').on('click', function() {
+            if (anchorName) {
+                window.location.hash = anchorName;
+            }
+            $('.form-affaire').toggle(); // Affiche ou cache le formulaire
+            
+        });
+    });
+
+    $(document).ready(function() {
+        const $chosenResults = $('#change_compte_affaire_compte_chosen .chosen-results');
+        const $chosenDrop = $('#change_compte_affaire_compte_chosen .chosen-drop');
+        const $selectElement = $('#change_compte_affaire_compte');
+
+        $('#change_compte_affaire_compte_chosen .chosen-drop .chosen-search input').on('input', function() {
+            const inputValue = $(this).val().trim().toLowerCase(); // On passe tout en minuscule pour uniformiser la comparaison
+            let matchFound = false;
+
+            // Parcourir les options existantes pour vérifier s'il existe une correspondance partielle
+            $selectElement.find('option').each(function() {
+                const optionText = $(this).text().trim().toLowerCase();
+                if (optionText.startsWith(inputValue)) {
+                    matchFound = true;
+                    return false; // Si une correspondance est trouvée, on arrête la boucle
+                }
+            });
+
+            // Si l'input est vide, réinitialisez le résultat et supprimez le bouton "Créer"
+            if (inputValue === '') {
+                $chosenDrop.find('.btn-create-compte').remove(); // Supprimez le bouton "Créer"
+            } else {
+                // Si aucune correspondance n'a été trouvée, affichez le bouton "Créer"
+                if (!matchFound && !$chosenDrop.find('.btn-create-compte').length) {
+                    $chosenDrop.append(`<a href="#" id="btn-create-compte" class="btn-create-compte text-decoration-underline" style="margin-left:100px;">Créer</a>`);
+                } 
+                // Si une correspondance est trouvée, supprimez le bouton "Créer"
+                else if (matchFound) {
+                    $chosenDrop.find('.btn-create-compte').remove();
+                }
+            }
+
+            // Gérer le clic sur le bouton "Créer"
+            $(document).off('click', '#btn-create-compte').on('click', '#btn-create-compte', function(e) {
+                e.preventDefault(); // Empêche le comportement par défaut du lien
+                
+                const inputValue = $('#change_compte_affaire_compte_chosen .chosen-drop .chosen-search input').val().trim();
+                
+                // Ajouter une nouvelle option à l'élément <select> si la valeur n'est pas vide
+                if (inputValue !== '') {
+                    // Envoyer une requête AJAX pour créer la catégorie
+                    $.ajax({
+                        url: 'admin/vente/add/compte',
+                        type: 'POST',
+                        data: { nom: inputValue },
+                        success: function(response) {
+                            const compteId = response.id;
+                            
+                            if (compteId) {
+                                // Ajouter une nouvelle option à l'élément <select>
+                                $selectElement.append(`<option value="${compteId}" selected>${inputValue}</option>`);
+                                
+                                // Mettre à jour Chosen pour refléter les modifications
+                                $selectElement.trigger("chosen:updated");
+
+                                // Mettre à jour l'affichage de l'option choisie
+                                $('#change_compte_affaire_compte_chosen .chosen-single span').text(inputValue);
+
+                                // Réinitialiser l'input et retirer les éléments non nécessaires
+                                $('#change_compte_affaire_compte_chosen .chosen-drop .chosen-search input').val('');
+                                $chosenResults.find('.no-results').remove(); // Retirer le message "No results match"
+                                $chosenDrop.find('.btn-create-compte').remove(); // Supprimer le bouton "Créer"
+
+                                // Fermer automatiquement la liste Chosen
+                                $selectElement.trigger("chosen:close");
+
+           
+                                $('#compte-id').val(compteId);
+                            }
+                        },
+                        error: function() {
+                            alert('Erreur lors de l\'ajout de la compte.');
+                        }
+                    });
+
+                }
+            });
+        });
+    });
+
+
+    $(document).ready(function() {
+
+        // Écoutez l'événement de changement de sélection sur l'élément choisi
+        $('.chosen-select').on('change', function() {
+            var selectedOption = $(this).find(':selected');
+            var compteId = selectedOption.val();
+            console.log(compteId);
+            if (compteId) {
+                $('#compte-id').val(compteId);
+            }
+        });
+    });
+
+</script>
+
+{% endblock %}

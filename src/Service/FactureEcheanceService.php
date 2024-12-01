@@ -61,7 +61,7 @@ class FactureEcheanceService
         $this->logService = $logService;
     }
 
-    public function add($affaire = null, $request = null, $folder = null, $form = null, $montant = null, $totalPayer = null, $grandTotal = null, $applicationRevendeur = null)
+    public function add($affaire = null, $request = null, $folder = null, $form = null, $montant = null, $totalPayer = null, $grandTotal = null, $applicationRevendeur = null, $compte = null)
     {
         $facture = Facture::newFacture($affaire);
         $date = new \DateTime();
@@ -442,6 +442,9 @@ class FactureEcheanceService
         $affaire->setDevisEvol('encours');
         $affaire->setDateFacture($date);
         $affaire->setStatut("commande");
+        if($compte) {
+            $affaire->setCompte($compte);
+        }
         $this->persist($affaire);
         
         $pdfContent = null;
