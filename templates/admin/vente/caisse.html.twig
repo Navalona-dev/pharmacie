@@ -286,11 +286,41 @@
                         li1.append(ali);
                         ul.append(li1);
                         
-                       
+                        
                         var li2 = $("<li></li>");
                         var hr = $("<hr class='dropdown-divider'>");
                         li2.append(hr);
                         ul.append(li2);
+                        var tabIdAffaire = Object.keys(response.tabIdAffaire); //tableau
+                        
+                        if (tabIdAffaire.length > 0 ) {
+                            $.each(response.tabIdAffaire, function (key, affaire) {
+                                var tabInfoAffaire = affaire.split('##');
+                                 var av = $("<a href='#tab-caisse' onclick='return showTabCaisse("+key+")'></a>");
+                                var li = $("<li></li>");
+                                var hrd = $("<hr class='dropdown-divider'>");
+                                li.append(hrd);
+                                av.append(li);
+                                var liNotif = $(" <li class='notification-item item-commande'></li>");
+                              
+                                var div = $("<div></div>");
+                                
+                               var h4 = $("<h4 class='text-black'></h4>");
+                               var i = $("<i class='bi bi-check-circle text-success'></i>");
+                               h4.append(i);
+                               h4.append('Commande validée');
+                               var p1 = $("<p>"+tabInfoAffaire[0]+"</p>");
+                               var p2 = $("<p>"+tabInfoAffaire[1]+"</p>");
+                                div.append(h4);
+                                
+                                div.append(p1);
+                                div.append(p2);
+                                liNotif.append(div);
+                                av.append(liNotif);
+                                ul.append(av);
+                        });
+                        }
+
                         button.append(ul);
                         console.log(countAffaires, button);
                         $("#notif-caisse").empty();

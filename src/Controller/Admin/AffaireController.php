@@ -1026,11 +1026,61 @@ class AffaireController extends AbstractController
             $newAffaires = $this->affaireRepo->findBy(['paiement' => 'non', 'isValid' => true, 'application' => $this->application]);
             
             $countAffaires = count($newAffaires);
+            
+            $tabIdAffaire = [];
+            if (count($newAffaires) > 0) {
+                foreach($newAffaires as $affaire) {
+                        $now = new \DateTime();
+                        $interval = $now->diff($affaire->getDateValidation());
+                        $result = 'Il y a';
         
+                        // Ajouter les années, mois, jours, heures, minutes, secondes
+                        if ($interval->d > 0) {
+                            if ($interval->d > 1) {
+                                $result .= ' ' . $interval->d . ' jours';
+                            } else {
+                                $result .= ' ' . $interval->d . ' jour';
+                            }
+                            
+                        }
+                        
+                        if ($interval->h > 0) {
+                            if ($interval->h > 1) {
+                                $result .= ' ' . $interval->h . ' heures';
+                            } else {
+                                $result .= ' ' . $interval->h . ' heure';
+                            }
+                            
+                        }
+                        
+                        if ($interval->i > 0) {
+                            if ($interval->i > 1) {
+                                $result .= ' ' . $interval->i . ' minutes';
+                            } else {
+                                $result .= ' ' . $interval->i . ' minute';
+                            }
+                            
+                        }
+
+                        // Si aucune unité n'a été ajoutée (par exemple, juste quelques secondes), ajouter "quelques secondes"
+                        if ($interval->d == 0 && $interval->h == 0 && $interval->i == 0) {
+                            if ($interval->s > 1) {
+                                $result .= ' ' . $interval->s . ' secondes';
+                            } else {
+                                $result .= ' ' . $interval->s . ' seconde';
+                            }
+                            
+                        }
+                        $tabIdAffaire[$affaire->getId()] = $affaire->getNom()."##".$result;
+                    
+                }
+            }
+           
             return new JsonResponse([
                 'status' => 'success',
                 'pdfUrl' => $pdfPath,
-                'countAffaires' => $countAffaires
+                'countAffaires' => $countAffaires,
+                'tabIdAffaire' => $tabIdAffaire
             ]);
             
         }
