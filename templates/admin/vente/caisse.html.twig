@@ -111,7 +111,7 @@
                                     {% if app_authorization.isUserAllowedOnFeature('remise') %}
                                          {% if product.remise %} 
                                             {#<span class="text-danger">-{{ product.remise|number_format(0,',',' ') }} Ar</span>  #}
-                                            <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">{% if product.remise %} <span class="text-danger">{{ product.remise }}</span> {% else %} <i class="bi bi-percent btn-remise"></i> {% endif %}</a>
+                                            <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">{% if product.remise %} <span class="text-danger">{{ product.remise }}&nbsp;Ar</span> {% else %} <i class="bi bi-percent btn-remise"></i> {% endif %}</a>
                                         {% else %}
                                             {% if affaire.paiement == 'non' %} 
                                                 <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">
@@ -274,6 +274,64 @@
                         if (response.pdfUrl) {
                             window.open(response.pdfUrl, '_blank');
                         }
+                        var countAffaires = response.countAffaires;
+                        var button = $("<button class='dropdown show-content icon-notification btn btn-primary btn-sm px-3' id='new-commande'></button>");
+                        var link = $("<a class='nav-link nav-icon' href='#' data-bs-toggle='dropdown'>Caisse</a>");
+                        var span = $("<span class='badge badge-number badge-commande badge-animation'> " + countAffaires + " </span>");
+                        link.append(span);
+                        button.append(link);
+                        
+                        var ul = $("<ul class='dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications notification-commande'></ul>");
+                       
+                        var li1 = $("<li class='dropdown-header count-commande' id='count-commande'>  Vous avez " + countAffaires + " Commandes</li>");
+
+                        var ali = $("<a href='#tab-notification' onclick='return showTabNotification()'></a>");
+
+                        var spanAli = $("<span class='badge rounded-pill p-2 ms-2'>Voir tous</span>");
+                        ali.append(spanAli);
+                        li1.append(ali);
+                        ul.append(li1);
+                        
+                        
+                        var li2 = $("<li></li>");
+                        var hr = $("<hr class='dropdown-divider'>");
+                        li2.append(hr);
+                        ul.append(li2);
+                        var tabIdAffaire = Object.keys(response.tabIdAffaire); //tableau
+                        
+                        if (tabIdAffaire.length > 0 ) {
+                            $.each(response.tabIdAffaire, function (key, affaire) {
+                                var tabInfoAffaire = affaire.split('##');
+                                 var av = $("<a href='#tab-caisse' onclick='return showTabCaisse("+key+")'></a>");
+                                var li = $("<li></li>");
+                                var hrd = $("<hr class='dropdown-divider'>");
+                                li.append(hrd);
+                                av.append(li);
+                                var liNotif = $(" <li class='notification-item item-commande'></li>");
+                              
+                                var div = $("<div></div>");
+                                
+                               var h4 = $("<h4 class='text-black'></h4>");
+                               var i = $("<i class='bi bi-check-circle text-success'></i>");
+                               h4.append(i);
+                               h4.append('Commande validée');
+                               var p1 = $("<p>"+tabInfoAffaire[0]+"</p>");
+                               var p2 = $("<p>"+tabInfoAffaire[1]+"</p>");
+                                div.append(h4);
+                                
+                                div.append(p1);
+                                div.append(p2);
+                                liNotif.append(div);
+                                av.append(liNotif);
+                                ul.append(av);
+                        });
+                        }
+
+                        button.append(ul);
+                        console.log(countAffaires, button);
+                        $("#notif-caisse").empty();
+                        $("#notif-caisse").append(button);
+                       //location.reload();
 
                     }, 800);
                     
