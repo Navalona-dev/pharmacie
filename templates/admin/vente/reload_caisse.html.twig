@@ -35,7 +35,7 @@
                                       {% if app_authorization.isUserAllowedOnFeature('remise') %}
                                       {% if product.remise %} 
                                           {# <span class="text-danger">-{{ product.remise|number_format(0,',',' ') }} Ar</span>  #}
-                                          <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">{% if product.remise %} <span class="text-danger">{{ product.remise }}</span> {% else %} <i class="bi bi-percent btn-remise"></i> {% endif %}</a>
+                                          <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">{% if product.remise %} <span class="text-danger">{{ product.remise }}&nbsp;Ar</span> {% else %} <i class="bi bi-percent btn-remise"></i> {% endif %}</a>
                                       {% else %}
                                           {% if affaire.paiement == 'non' %} 
                                               <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">
@@ -81,7 +81,14 @@
                               </div>
                           </div>
                           <div class="d-flex justify-content-end btn-action">
-                              <a href="#" class="btn btn-primary btn-sm px-3" onclick="return paiement({{affaire.id}})" class="btn btn-primary btn-sm px-3">Payer</a>
-                          </div>
+                            {% if affaire.paiement == "non" %}
+                            <a href="#"  onclick="return paiement({{affaire.id}})" class="btn btn-primary btn-sm px-3">Payer</a>
+                            <a href="#"  onclick="return openModalFactureEcheance({{ affaire.id }})" class="btn btn-primary btn-sm px-3 btn-echeance">Echeance</a>
+                            {% else %}
+                            <a href="#tab-facture-affaire" onclick="return showTabFactureAffaire({{affaire.id}})" class="btn btn-primary btn-sm px-3">
+                                Factures
+                            </a>
+                            {% endif %}
+                        </div>
                       </div>
 </div>
