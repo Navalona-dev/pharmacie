@@ -73,7 +73,7 @@
                             <div class="col-md-8 col-12">
                                 <div class="form-group mb-3">
                                     <label for="" class="mb-2">Produits</label>
-                                    <select name="produit_liste" id="produit_liste" class="form-control form-control-sm chosen-select">
+                                    <select name="produit_liste" id="produit_liste" class="form-control form-control-sm chosen-select chosen-select-produit">
                                         <option value="" selected disabled>Selectionner un produit</option>
                                         {% for produit in produitCategories %}
                                             <option data-action="openModalProduitCategory({{ produit.id }})" value="{{produit.id}}" style="cursor: pointer;">{{produit.reference}} - {{produit.nom}}</option>
@@ -197,6 +197,8 @@
         $('#tab-comptabilite-detail').css('display', 'none');
         $('#tab-comptabilite-liste').removeClass('active');
         $('#tab-avoir').css('display', 'none');
+        $('#tab-caisse').css('display', 'none');
+        $('#tab-liste-vente').css('display', 'none');
 
     
     });
@@ -210,7 +212,7 @@
     $('.chosen-select').chosen({ width: "100%" });
 
     // Écoutez l'événement de changement de sélection sur l'élément choisi
-    $('.chosen-select').on('change', function() {
+    $('.chosen-select.chosen-select-produit').on('change', function() {
         var selectedOption = $(this).find(':selected');
         if (selectedOption.length) {
             var produitId = selectedOption.val();

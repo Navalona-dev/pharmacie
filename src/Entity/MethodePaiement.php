@@ -56,6 +56,9 @@ class MethodePaiement
     #[ORM\ManyToOne(inversedBy: 'methodePaiements')]
     private ?Application $application = null;
 
+    #[ORM\ManyToOne(inversedBy: 'methodePaiements')]
+    private ?Affaire $affaire = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -225,6 +228,18 @@ class MethodePaiement
     public function setApplication(?Application $application): static
     {
         $this->application = $application;
+
+        return $this;
+    }
+
+    public function getAffaire(): ?Affaire
+    {
+        return $this->affaire;
+    }
+
+    public function setAffaire(?Affaire $affaire): static
+    {
+        $this->affaire = $affaire;
 
         return $this;
     }

@@ -158,7 +158,11 @@
                         </div>
                         <div class="d-flex justify-content-end btn-action">
                             {% if affaire.paiement == "non" %}
-                            <a href="#"  onclick="return paiement({{affaire.id}})" class="btn btn-primary btn-sm px-3">Payer</a>
+                            {% if affaire.methodePaiements|length > 0 %}
+                                <a href="#"  onclick="return paiement({{affaire.id}})" class="btn btn-primary btn-sm px-3">Payer</a>
+                            {% else %}
+                                <a href="#" onclick="return openModalMethodePaiementVente({{affaire.id}})" class="btn btn-primary btn-sm px-3">Méthode de paiement</a>
+                            {% endif %}
                             <a href="#"  onclick="return openModalFactureEcheance({{ affaire.id }})" class="btn btn-primary btn-sm px-3 btn-echeance">Echeance</a>
                             {% else %}
                             <a href="#tab-facture-affaire" onclick="return showTabFactureAffaire({{affaire.id}})" class="btn btn-primary btn-sm px-3">
@@ -178,6 +182,7 @@
     </div>
     <div id="modalRemiseCaisseEmpty"></div>
     <div id="modalEcheanceCaisseEmpty"></div>
+    <div id="modalMethodePaiementCaisseEmpty"></div>
 
 </section>
 
@@ -187,7 +192,6 @@
   <script>
   
     $(document).ready(function() {
-        $('#tab-ventes').css('display', 'block');
         $('#tab-fiche-fournisseur').removeClass('active').empty();
         $('#tab-quantite-vendu').removeClass('active').empty();
         $('#tab-notification').removeClass('active').empty();
@@ -239,6 +243,8 @@
         $('#tab-comptabilite-detail').css('display', 'none');
         $('#tab-comptabilite-liste').removeClass('active');
         $('#tab-avoir').css('display', 'none');
+        $('#tab-caisse').css('display', 'block');
+        $('#tab-liste-vente').css('display', 'none');
 
     
     });
@@ -307,4 +313,25 @@
                 }
             });
     }
+
+    function openModalMethodePaiementVente(id = null) {
+    var anchorName = document.location.hash.substring(1);
+          $.ajax({
+              url: '/admin/vente/nouveau/methode/paiement/'+id,
+              type: 'GET',
+              //data: {isNew: isNew},
+              success: function (response) {
+                  $("#modalMethodePaiementCaisseEmpty").empty();
+                  $("#modalMethodePaiementCaisseEmpty").append(response.html);
+                  $('#modalNewMethodePaiementVente').modal('show');
+                  if (anchorName) {
+                      window.location.hash = anchorName;
+                  }
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                  alert('Erreur lors de l\'ajout de methode de paiement.');
+              }
+          });
+  }
   </script>

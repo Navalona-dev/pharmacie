@@ -178,6 +178,12 @@ class Affaire
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateValidation = null;
 
+    /**
+     * @var Collection<int, MethodePaiement>
+     */
+    #[ORM\OneToMany(targetEntity: MethodePaiement::class, mappedBy: 'affaire')]
+    private Collection $methodePaiements;
+
 
     public function __construct()
     {
@@ -186,6 +192,7 @@ class Affaire
         $this->abonnement = 'noncommence';
         $this->products = new ArrayCollection();
         $this->factures = new ArrayCollection();
+        $this->methodePaiements = new ArrayCollection();
     }
 
     public static function newAffaire($instance, $statut = null, $compte = null)
@@ -746,6 +753,36 @@ class Affaire
     public function setDateValidation(?\DateTimeInterface $dateValidation): static
     {
         $this->dateValidation = $dateValidation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MethodePaiement>
+     */
+    public function getMethodePaiements(): Collection
+    {
+        return $this->methodePaiements;
+    }
+
+    public function addMethodePaiement(MethodePaiement $methodePaiement): static
+    {
+        if (!$this->methodePaiements->contains($methodePaiement)) {
+            $this->methodePaiements->add($methodePaiement);
+            $methodePaiement->setAffaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMethodePaiement(MethodePaiement $methodePaiement): static
+    {
+        if ($this->methodePaiements->removeElement($methodePaiement)) {
+            // set the owning side to null (unless already changed)
+            if ($methodePaiement->getAffaire() === $this) {
+                $methodePaiement->setAffaire(null);
+            }
+        }
 
         return $this;
     }

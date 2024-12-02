@@ -1,69 +1,63 @@
 <style>
-  .dataTables_scroll {
-    margin-top: 50px !important;
-    margin-bottom: 30px !important;
-  }
-  td, tr {
-    border-bottom: none !important;
-  }
- 
+    .nb-vente {
+        color: #7a1820;
+        
+    }
 </style>
 
 <div class="pagetitle">
-    <h1>Liste utilisateur </h1>
+    <h1>Liste vente </h1>
     <nav>
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{path('app_admin')}}">Tableau de board</a></li>
-        <li class="breadcrumb-item active">Liste</li>
+        <li class="breadcrumb-item active">Liste vente</li>
       </ol>
     </nav>
 </div>
 <section class="section">
     <div class="row">
       <div class="col-lg-12">
-        {% include 'admin/tab/_nav_tab_user.html.twig' %}
         <div class="card">
-          <div class="d-flex justify-content-end mb-3 pt-2 px-2" title="Nouveau">
-            <button class="btn btn-primary" onclick="return newUtilisateur(true)">
-                 <i class="bi bi-plus-circle ml-2"></i>
-            </button>
-          </div>
-          <div class="card-body px-3 pb-3 px-lg-5 pb-lg-5">
-            <table class="table table-striped" id="liste-table-utilisateur" style="width: 100%;">
-              <thead>
-                    {% include 'admin/utilisateurs/_table.html.twig' with { 'type': 'thead' } %}
-              </thead>
-              <tbody>
-                {% if listes|length > 0 %}
+            <div class="card-body px-3 py-3 px-lg-3 py-lg-4">
+                <h3 class="fw-bold mb-4" style="font-size: 17px;">Vous avez <span class="nb-vente">{{listes|length}} </span>ventes pour aujourd'hui </h3>
+                <div class="row">
+                   
+                    {% for liste in listes %}
 
-                  {% for liste in listes %}
-                      {% include 'admin/utilisateurs/_table.html.twig' with { 'type': 'tbody', 'liste': liste } %}
-                  {% endfor %}
-                
-                {% else %}
-                    <tr class="text-nowrap">
-                        <td>Aucun enregistrement trouvé</td>
-                         <td>&nbsp;</td>
-                          <td>&nbsp;</td>
-                    </tr>
-                {% endif %}
-                
-              </tbody>
-            </table>
-
-          </div>
+                        {% set montantHt = methodePaiements[liste.id].espece + methodePaiements[liste.id].mVola + methodePaiements[liste.id].airtelMoney + methodePaiements[liste.id].orangeMoney %}
+                    <div class="col-md-4 col-12">
+                        <div class="card shadow p-3">
+                            <h4 class="text-center fw-bold" style="font-size: 16px;">
+                                {{liste.nom}}
+                            </h4>
+                            <p><strong>Espèce : </strong> {{methodePaiements[liste.id].espece|number_format(0,',',' ')}} Ar </p>
+                            <p><strong>Mvola : </strong> {{methodePaiements[liste.id].mVola|number_format(0,',',' ')}} Ar </p>
+                            <p><strong>AirtelMoneu : </strong> {{methodePaiements[liste.id].airtelMoney|number_format(0,',',' ')}} Ar </p>
+                            <p><strong>OrangeMoney : </strong> {{methodePaiements[liste.id].orangeMoney|number_format(0,',',' ')}} Ar </p>
+                            <p><strong>Remise : </strong>  {{totalRemises[liste.id]|number_format(0,',',' ')}} Ar </p>
+                            <p><strong>Total : </strong> {{montantHt|number_format(0,',',' ')}} Ar </p>
+                        </div>
+                    </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            Aucune vente faite pour aujourd'hui
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-
       </div>
     </div>
-    <div id="blocModalUtilisateurEmpty">
-            </div>
-  </section>
+    <div id="modalRemiseCaisseEmpty"></div>
+    <div id="modalEcheanceCaisseEmpty"></div>
+
+</section>
+
+<script src="{{ asset('assets/js/product.js?version=1.4')}}"></script>
+<script src="{{ asset('assets/js/remise_vente.js?version=1.1')}}"></script>
 
   <script>
   
-    //datatable
-    
     $(document).ready(function() {
         $('#tab-fiche-fournisseur').removeClass('active').empty();
         $('#tab-quantite-vendu').removeClass('active').empty();
@@ -113,32 +107,12 @@
         $('#tab-vente').css('display', 'none');
         $('#tab-benefice').css('display', 'none');
          $('#tab-fourchette').css('display', 'none');
-         $('#tab-ventes').css('display', 'none');
-         $('#tab-avoir').css('display', 'none');
-        $('#tab-caisse').css('display', 'none');
-        $('#tab-liste-vente').css('display', 'none');
         $('#tab-comptabilite-detail').css('display', 'none');
-                $('#tab-comptabilite-liste').removeClass('active');
-
-
-    
+        $('#tab-comptabilite-liste').removeClass('active');
+        $('#tab-avoir').css('display', 'none');
+        $('#tab-caisse').css('display', 'none');
+        $('#tab-liste-vente').css('display', 'block');
     });
-
-    function newUtilisateur(isNew = false) {
-            $.ajax({
-                url: '/admin/utilisateurs/new',
-                type: 'POST',
-                data: {isNew: isNew},
-                success: function (response) {
-                    $("#blocModalUtilisateurEmpty").empty();
-                    $("#blocModalUtilisateurEmpty").append(response.html);
-                    $('#modalNewUtilisateur').modal('show');
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    // Gérer l'erreur (par exemple, afficher un message d'erreur)
-                    alert('Erreur lors de l\'ajout d\'utilisateur.');
-                }
-            });
-    }
   
   </script>
+

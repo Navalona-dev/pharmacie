@@ -56,7 +56,7 @@
       </form>
     </div>#}
 
-    <div class="dropdown" style="margin-left: 100px; margin-right: 15px;">
+    <div class="dropdown" style="margin-left: 50px; margin-right: 15px;">
       <button class="btn btn-primary dropdown-toggle btn-sm px-4 btn-add-header" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="bi bi-plus-circle"></i>
         <span class="mx-2">Ajouter</span>
@@ -70,26 +70,24 @@
     <a href="#tab-ventes" onclick="return showTabVentes()" class="btn btn-primary btn-sm px-3 ">Vente</a>
     {% endif %}
     {% if app_authorization.isUserGrantedPrivilege('responsable_caisse') %}
-      {% if countAffaires > 0 %}
-        {#<a href="#" class="btn btn-primary btn-sm px-3">Caisse</a>#}
-        <button class="dropdown hide-content icon-notification btn btn-primary btn-sm px-3" id="new-commande">
-          <a class="nav-link nav-icon " href="#" data-bs-toggle="dropdown">
-              Caisse
-              <span class="badge badge-number badge-commande {% if countAffaires > 0 %} badge-animation {% endif %} "> {{countAffaires}} </span>
-          </a>
-      
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications notification-commande">
-              <li class="dropdown-header count-commande" id="count-commande">
-                  Vous avez {{countAffaires}} Commandes
-                  <a href="#tab-notification" onclick="return showTabNotification()"><span class="badge rounded-pill p-2 ms-2">Voir tous</span></a>
-              </li>
-              <li>
-                  <hr class="dropdown-divider">
-              </li>
-          </ul>
-        </button>
-      {% endif %}
+      <button class="dropdown hide-content icon-notification btn btn-primary btn-sm px-3" id="new-commande">
+        <a class="nav-link nav-icon " href="#" data-bs-toggle="dropdown">
+            Caisse
+            <span class="badge badge-number badge-commande {% if countAffaires > 0 %} badge-animation {% endif %} "> {{countAffaires}} </span>
+        </a>
+    
+        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications notification-commande">
+            <li class="dropdown-header count-commande" id="count-commande">
+                Vous avez {{countAffaires}} Commandes
+                <a href="#tab-notification" onclick="return showTabNotification()"><span class="badge rounded-pill p-2 ms-2">Voir tous</span></a>
+            </li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+        </ul>
+      </button>
       <a href="#tab-avoir" onclick="return showTabAvoir()" class="btn btn-primary btn-sm px-3 mx-3">Avoir</a>
+      <a href="#tab-liste-vente" onclick="return showTabListeVente()" class="btn btn-primary btn-sm px-3">Vente payer</a>
     {% endif %}
 
     <nav class="header-nav ms-auto">
@@ -326,48 +324,6 @@
           </ul>
 
         </li>
-
-        {#<li class="nav-item dropdown hide-content" id="new-commande">
-
-          <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-            <i class="bi bi-cart-fill text-black"></i>
-            <span class="badge badge-number badge-commande {% if countAffaires > 0 %} badge-animation {% endif %} "> {{countAffaires}} </span>
-          </a>
-
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications notification-commande">
-            <li class="dropdown-header count-commande" id="count-commande">
-              Vous avez {{countAffaires}} Commandes
-              <a href="#tab-notification" onclick="return showTabNotification()"><span class="badge rounded-pill p-2 ms-2">Voir tous</span></a>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            {% for affaire in affaires %}
-                <a href="#tab-financier-affaire" onclick="return financier({{affaire.id}})">
-                  <li class="notification-item item-commande">
-                    <i class="bi bi-exclamation-circle text-danger"></i>
-                    <div>
-                        <h4 class="text-black">Commande valider</h4>
-                        <p>{{ affaire.nom }}</p>
-                        {% if affaire.dateValidation is not null %}
-                        <p>{{ affaire.dateValidation|format_date }}</p>
-                        {% endif %}
-                    </div>
-                    
-                </li>
-                </a>
-             
-          {% endfor %}
-
-
-            <li class="dropdown-footer footer-commande">
-              <a href="#">Voir tous les commandes</a>
-            </li>
-
-          </ul>
-
-        </li>#}
 
         {#{% if app_authorization.isUserGrantedPrivilege('responsable_caisse') %}
           <li class="nav-item dropdown hide-content icon-notification" id="new-commande">

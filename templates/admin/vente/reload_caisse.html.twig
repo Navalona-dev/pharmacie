@@ -1,87 +1,183 @@
  <div id="tableCaisse">
  <table class="table">
-                          <thead>
-                              <tr>
-                                  <th>Ref</th>
-                                  <th>Intitulé</th>
-                                  <th>Qté</th>
-                                  <th>PU(HT)</th>
-                                  <th>Remise</th>
-                                  <th>PT(HT)</th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                              {% for product in products %}
-                              <tr>
-                                  <td> {{product.reference}} </td>
-                                  <td> {{product.nom}} </td>
-                                  <td> 
-                                      {{product.qtt}} 
-                                      {% if product.typeVente == "gros" %} 
-                                          {{product.uniteVenteGros}} 
-                                      {% elseif product.typeVente == "detail" %} 
-                                          {{product.uniteVenteDetail}} 
-                                      {% endif %}
-                                      ({{product.typeVente}})
-                                  </td>
-                                  <td>
-                                      {% if product.typeVente == "gros" %}
-                                          {{ product.prixVenteGros|number_format(0, ',', ' ') }} Ar / {{product.uniteVenteGros}}
-                                      {% elseif product.typeVente == "detail" %}
-                                          {{ product.prixVenteDetail|number_format(0, ',', ' ') }} Ar / {{product.uniteVenteDetail}}
-                                      {% endif %}
-                                  </td>
-                                  <td>
-                                      {% if app_authorization.isUserAllowedOnFeature('remise') %}
-                                      {% if product.remise %} 
-                                          {# <span class="text-danger">-{{ product.remise|number_format(0,',',' ') }} Ar</span>  #}
-                                          <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">{% if product.remise %} <span class="text-danger">{{ product.remise }}</span> {% else %} <i class="bi bi-percent btn-remise"></i> {% endif %}</a>
-                                      {% else %}
-                                          {% if affaire.paiement == 'non' %} 
-                                              <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">
-                                                  <i class="bi bi-percent btn-remise"></i> 
-                                              </a>
-                                          {% else %}
-                                              <span class="text-info" style="font-size: 14px;">Pas de remise</span>
-                                          {% endif %}
-                                      {% endif %}
-  
-                                  {% endif %}
-                                  </td>
-                                  <td>
-                                      {% set total = 0 %}
-                                      {% if product.typeVente == "gros" %}
-                                          {% set total = product.qtt * product.prixVenteGros  %}
-                                          {% if product.remise %}
-                                          {{ (total - product.remise)|number_format(0, ',', ' ') }} Ar
-                                          {% else %}
-                                              {{ total|number_format(0, ',', ' ') }} Ar
-                                          {% endif %}
-                                      {% elseif product.typeVente == "detail" %}
-                                          {% set total =  product.qtt * product.prixVenteDetail %}
-                                          {% if product.remise %}
-                                              {{ (total - product.remise)|number_format(0, ',', ' ') }} Ar
-                                          {% else %}
-                                              {{ total|number_format(0, ',', ' ') }} Ar
-                                          {% endif %}
-                                      {% endif %}
-                                  </td>
-                              </tr>
-                              {% else %}
-                              <tr>
-                                  <td colspan="6">Aucun enregistrement trouvé</td>
-                              </tr>
-                              {% endfor %}
-                          </tbody>
-                      </table>
-                      <div class="montant-total">
-                          <div class="d-flex justify-content-end">
-                              <div class="card p-4" style="border: 1px solid #b7cdb8;">
-                                  <p>Total à payer : {{montantHt|number_format(0,',','')}} Ar</p>
-                              </div>
-                          </div>
-                          <div class="d-flex justify-content-end btn-action">
-                              <a href="#" class="btn btn-primary btn-sm px-3" onclick="return paiement({{affaire.id}})" class="btn btn-primary btn-sm px-3">Payer</a>
-                          </div>
-                      </div>
+    <thead>
+        <tr>
+            <th>Ref</th>
+            <th>Intitulé</th>
+            <th>Qté</th>
+            <th>PU(HT)</th>
+            <th>Remise</th>
+            <th>PT(HT)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td> {{product.reference}} </td>
+            <td> {{product.nom}} </td>
+            <td> 
+                {{product.qtt}} 
+                {% if product.typeVente == "gros" %} 
+                    {{product.uniteVenteGros}} 
+                {% elseif product.typeVente == "detail" %} 
+                    {{product.uniteVenteDetail}} 
+                {% endif %}
+                ({{product.typeVente}})
+            </td>
+            <td>
+                {% if product.typeVente == "gros" %}
+                    {{ product.prixVenteGros|number_format(0, ',', ' ') }} Ar / {{product.uniteVenteGros}}
+                {% elseif product.typeVente == "detail" %}
+                    {{ product.prixVenteDetail|number_format(0, ',', ' ') }} Ar / {{product.uniteVenteDetail}}
+                {% endif %}
+            </td>
+            <td>
+                {% if app_authorization.isUserAllowedOnFeature('remise') %}
+                {% if product.remise %} 
+                    {# <span class="text-danger">-{{ product.remise|number_format(0,',',' ') }} Ar</span>  #}
+                    <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">{% if product.remise %} <span class="text-danger">{{ product.remise }}</span> {% else %} <i class="bi bi-percent btn-remise"></i> {% endif %}</a>
+                {% else %}
+                    {% if affaire.paiement == 'non' %} 
+                        <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">
+                            <i class="bi bi-percent btn-remise"></i> 
+                        </a>
+                    {% else %}
+                        <span class="text-info" style="font-size: 14px;">Pas de remise</span>
+                    {% endif %}
+                {% endif %}
+
+            {% endif %}
+            </td>
+            <td>
+                {% set total = 0 %}
+                {% if product.typeVente == "gros" %}
+                    {% set total = product.qtt * product.prixVenteGros  %}
+                    {% if product.remise %}
+                    {{ (total - product.remise)|number_format(0, ',', ' ') }} Ar
+                    {% else %}
+                        {{ total|number_format(0, ',', ' ') }} Ar
+                    {% endif %}
+                {% elseif product.typeVente == "detail" %}
+                    {% set total =  product.qtt * product.prixVenteDetail %}
+                    {% if product.remise %}
+                        {{ (total - product.remise)|number_format(0, ',', ' ') }} Ar
+                    {% else %}
+                        {{ total|number_format(0, ',', ' ') }} Ar
+                    {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6">Aucun enregistrement trouvé</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="montant-total">
+    <div class="d-flex justify-content-end">
+        <div class="card p-4" style="border: 1px solid #b7cdb8;">
+            <p>Total à payer : {{montantHt|number_format(0,',','')}} Ar</p>
+        </div>
+    </div>
+    <div class="d-flex justify-content-end btn-action">
+        {% if affaire.paiement == "non" %}
+        {% if affaire.methodePaiements|length > 0 %}
+            <a href="#"  onclick="return paiement({{affaire.id}})" class="btn btn-primary btn-sm px-3">Payer</a>
+        {% else %}
+            <a href="#" onclick="return openModalMethodePaiementVente({{affaire.id}})" class="btn btn-primary btn-sm px-3">Méthode de paiement</a>
+        {% endif %}
+        <a href="#"  onclick="return openModalFactureEcheance({{ affaire.id }})" class="btn btn-primary btn-sm px-3 btn-echeance">Echeance</a>
+        {% else %}
+        <a href="#tab-facture-affaire" onclick="return showTabFactureAffaire({{affaire.id}})" class="btn btn-primary btn-sm px-3">
+            Factures
+        </a>
+        {% endif %}
+    </div>
 </div>
+</div>
+
+<script>
+    function paiement(id = null) {
+       if (confirm('Voulez vous vraiment faire ce paiement?')) {
+           setTimeout(function() {
+               $.ajax({
+               url: '/admin/affaires/paiement/'+id,
+               type: 'POST',
+               data: {id: id},
+               success: function (response) {
+                   setTimeout(function () {
+                       toastr.options = {
+                           closeButton: true,
+                           progressBar: true,
+                           showMethod: 'slideDown',
+                           timeOut: 1000
+                       };
+                       toastr.success('Avec succèss', 'Paiement fait');
+                       
+                       showTabCaisse(id);
+
+                       if (response.pdfUrl) {
+                           window.open(response.pdfUrl, '_blank');
+                       }
+
+                   }, 800);
+                   
+               },
+               error: function (jqXHR, textStatus, errorThrown) {
+                   // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                   alert('Erreur lors de paiement.');
+               }
+           });
+       
+           }, 500);
+          
+       }
+   }
+
+   function openModalFactureEcheance(id = null)
+   {
+       var anchorName = document.location.hash.substring(1);
+
+       $.ajax({
+               url: '/admin/vente/echeance/'+id,
+               type: 'post',
+               //data: {},
+               success: function (response) {
+                   $("#modalEcheanceCaisseEmpty").empty();
+                   $("#modalEcheanceCaisseEmpty").append(response.html);
+                   $('#modalVenteEcheance').modal('show');
+
+                   if (anchorName) {
+                       window.location.hash = anchorName;
+                   }
+
+               },
+               error: function (jqXHR, textStatus, errorThrown) {
+                   // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                   alert('Erreur lors de facture echeance.');
+               }
+           });
+   }
+
+   function openModalMethodePaiementVente(id = null) {
+   var anchorName = document.location.hash.substring(1);
+         $.ajax({
+             url: '/admin/vente/nouveau/methode/paiement/'+id,
+             type: 'GET',
+             //data: {isNew: isNew},
+             success: function (response) {
+                 $("#modalMethodePaiementCaisseEmpty").empty();
+                 $("#modalMethodePaiementCaisseEmpty").append(response.html);
+                 $('#modalNewMethodePaiementVente').modal('show');
+                 if (anchorName) {
+                     window.location.hash = anchorName;
+                 }
+             },
+             error: function (jqXHR, textStatus, errorThrown) {
+                 // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                 alert('Erreur lors de l\'ajout de methode de paiement.');
+             }
+         });
+ }
+ </script>
