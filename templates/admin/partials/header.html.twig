@@ -70,6 +70,7 @@
     <a href="#tab-ventes" onclick="return showTabVentes()" class="btn btn-primary btn-sm px-3 ">Vente</a>
     {% endif %}
     {% if app_authorization.isUserGrantedPrivilege('responsable_caisse') %}
+      <div id="notif-caisse">
       <button class="dropdown hide-content icon-notification btn btn-primary btn-sm px-3" id="new-commande">
         <a class="nav-link nav-icon " href="#" data-bs-toggle="dropdown">
             Caisse
@@ -88,6 +89,7 @@
       </button>
       <a href="#tab-avoir" onclick="return showTabAvoir()" class="btn btn-primary btn-sm px-3 mx-3">Avoir</a>
       <a href="#tab-liste-vente" onclick="return showTabListeVente()" class="btn btn-primary btn-sm px-3">Vente payer</a>
+      </div>
     {% endif %}
 
     <nav class="header-nav ms-auto">
