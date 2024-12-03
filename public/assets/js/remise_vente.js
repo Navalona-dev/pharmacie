@@ -173,6 +173,7 @@ function saveRemise(type, id, isFrais = false) {
   return false;
 }
 
+
 function deleteRemiseProduitAffaire(type, id, isFrais = false) {
   //$(".loadBody").css("display", "block");
   if (confirm('Voulez-vous vraisment supprimer cette remise?')) {

@@ -961,8 +961,8 @@ class VenteController extends AbstractController
     public function nouveauMethodePaiement(Request $request, $affaireId)
     {
         $affaire = $this->affaireRepo->findOneBy(['id' => $affaireId]);
-
-        $products = $affaire->getProducts();
+       
+        $products = $this->productService->findProduitAffaire($affaire);
 
         $montantHt = 0;
         $totalPuHt = 0;
@@ -997,14 +997,22 @@ class VenteController extends AbstractController
         try {
 
             $form->handleRequest($request);
-
+          
             if ($form->isSubmitted() && $form->isValid()) {
-                
+               
                 if ($request->isXmlHttpRequest()) {
-                    
+                    $formData = $form->getData();
                     $this->venteService->add($methodePaiement, $affaire);
-                    return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
+
+                    return $this->render("admin/vente/reload_caisse.html.twig", [
+                        'affaire' => $affaire,
+                        'montantHt' => $montantHt,
+                        'products' => $products
+
+                    ]);
+                    //return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
                 }
+
             }
 
             $data['exception'] = "";
