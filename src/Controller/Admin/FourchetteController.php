@@ -39,13 +39,13 @@ class FourchetteController extends AbstractController
         $data = [];
         try {
 
-            $beneficeId = $request->getSession()->get('beneficeId');
+            $revenuId = $request->getSession()->get('RevenuId');
 
             $fourchettes = $this->fourchetteRepo->findByApplication();
 
             $data["html"] = $this->renderView('admin/fourchette/index.html.twig', [
                 'listes' => $fourchettes,
-                'beneficeId' => $beneficeId
+                'RevenuId' => $revenuId
             ]);
 
             return new JsonResponse($data);
@@ -61,7 +61,7 @@ class FourchetteController extends AbstractController
     public function create(Request $request)
     {
 
-        $beneficeId = $request->getSession()->get('beneficeId');
+        $revenuId = $request->getSession()->get('RevenuId');
         
         $fourchette = new Fourchette();
 
@@ -84,7 +84,7 @@ class FourchetteController extends AbstractController
             $data['exception'] = "";
             $data["html"] = $this->renderView('admin/fourchette/new.html.twig', [
                 'form' => $form->createView(),
-                'beneficeId' => $beneficeId
+                'RevenuId' => $revenuId
             ]);
            
             return new JsonResponse($data);

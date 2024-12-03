@@ -2,14 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\BeneficeRepository;
+use App\Repository\RevenuRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: BeneficeRepository::class)]
-class Benefice
+#[ORM\Entity(repositoryClass: RevenuRepository::class)]
+class Revenu
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -25,7 +25,7 @@ class Benefice
     /**
      * @var Collection<int, Facture>
      */
-    #[ORM\OneToMany(targetEntity: Facture::class, mappedBy: 'benefice')]
+    #[ORM\OneToMany(targetEntity: Facture::class, mappedBy: 'Revenu')]
     private Collection $factures;
 
     #[ORM\Column(nullable: true)]
@@ -37,28 +37,28 @@ class Benefice
     #[ORM\Column(nullable: true)]
     private ?float $total = null;
 
-    #[ORM\ManyToOne(inversedBy: 'benefices')]
+    #[ORM\ManyToOne(inversedBy: 'Revenus')]
     private ?Application $application = null;
 
     /**
-     * @var Collection<int, FactureBenefice>
+     * @var Collection<int, FactureRevenu>
      */
-    #[ORM\OneToMany(targetEntity: FactureBenefice::class, mappedBy: 'benefice')]
-    private Collection $factureBenefices;
+    #[ORM\OneToMany(targetEntity: FactureRevenu::class, mappedBy: 'Revenu')]
+    private Collection $factureRevenus;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $dateBenefice = null;
+    private ?\DateTimeInterface $dateRevenu = null;
 
     /**
      * @var Collection<int, Comptabilite>
      */
-    #[ORM\ManyToMany(targetEntity: Comptabilite::class, mappedBy: 'benefices')]
+    #[ORM\ManyToMany(targetEntity: Comptabilite::class, mappedBy: 'Revenus')]
     private Collection $comptabilites;
 
     public function __construct()
     {
         $this->factures = new ArrayCollection();
-        $this->factureBenefices = new ArrayCollection();
+        $this->factureRevenus = new ArrayCollection();
         $this->comptabilites = new ArrayCollection();
     }
 
@@ -103,7 +103,7 @@ class Benefice
     {
         if (!$this->factures->contains($facture)) {
             $this->factures->add($facture);
-            $facture->setBenefice($this);
+            $facture->setRevenu($this);
         }
 
         return $this;
@@ -113,8 +113,8 @@ class Benefice
     {
         if ($this->factures->removeElement($facture)) {
             // set the owning side to null (unless already changed)
-            if ($facture->getBenefice() === $this) {
-                $facture->setBenefice(null);
+            if ($facture->getRevenu() === $this) {
+                $facture->setRevenu(null);
             }
         }
 
@@ -170,43 +170,43 @@ class Benefice
     }
 
     /**
-     * @return Collection<int, FactureBenefice>
+     * @return Collection<int, FactureRevenu>
      */
-    public function getFactureBenefices(): Collection
+    public function getFactureRevenus(): Collection
     {
-        return $this->factureBenefices;
+        return $this->factureRevenus;
     }
 
-    public function addFactureBenefice(FactureBenefice $factureBenefice): static
+    public function addFactureRevenu(FactureRevenu $factureRevenu): static
     {
-        if (!$this->factureBenefices->contains($factureBenefice)) {
-            $this->factureBenefices->add($factureBenefice);
-            $factureBenefice->setBenefice($this);
+        if (!$this->factureRevenus->contains($factureRevenu)) {
+            $this->factureRevenus->add($factureRevenu);
+            $factureRevenu->setRevenu($this);
         }
 
         return $this;
     }
 
-    public function removeFactureBenefice(FactureBenefice $factureBenefice): static
+    public function removeFactureRevenu(FactureRevenu $factureRevenu): static
     {
-        if ($this->factureBenefices->removeElement($factureBenefice)) {
+        if ($this->factureRevenus->removeElement($factureRevenu)) {
             // set the owning side to null (unless already changed)
-            if ($factureBenefice->getBenefice() === $this) {
-                $factureBenefice->setBenefice(null);
+            if ($factureRevenu->getRevenu() === $this) {
+                $factureRevenu->setRevenu(null);
             }
         }
 
         return $this;
     }
 
-    public function getDateBenefice(): ?\DateTimeInterface
+    public function getDateRevenu(): ?\DateTimeInterface
     {
-        return $this->dateBenefice;
+        return $this->dateRevenu;
     }
 
-    public function setDateBenefice(?\DateTimeInterface $dateBenefice): static
+    public function setDateRevenu(?\DateTimeInterface $dateRevenu): static
     {
-        $this->dateBenefice = $dateBenefice;
+        $this->dateRevenu = $dateRevenu;
 
         return $this;
     }
@@ -223,7 +223,7 @@ class Benefice
     {
         if (!$this->comptabilites->contains($comptabilite)) {
             $this->comptabilites->add($comptabilite);
-            $comptabilite->addBenefice($this);
+            $comptabilite->addRevenu($this);
         }
 
         return $this;
@@ -232,7 +232,7 @@ class Benefice
     public function removeComptabilite(Comptabilite $comptabilite): static
     {
         if ($this->comptabilites->removeElement($comptabilite)) {
-            $comptabilite->removeBenefice($this);
+            $comptabilite->removeRevenu($this);
         }
 
         return $this;

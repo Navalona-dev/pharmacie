@@ -2,23 +2,23 @@
 
 namespace App\Repository;
 
-use App\Entity\FactureBenefice;
+use App\Entity\FactureRevenu;
 use App\Service\ApplicationManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Connection;
 
 /**
- * @extends ServiceEntityRepository<FactureBenefice>
+ * @extends ServiceEntityRepository<FactureRevenu>
  */
-class FactureBeneficeRepository extends ServiceEntityRepository
+class FactureRevenuRepository extends ServiceEntityRepository
 {
     private $connection;
     private $application;
 
     public function __construct(ManagerRegistry $registry, ApplicationManager $applicationManager, Connection $connection)
     {
-        parent::__construct($registry, FactureBenefice::class);
+        parent::__construct($registry, FactureRevenu::class);
         $this->application = $applicationManager->getApplicationActive();
         $this->connection = $connection;
     }

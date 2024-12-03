@@ -2,13 +2,13 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Benefice;
-use App\Form\BeneficeType;
-use App\Service\BeneficeService;
+use App\Entity\Revenu;
+use App\Form\RevenuType;
+use App\Service\RevenuService;
 use App\Service\ApplicationManager;
 use App\Repository\DepenseRepository;
 use App\Repository\FactureRepository;
-use App\Repository\BeneficeRepository;
+use App\Repository\RevenuRepository;
 use App\Repository\ComptabiliteRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,30 +16,30 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/admin/benefice', name: 'benefices')]
-class BeneficeController extends AbstractController
+#[Route('/admin/Revenu', name: 'Revenus')]
+class RevenuController extends AbstractController
 {
     private $factureRepository;
-    private $beneficeService;
+    private $revenuService;
     private $depenseRepository;
-    private $beneficeRepo;
+    private $revenuRepo;
     private $application;
     private $comptabiliteRepo;
 
     public function __construct(
         FactureRepository $factureRepository,
-        BeneficeService $beneficeService,
+        RevenuService $revenuService,
         DepenseRepository $depenseRepository,
-        BeneficeRepository $beneficeRepo,
+        RevenuRepository $revenuRepo,
         ApplicationManager $applicationManager,
         ComptabiliteRepository $comptabiliteRepo
 
     )
     {
         $this->factureRepository = $factureRepository;
-        $this->beneficeService = $beneficeService;
+        $this->RevenuService = $revenuService;
         $this->depenseRepository = $depenseRepository;
-        $this->beneficeRepo = $beneficeRepo;
+        $this->RevenuRepo = $revenuRepo;
         $this->application = $applicationManager->getApplicationActive();
         $this->comptabiliteRepo = $comptabiliteRepo;
         
@@ -51,10 +51,10 @@ class BeneficeController extends AbstractController
         $data = [];
         try {
 
-            $benefices = $this->beneficeRepo->findByApplication();
+            $revenus = $this->RevenuRepo->findByApplication();
 
-            $data["html"] = $this->renderView('admin/benefice/index.html.twig', [
-                'listes' => $benefices,
+            $data["html"] = $this->renderView('admin/Revenu/index.html.twig', [
+                'listes' => $revenus,
             ]);
 
             return new JsonResponse($data);
@@ -69,9 +69,9 @@ class BeneficeController extends AbstractController
     #[Route('/new', name: '_create')]
     public function create(Request $request)
     {
-        $benefice = new Benefice();
+        $revenu = new Revenu();
 
-        $form = $this->createForm(BeneficeType::class, $benefice);
+        $form = $this->createForm(RevenuType::class, $revenu);
         $data = [];
         try {
             $dateFilterCommande = $request->getSession()->get('dateFilterCommande');
@@ -114,7 +114,7 @@ class BeneficeController extends AbstractController
                             mkdir($documentFolder, 0777, true);
                         }
                         
-                        list($pdfContent, $facture, $returnBenefice) = $this->beneficeService->add($benefice, $documentFolder, $request, $espece, $total, $mobileMoney, $factures);
+                        list($pdfContent, $facture, $returnRevenu) = $this->RevenuService->add($revenu, $documentFolder, $request, $espece, $total, $mobileMoney, $factures);
 
                         $filename = 'Encaissement' . '-' . $facture->getNumero() . ".pdf";
                         $pdfPath = '/uploads/APP_'.$this->application->getId().'/factures/encaissement/' . $filename;
@@ -132,14 +132,14 @@ class BeneficeController extends AbstractController
             }
 
             $data['exception'] = "";
-            $data["html"] = $this->renderView('admin/benefice/new.html.twig', [
+            $data["html"] = $this->renderView('admin/Revenu/new.html.twig', [
                 'form' => $form->createView(),
                 'espece' => $espece,
                 'orange' => $orange,
                 'mvola' => $mvola,
                 'airtel' => $airtel,
                 'factures' => $factures,
-                'benefice' => $benefice,
+                'Revenu' => $revenu,
             ]);
            
             return new JsonResponse($data);
@@ -155,19 +155,19 @@ class BeneficeController extends AbstractController
     }
 
     #[Route('/detail/{id}', name: '_liste_one')]
-    public function indexOne(Request $request, Benefice $benefice): Response
+    public function indexOne(Request $request, Revenu $revenu): Response
     {
 
         $data = [];
         try {
 
-            $request->getSession()->set('beneficeId', $benefice->getId());
+            $request->getSession()->set('RevenuId', $revenu->getId());
 
-            $dateBenefice = $benefice->getDateBenefice();
-            $dateBeneficeFormat = $benefice->getDateBenefice()->format('Y-m-d');
+            $dateRevenu = $revenu->getDateRevenu();
+            $dateRevenuFormat = $revenu->getDateRevenu()->format('Y-m-d');
             
             //$depensesToday = $this->depenseRepository->selectDepenseToday();
-            $depenses = $this->depenseRepository->selectDepenseByDate($dateBenefice);
+            $depenses = $this->depenseRepository->selectDepenseByDate($dateRevenu);
 
             $comptabilitesDate = $this->comptabiliteRepo->findAllDates();
             $tabDateCompta = [];
@@ -178,11 +178,11 @@ class BeneficeController extends AbstractController
 
             $existeDate = false;
 
-            if(in_array($dateBeneficeFormat, $tabDateCompta)) {
+            if(in_array($dateRevenuFormat, $tabDateCompta)) {
                 $existeDate = true;
             }
 
-            $comptabilites = $benefice->getComptabilites();
+            $comptabilites = $revenu->getComptabilites();
             $comptabiliteFirst = $comptabilites[0];
 
             $totalDepense = 0;
@@ -191,12 +191,12 @@ class BeneficeController extends AbstractController
             }
 
             $request->getSession()->set('totalDepense', $totalDepense);
-            $request->getSession()->set('totalBenefice', $benefice->getTotal());
-            $request->getSession()->set('date', $benefice->getDateBenefice());
+            $request->getSession()->set('totalRevenu', $revenu->getTotal());
+            $request->getSession()->set('date', $revenu->getDateRevenu());
 
-            $data["html"] = $this->renderView('admin/benefice/detail.html.twig', [
+            $data["html"] = $this->renderView('admin/Revenu/detail.html.twig', [
                 'depenses' => $depenses,
-                'benefice' => $benefice,
+                'Revenu' => $revenu,
                 'application' => $this->application,
                 'existeDate' => $existeDate,
                 'comptabiliteFirst' => $comptabiliteFirst

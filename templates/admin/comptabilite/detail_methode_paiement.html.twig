@@ -42,7 +42,7 @@
                         {% endif %}
 
                         <div class="form-group">
-                            {% if (typePage == 'detail' and methodePaiement.facture.isBenefice == 1) or (typePage == "compta" and (methodePaiement.facture.isBenefice == 0 or methodePaiement.facture.isBenefice is null)) %}
+                            {% if (typePage == 'detail' and methodePaiement.facture.isRevenu == 1) or (typePage == "compta" and (methodePaiement.facture.isRevenu == 0 or methodePaiement.facture.isRevenu is null)) %}
                                 <a href="#" onclick="return updateMethodePaiement({{methodePaiement.id}})" class="btn btn-primary btn-sm px-3">Modifier</a>
                                 <a href="#" onclick="return deleteMethodePaiement({{methodePaiement.id}})" class="btn btn-danger px-3 btn-sm">Supprimer</a>
                             {% endif %}

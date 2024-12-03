@@ -27,7 +27,7 @@
           <div class="d-flex justify-content-end">
             <a href="#" onclick="return newFourchette()" class="btn btn-primary btn-md mx-1 my-1"><i class="bi bi-plus-circle-fill"></i></a>
             {% if listes|length > 0 %}
-            <a href="#tab-benefice" onclick="return showTabBenefice({{beneficeId}})" class="btn btn-danger btn-md mx-1 my-1"><i class="bi bi-currency-dollar"></i></a>
+            <a href="#tab-revenu" onclick="return showTabRevenu({{RevenuId}})" class="btn btn-danger btn-md mx-1 my-1"><i class="bi bi-currency-dollar"></i></a>
             {% endif %}
           </div>
           <div class="card-body px-3 px-lg-5 pb-lg-5 pt-5">
@@ -125,7 +125,7 @@
         $('#tab-vente').css('display', 'none');
         $('#tab-fourchette').css('display', 'block');
         $('#tab-comptabilite-liste').removeClass('active');
-        $('#tab-benefice').css('display', 'none');
+        $('#tab-revenu').css('display', 'none');
         $('#tab-comptabilite-detail').css('display', 'none');
         $('#tab-ventes').css('display', 'none');
          $('#tab-avoir').css('display', 'none');

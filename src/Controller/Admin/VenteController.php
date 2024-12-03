@@ -7,8 +7,10 @@ use App\Entity\Affaire;
 use App\Entity\Product;
 use App\Form\AffaireType;
 use App\Form\ProductType;
+use App\Entity\ClotureVente;
 use App\Service\AccesService;
 use App\Service\VenteService;
+use App\Form\ClotureVenteType;
 use App\Entity\MethodePaiement;
 use App\Service\AffaireService;
 use App\Service\ProductService;
@@ -26,6 +28,8 @@ use App\Exception\PropertyVideException;
 use App\Service\ProduitCategorieService;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ApplicationRepository;
+use App\Repository\ClotureVenteRepository;
+use App\Repository\MethodePaiementRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\ProduitCategorieRepository;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,6 +56,8 @@ class VenteController extends AbstractController
     private $compteRepo;
     private $factureEcheanceService;
     private $venteService;
+    private $methodePaiementRepo;
+    private $clotureVenteRepo;
     
     public function __construct(
         ApplicationService $applicationService, 
@@ -68,7 +74,9 @@ class VenteController extends AbstractController
         EntityManagerInterface $entityManager,
         CompteRepository $compteRepo,
         FactureEcheanceService $factureEcheanceService,
-        VenteService $venteService
+        VenteService $venteService,
+        MethodePaiementRepository $methodePaiementRepo,
+        ClotureVenteRepository $clotureVenteRepo
 
         )
     {
@@ -87,6 +95,8 @@ class VenteController extends AbstractController
         $this->compteRepo = $compteRepo;
         $this->factureEcheanceService = $factureEcheanceService;
         $this->venteService = $venteService;
+        $this->methodePaiementRepo = $methodePaiementRepo;
+        $this->clotureVenteRepo = $clotureVenteRepo;
     }
     
     #[Route('/', name: '_liste')]
@@ -199,46 +209,76 @@ class VenteController extends AbstractController
     }
 
     #[Route('/liste/vente', name: '_liste_vente')]
-    public function listeVente(): Response
+    public function listeVente(Request $request): Response
     {
         $data = [];
         try {
-
+            $clotureVentes = $this->clotureVenteRepo->ClotureVenteToday();
+    
+            $clotureVente = new ClotureVente();
+            $form = $this->createForm(ClotureVenteType::class, $clotureVente);
+            $form->handleRequest($request);
+    
             $affaires = $this->affaireRepo->getAffaireTodayPayer();
-            $product = null;
-
-            $montantHt = 0;
-            $totalPuHt = 0;
+    
+            $montantHt = [];
+            $totalMontantHt = 0; // Variable pour le total
             $totalRemise = 0;
             $products = [];
             $methodePaiements = [];
             $totalRemises = [];
+    
             foreach ($affaires as $affaire) {
                 // Récupérer les méthodes de paiement
                 $methodes = $affaire->getMethodePaiements();
                 if (count($methodes) > 0) {
-                    $methodePaiements[$affaire->getId()] = $methodes[0] ?? null;
+                    $methodePaiement = $methodes[0]; // Récupère la première méthode de paiement
+                    $methodePaiements[$affaire->getId()] = $methodePaiement;
+    
+                    // Initialiser le montant HT si la clé n'existe pas encore
+                    if (!isset($montantHt[$affaire->getId()])) {
+                        $montantHt[$affaire->getId()] = 0;
+                    }
+    
+                    // Calculer le montant HT pour cette affaire
+                    $montantHt[$affaire->getId()] += $methodePaiement->getMVola() 
+                        + $methodePaiement->getEspece() 
+                        + $methodePaiement->getAirtelMoney() 
+                        + $methodePaiement->getOrangeMoney();
+    
+                    // Ajouter ce montant au total
+                    $totalMontantHt += $montantHt[$affaire->getId()];
                 }
-            
+    
                 // Calculer la remise totale pour cette affaire
                 $totalRemise = 0; // Réinitialiser le total de remise pour chaque affaire
                 $products = $affaire->getProducts(); // Récupérer les produits de l'affaire
-            
+    
                 foreach ($products as $product) {
                     $totalRemise += $product->getRemise(); // Ajouter la remise du produit
                 }
-            
+    
                 $totalRemises[$affaire->getId()] = $totalRemise; // Associer la remise totale à l'affaire
             }
-
-
+    
+            if ($form->isSubmitted() && $form->isValid()) {
+                $clotureVente->setCreatedAt(new \DateTime());
+                $clotureVente->setClose(true);
+                $clotureVente->setApplication($this->application);
+                $this->entityManager->persist($clotureVente);
+                $this->entityManager->flush();
+            }
+    
             $data["html"] = $this->renderView('admin/vente/liste_vente.html.twig', [
                 'listes' => $affaires,
                 'methodePaiements' => $methodePaiements,
-                'totalRemises' => $totalRemises
-                
+                'totalRemises' => $totalRemises,
+                'clotureVentes' => $clotureVentes,
+                'form' => $form->createView(),
+                'montantHt' => $montantHt,
+                'totalMontantHt' => $totalMontantHt // Passer le total au template
             ]);
-           
+    
             return new JsonResponse($data);
         } catch (\Exception $Exception) {
             $data["exception"] = $Exception->getMessage();
@@ -246,6 +286,8 @@ class VenteController extends AbstractController
         }
         return new JsonResponse($data);
     }
+    
+
 
     /**
      * @param Request $request
@@ -1020,6 +1062,73 @@ class VenteController extends AbstractController
                 'form' => $form->createView(),
                 'affaire' => $affaire,
                 'montantHt' => $montantHt
+            ]);
+           
+            return new JsonResponse($data);
+
+        }  catch (\Exception $Exception) {
+            $data['exception'] = $Exception->getMessage();
+            $data["html"] = "";
+            return new JsonResponse($data);
+            $this->createNotFoundException('Exception' . $Exception->getMessage());
+        }
+
+        return new JsonResponse($data);
+    }
+
+    #[Route('/update/methode/paiement/{methodeId}', name: '_update_methode_paiement')]
+    public function updateMethodePaiement(Request $request, $methodeId)
+    {
+        $methodePaiement = $this->methodePaiementRepo->findOneBy(['id' => $methodeId]);
+
+        $affaire = $methodePaiement->getAffaire();
+       
+        $products = $this->productService->findProduitAffaire($affaire);
+
+        $montantHt = 0;
+        $totalPuHt = 0;
+        $totalRemise = 0;
+
+        foreach($products as $product) {
+            $puHt = 0;
+            $remise = 0;
+
+            if($product->getTypeVente() == "gros" ) {
+                $puHt = $product->getPrixVenteGros();
+            }else if($product->getTypeVente() == "detail" ) {
+                $puHt = $product->getPrixVenteDetail();
+            }
+
+            if($product->getRemise()) {
+                $remise = $product->getRemise();
+            }
+
+            $totalRemise = $totalRemise + $remise;
+
+            $totalPuHt = $totalPuHt + $puHt;
+
+        }
+
+        $montantHt = $totalPuHt - $totalRemise;
+
+        $form = $this->createForm(MethodePaiementType::class, $methodePaiement);
+        $data = [];
+        try {
+
+            $form->handleRequest($request);
+          
+            if ($form->isSubmitted() && $form->isValid()) {
+               $this->entityManager->flush();
+               return $this->redirectToRoute('ventes_liste_vente');
+
+            }
+
+            $data['exception'] = "";
+            $data["html"] = $this->renderView('admin/vente/update_methode_paiement.html.twig', [
+                'form' => $form->createView(),
+                'affaire' => $affaire,
+                'montantHt' => $montantHt,
+                'methodePaiement' => $methodePaiement
             ]);
            
             return new JsonResponse($data);

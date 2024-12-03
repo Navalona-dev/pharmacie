@@ -120,10 +120,10 @@ class Application
     private Collection $depenses;
 
     /**
-     * @var Collection<int, Benefice>
+     * @var Collection<int, Revenu>
      */
-    #[ORM\OneToMany(targetEntity: Benefice::class, mappedBy: 'application')]
-    private Collection $benefices;
+    #[ORM\OneToMany(targetEntity: Revenu::class, mappedBy: 'application')]
+    private Collection $revenus;
 
     /**
      * @var Collection<int, Fourchette>
@@ -143,6 +143,12 @@ class Application
     #[ORM\OneToMany(targetEntity: MethodePaiement::class, mappedBy: 'application')]
     private Collection $methodePaiements;
 
+    /**
+     * @var Collection<int, ClotureVente>
+     */
+    #[ORM\OneToMany(targetEntity: ClotureVente::class, mappedBy: 'application')]
+    private Collection $clotureVentes;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -155,10 +161,11 @@ class Application
         $this->notifications = new ArrayCollection();
         $this->factures = new ArrayCollection();
         $this->depenses = new ArrayCollection();
-        $this->benefices = new ArrayCollection();
+        $this->Revenus = new ArrayCollection();
         $this->fourchettes = new ArrayCollection();
         $this->comptabilites = new ArrayCollection();
         $this->methodePaiements = new ArrayCollection();
+        $this->clotureVentes = new ArrayCollection();
     }
 
     public function __toString()
@@ -623,29 +630,29 @@ class Application
     }
 
     /**
-     * @return Collection<int, Benefice>
+     * @return Collection<int, Revenu>
      */
-    public function getBenefices(): Collection
+    public function getRevenus(): Collection
     {
-        return $this->benefices;
+        return $this->Revenus;
     }
 
-    public function addBenefice(Benefice $benefice): static
+    public function addRevenu(Revenu $revenu): static
     {
-        if (!$this->benefices->contains($benefice)) {
-            $this->benefices->add($benefice);
-            $benefice->setApplication($this);
+        if (!$this->Revenus->contains($revenu)) {
+            $this->Revenus->add($revenu);
+            $revenu->setApplication($this);
         }
 
         return $this;
     }
 
-    public function removeBenefice(Benefice $benefice): static
+    public function removeRevenu(Revenu $revenu): static
     {
-        if ($this->benefices->removeElement($benefice)) {
+        if ($this->Revenus->removeElement($revenu)) {
             // set the owning side to null (unless already changed)
-            if ($benefice->getApplication() === $this) {
-                $benefice->setApplication(null);
+            if ($revenu->getApplication() === $this) {
+                $revenu->setApplication(null);
             }
         }
 
@@ -736,6 +743,36 @@ class Application
             // set the owning side to null (unless already changed)
             if ($methodePaiement->getApplication() === $this) {
                 $methodePaiement->setApplication(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ClotureVente>
+     */
+    public function getClotureVentes(): Collection
+    {
+        return $this->clotureVentes;
+    }
+
+    public function addClotureVente(ClotureVente $clotureVente): static
+    {
+        if (!$this->clotureVentes->contains($clotureVente)) {
+            $this->clotureVentes->add($clotureVente);
+            $clotureVente->setApplication($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClotureVente(ClotureVente $clotureVente): static
+    {
+        if ($this->clotureVentes->removeElement($clotureVente)) {
+            // set the owning side to null (unless already changed)
+            if ($clotureVente->getApplication() === $this) {
+                $clotureVente->setApplication(null);
             }
         }
 

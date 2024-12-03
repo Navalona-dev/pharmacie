@@ -133,7 +133,7 @@
                                   </p>
                                   {% if not existDate %}
                                     <p class="d-flex justify-content-center">
-                                      <a href="#" onclick="return newBenefice()" class="btn btn-info btn-sm px-3" style="margin-right: 15px;">Encaisser</a>
+                                      <a href="#" onclick="return newRevenu()" class="btn btn-info btn-sm px-3" style="margin-right: 15px;">Encaisser</a>
                                     </p>
                                   {% else %}
                                     <p class="d-flex justify-content-center">
@@ -299,7 +299,7 @@
         $('#tab-stock').removeClass('active');
         $('#tab-depot').css('display', 'none');
         $('#tab-vente').css('display', 'none');
-        $('#tab-benefice').css('display', 'none');
+        $('#tab-revenu').css('display', 'none');
          $('#tab-fourchette').css('display', 'none');
          $('#tab-ventes').css('display', 'none');
          $('#tab-avoir').css('display', 'none');
@@ -349,10 +349,10 @@
         }
     }
   
-    function newBenefice() {
+    function newRevenu() {
       var anchorName = document.location.hash.substring(1);
             $.ajax({
-                url: '/admin/benefice/new',
+                url: '/admin/Revenu/new',
                 type: 'POST',
                 //data: {isNew: isNew},
                 success: function (response) {
@@ -365,7 +365,7 @@
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     // Gérer l'erreur (par exemple, afficher un message d'erreur)
-                    alert('Erreur lors l\'ajout de benefice.');
+                    alert('Erreur lors l\'ajout de Revenu.');
                 }
             });
     }

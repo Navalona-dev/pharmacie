@@ -77,7 +77,7 @@
                         {{comptabilite.designation}}
                     </td>
                     <td width="20%">
-                        {% for facture in benefice.factures %}
+                        {% for facture in Revenu.factures %}
                             {% if facture.isEcheance is not null and facture.isEcheance == true %}
                                 FAC/VSM/{{facture.numero}}-E{{facture.echeanceNumero}}-{{ facture.date|date('y')}}
                             {% elseif facture.isDepot is not null and facture.isDepot == true %}
@@ -88,7 +88,7 @@
                         {% endfor %}
                     </td>
                     <td width="14%">
-                        {{benefice.total|number_format(0,',',' ')}} Ariary
+                        {{Revenu.total|number_format(0,',',' ')}} Ariary
                     </td>
                     <td width="12%">
                         {{ totalDepense|number_format(0,',',' ') }} Ar

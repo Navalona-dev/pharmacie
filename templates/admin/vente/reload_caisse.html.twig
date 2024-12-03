@@ -35,7 +35,7 @@
                 {% if app_authorization.isUserAllowedOnFeature('remise') %}
                 {% if product.remise %} 
                     {# <span class="text-danger">-{{ product.remise|number_format(0,',',' ') }} Ar</span>  #}
-                    <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">{% if product.remise %} <span class="text-danger">{{ product.remise }}</span> {% else %} <i class="bi bi-percent btn-remise"></i> {% endif %}</a>
+                    <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">{% if product.remise %} <span class="text-danger">{{ product.remise }} Ar</span> {% else %} <i class="bi bi-percent btn-remise"></i> {% endif %}</a>
                 {% else %}
                     {% if affaire.paiement == 'non' %} 
                         <a class="" href="#" onclick="return addRemiseProduit({{ product.id }}, '{{ app.request.uri }}', {{affaire.id}});">

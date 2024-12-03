@@ -141,10 +141,10 @@ class Facture
     private Collection $methodePaiements;
 
     #[ORM\ManyToOne(inversedBy: 'factures')]
-    private ?Benefice $benefice = null;
+    private ?Revenu $revenu = null;
 
     #[ORM\Column(nullable: true)]
-    private ?bool $isBenefice = null;
+    private ?bool $isRevenu = null;
 
     public function __construct()
     {
@@ -578,26 +578,26 @@ class Facture
         return $this;
     }
 
-    public function getBenefice(): ?Benefice
+    public function getRevenu(): ?Revenu
     {
-        return $this->benefice;
+        return $this->Revenu;
     }
 
-    public function setBenefice(?Benefice $benefice): static
+    public function setRevenu(?Revenu $revenu): static
     {
-        $this->benefice = $benefice;
+        $this->Revenu = $revenu;
 
         return $this;
     }
 
-    public function isBenefice(): ?bool
+    public function isRevenu(): ?bool
     {
-        return $this->isBenefice;
+        return $this->isRevenu;
     }
 
-    public function setIsBenefice(?bool $isBenefice): static
+    public function setIsRevenu(?bool $isRevenu): static
     {
-        $this->isBenefice = $isBenefice;
+        $this->isRevenu = $isRevenu;
 
         return $this;
     }

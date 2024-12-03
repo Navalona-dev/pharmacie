@@ -56,7 +56,7 @@ class DashboardController extends AbstractController
         $idCompte = $session->get('idCompte');
         $idProduit = $session->get('produitCategorieId');
         $idFacture = $session->get('idFacture');
-        $idBenefice = $session->get('beneficeId');
+        $idRevenu = $session->get('RevenuId');
         $idComptabilite = $session->get('idComptabilite');
 
         //count commande
@@ -181,7 +181,7 @@ class DashboardController extends AbstractController
                     'idCompte' => $idCompte,
                     'idProduit' => $idProduit,
                     'idFacture' => $idFacture,
-                    'idBenefice' => $idBenefice,
+                    'idRevenu' => $idRevenu,
                     'idComptabilite' => $idComptabilite,
 
                     //count commande
@@ -312,7 +312,7 @@ class DashboardController extends AbstractController
             'idCompte' => $idCompte,
             'idProduit' => $idProduit,
             'idFacture' => $idFacture,
-            'idBenefice' => $idBenefice,
+            'idRevenu' => $idRevenu,
             'idComptabilite' => $idComptabilite,
             
             //count commande

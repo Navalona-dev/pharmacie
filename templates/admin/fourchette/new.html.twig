@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <span class="benefice-id" data-beneficeid="{{beneficeId}}"></span>
+                <span class="Revenu-id" data-revenuid="{{RevenuId}}"></span>
                 {{ form_start(form, {'attr': {'id': 'newFourchette', 'action': path('fourchettes_create') }}) }}
                    
                     <div class="form-group mb-3">
@@ -40,7 +40,7 @@
 <script>
 
     $(document).ready(function () {
-        const beneficeId = $('.benefice-id').data('beneficeid');
+        const RevenuId = $('.Revenu-id').data('Revenuid');
        $('#newFourchette').on('submit', function (e) {
             e.preventDefault();
             let form = $(this);
@@ -56,7 +56,7 @@
                 contentType: false,
                 success: function (response) {
                     $('#modalNewFourchette').modal('hide');
-                    var nextLink = $('#sidebar').find('li#benefice').find('a');
+                    var nextLink = $('#sidebar').find('li#Revenu').find('a');
                     setTimeout(function () {
                         toastr.options = {
                             closeButton: true,
@@ -65,9 +65,9 @@
                             timeOut: 1000
                         };
                         toastr.success('Avec succèss', 'Enregistrement effectuée');
-                        if(beneficeId) {
-                            window.location.hash = "tab-benefice";
-                            showTabBenefice(beneficeId);
+                        if(RevenuId) {
+                            window.location.hash = "tab-revenu";
+                            showTabRevenu(RevenuId);
                         } else {
                             window.location.hash = "tab-fourchette";
                             showTabFourchette();

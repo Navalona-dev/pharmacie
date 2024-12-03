@@ -4,10 +4,10 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\FactureBeneficeRepository;
+use App\Repository\FactureRevenuRepository;
 
-#[ORM\Entity(repositoryClass: FactureBeneficeRepository::class)]
-class FactureBenefice
+#[ORM\Entity(repositoryClass: FactureRevenuRepository::class)]
+class FactureRevenu
 {
     const MODE_RGLT = [
         //'Non precisé' => '',
@@ -83,11 +83,11 @@ class FactureBenefice
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $commentaire = null;
 
-    #[ORM\ManyToOne(inversedBy: 'factureBenefices')]
+    #[ORM\ManyToOne(inversedBy: 'factureRevenus')]
     private ?Application $application = null;
 
-    #[ORM\ManyToOne(inversedBy: 'factureBenefices')]
-    private ?Benefice $benefice = null;
+    #[ORM\ManyToOne(inversedBy: 'factureRevenus')]
+    private ?Revenu $revenu = null;
 
     public function getId(): ?int
     {
@@ -275,14 +275,14 @@ class FactureBenefice
         return $this;
     }
 
-    public function getBenefice(): ?Benefice
+    public function getRevenu(): ?Revenu
     {
-        return $this->benefice;
+        return $this->Revenu;
     }
 
-    public function setBenefice(?Benefice $benefice): static
+    public function setRevenu(?Revenu $revenu): static
     {
-        $this->benefice = $benefice;
+        $this->Revenu = $revenu;
 
         return $this;
     }

@@ -1,10 +1,10 @@
 
-<div class="modal fade" id="modalNewMethodePaiementVente" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="modalUpdateMethodePaiementVente" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content p-4" style="width: 180% !important; margin-left: -12rem !important;">
             <div class="modal-header modal-header-center">
-                <h5 class="modal-title fw-bold" id="modalNewLabel">Nouveau méthode de paiement</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title fw-bold" id="modalNewLabel">Mise à jour méthode de paiement</h5>
+                <button type="button" class="btn-close" id="close-modal-update-paiement" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-danger error">
@@ -14,8 +14,11 @@
                     <span class="solde-total" data-total="{{montantHt}}"></span>
                     Total solde : {{montantHt|number_format(0,',',' ')}} Ariary
                 </div>
+                <span class="mvola-solde" data-mvola="{{methodePaiement.mVola}}"></span>
+                <span class="orange-solde" data-orange="{{methodePaiement.orangeMoney}}"></span>
+                <span class="airtel-solde" data-airtel="{{methodePaiement.airtelMoney}}"></span>
                 
-                {{ form_start(form, {'attr': {'id': 'newMethodePaiementVente', 'action': path('ventes_new_methode_paiement', {'affaireId' : affaire.id}) }}) }}
+                {{ form_start(form, {'attr': {'id': 'updateMethodePaiement', 'action': path('ventes_update_methode_paiement', {'methodeId' : methodePaiement.id}) }}) }}
                     <div class="form-group mb-3">
                         <label for="" class="mb-2">Date </label>
                         <span class="text-danger" style="font-size: 12px;"> {{form_errors(form.dateMethodePaiement)}} </span>
@@ -121,7 +124,7 @@
                     </div>
                         
                     <div class="form-group">
-                        <button type="submit" onclick="return saveMethodePaiement('{{affaire.id}}');" class="btn btn-primary btn-sm px-5 mt-3" style="width: 100%;">Ajouter méthode de paiement</button>
+                        <button type="submit" class="btn btn-primary btn-sm px-5 mt-3" style="width: 100%;">Ajouter méthode de paiement</button>
                     </div>
                 {{ form_end(form) }}
             </div>
@@ -132,26 +135,11 @@
 {% block javascripts %}
 <script src="{{ asset('assets/js/script_utile.js')}}"></script>
 <script>
-
-$(document).ready(function() {
-  var dateFormat = 'dd/mm/yyyy';
-  var dateNow = new Date();
-  dateNow.setDate(dateNow.getDate() + 1)
-
-  $('#methode_paiement_dateMethodePaiement').datepicker({
-      format: dateFormat,
-      todayHighlight: true,
-      language: 'fr',
-      autoclose: true,
-
-  });
-
-});
   
     $(document).ready(function () {
         $('.error').hide();
 
-       $('#newMethodePaiementVente').on('submit', function (e) {
+       $('#updateMethodePaiement').on('submit', function (e) {
             e.preventDefault();
 
             let espece = parseFloat($('#methode_paiement_espece').val()) || 0;
@@ -161,11 +149,11 @@ $(document).ready(function() {
 
             let soldeTotal = parseFloat($('.solde-total').data('total')) || 0;
 
+
             let total = soldeAirtel + soldeMvola + soldeOrange + espece;
-            console.log(total, soldeTotal);
 
             if(total != soldeTotal) {
-                $('#modalNewMethodePaiementVente').modal('show');
+                $('#modalUpdateMethodePaiementVente').modal('show');
                 let message = '';
                 if(total < soldeTotal) {
                     message = "Le total de solde mobile money + espece " + total + " est inférieur à " + soldeTotal;
@@ -189,7 +177,8 @@ $(document).ready(function() {
                     processData: false,
                     contentType: false,
                     success: function (response) {
-                            $('#modalNewMethodePaiementVente').modal('hide');
+                            $('#modalUpdateMethodePaiementVente').modal('hide');
+                            //$('#modalDetailPaiement').modal('hide');
                             $('.error').hide();
 
                             var nextLink = $('#sidebar').find('li#methode-paiement').find('a');
@@ -200,9 +189,11 @@ $(document).ready(function() {
                                     showMethod: 'slideDown',
                                     timeOut: 1000
                                 };
-                                toastr.success('Avec succèss', 'Enregistrement effectuée');
+                                toastr.success('Avec succèss', 'Mise à jour effectuée');
 
-                                showTabCaisse();
+                                //showTabComptabilite();
+                                location.reload();
+
 
                             }, 800);
                             if (nextLink.length > 0) {
@@ -212,7 +203,7 @@ $(document).ready(function() {
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         // Gérer l'erreur (par exemple, afficher un message d'erreur)
-                        alert('Erreur lors de l\'ajout de depense.');
+                        alert('Erreur lors de la mise à jour de depense.');
                     }
                 });
             }
@@ -223,64 +214,51 @@ $(document).ready(function() {
 </script>
 
 <script>
-function saveMethodePaiement(affaireId = null) {
-  $(".loadBody").css("display", "block");
+    $(document).ready(function() {
+        var dateFormat = 'dd/mm/yyyy';
+        var dateNow = new Date();
+        dateNow.setDate(dateNow.getDate() + 1)
 
-    let espece = parseFloat($('#methode_paiement_espece').val()) || 0;
-    let soldeMvola = parseFloat($('#methode_paiement_mVola').val()) || 0;
-    let soldeAirtel = parseFloat($('#methode_paiement_airtelMoney').val()) || 0;
-    let soldeOrange = parseFloat($('#methode_paiement_orangeMoney').val()) || 0;
+        $('#methode_paiement_dateMethodePaiement').datepicker({
+            format: dateFormat,
+            todayHighlight: true,
+            language: 'fr',
+            autoclose: true,
 
-    let soldeTotal = parseFloat($('.solde-total').data('total')) || 0;
-
-    let total = soldeAirtel + soldeMvola + soldeOrange + espece;
-    console.log(total, soldeTotal);
-
-    if(total != soldeTotal) {
-        $('#modalNewMethodePaiementVente').modal('show');
-        let message = '';
-        if(total < soldeTotal) {
-            message = "Le total de solde mobile money + espece " + total + " est inférieur à " + soldeTotal;
-        } else {
-            message = "Le total de solde mobile money + espece " + total + " est supérieur à " + soldeTotal;
-        }
-
-        $('.error').text(message);
-        $('.error').show();
-    } else {
-        var formData = new FormData($("#newMethodePaiementVente")[0]);
-
-        showSpinner();
-
-        $.ajax({
-            type: "POST",
-            url: $("#newMethodePaiementVente").attr("action"),
-            data: formData,
-            processData: false,
-            contentType: false,
-            error: function (jqXHR, textStatus, errorMessage) {
-
-            },
-            success: function (response) {
-
-            $("#modalNewMethodePaiementVente").modal("hide");
-            $("#tableCaisse").empty();
-            $("#tableCaisse").replaceWith(response);
-            hideSpinner();
-
-            return false;
-            },
         });
 
-        return false;
-    }
-
-  
- 
-}
+    });
 
     $(document).ready(function() {
         $('.mvola, .airtel, .orange').hide();
+        const mvolaSolde = parseFloat($('.mvola-solde').data('mvola'));
+        const airtelSolde = parseFloat($('.airtel-solde').data('airtel'));
+        const orangeSolde = parseFloat($('.orange-solde').data('orange'));
+        console.log(mvolaSolde,airtelSolde, orangeSolde);
+
+        if (!isNaN(mvolaSolde) && mvolaSolde > 0) {
+            $('#mvola').prop('checked', true); 
+            $('.mvola').show();
+        } else {
+            $('#mvola').prop('checked', false);
+            $('.mvola').hide();
+        }
+
+        if (!isNaN(orangeSolde) && orangeSolde > 0) {
+            $('#orange').prop('checked', true); 
+            $('.orange').show();
+        } else {
+            $('#orange').prop('checked', false);
+            $('.orange').hide();
+        }
+
+        if (!isNaN(airtelSolde) && airtelSolde > 0) {
+            $('#airtel').prop('checked', true); 
+            $('.airtel').show();
+        } else {
+            $('#airtel').prop('checked', false);
+            $('.airtel').hide();
+        }
 
         $('#mvola').on('click', function() {
             if($(this).is(':checked')) {
@@ -327,6 +305,14 @@ function saveMethodePaiement(affaireId = null) {
 
         });
     })
+
+    $(document).ready(function() {
+        $('#close-modal-update-paiement').on('click', function() {
+            location.reload();
+        });
+
+    })
+
 </script>
 
 {% endblock %}

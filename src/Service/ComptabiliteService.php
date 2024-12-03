@@ -65,16 +65,16 @@ class ComptabiliteService
         $this->entityManager->flush();
     }
 
-    public function addComptabilite($comptabilite = null, $folder = null, $request = null, $depenses = null, $benefice = null)
+    public function addComptabilite($comptabilite = null, $folder = null, $request = null, $depenses = null, $revenu = null)
     {   
         $user = $this->security->getUser();
 
-        //créer nouveau benefice
+        //créer nouveau Revenu
         $comptabilite->setDateCreation(new \DateTime());
         $comptabilite->setApplication($this->application);
 
         $totalDepense = 0;
-        $totalBenefice = $benefice->getTotal();
+        $totalRevenu = $revenu->getTotal();
 
         if(count($depenses) > 0) {
             foreach($depenses as $depense) {
@@ -88,16 +88,16 @@ class ComptabiliteService
         }
 
 
-        $comptabilite->addBenefice($benefice);
-        $benefice->addComptabilite($comptabilite);
+        $comptabilite->addRevenu($revenu);
+        $revenu->addComptabilite($comptabilite);
 
-        $resultat = $totalBenefice - $totalDepense;
+        $resultat = $totalRevenu - $totalDepense;
         $comptabilite->setReste($resultat);
 
-        $this->entityManager->persist($benefice);
+        $this->entityManager->persist($revenu);
         $this->entityManager->persist($comptabilite);
 
-        //créer la facture benefice
+        //créer la facture Revenu
         $factureComptabilite = new FactureComptabilite();
         $date = new \DateTime();
 
@@ -147,7 +147,7 @@ class ComptabiliteService
         $data['application'] = $this->application;
         $data['user'] = $user;
         $data['comptabilite'] = $comptabilite;
-        $data['benefice'] = $benefice;
+        $data['Revenu'] = $revenu;
         $data['totalDepense'] = $totalDepense;
         
         $html = $this->twig->render('admin/comptabilite/facturePdf.html.twig', $data);

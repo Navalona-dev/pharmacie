@@ -20,7 +20,7 @@
             <div class="row">
                 <div class="col-md-6 col-12" style="border-right: solid 2px #5e1212;">
                     <div class="affaire">
-                        <span class="id-benefice" data-benefice="{{benefice.id}}"></span>
+                        <span class="id-revenu" data-revenu="{{Revenu.id}}"></span>
                         <div class="d-flex justify-content-between align-items-center">
                             <h4 class="fw-bold mb-3">Encaissement</h4>
                             {#<a href="#" class="btn btn-primary btn-sm" id="edit-compta" title="Modifier encaissement"><i class="bi bi-pencil-square"></i></a>#}
@@ -29,19 +29,19 @@
                         <hr>
                         <div class="content">
                           <div class="alert alert-warning">
-                            <p><strong>Designation : </strong> {{benefice.designation}} </p>
-                            <p><strong>Espèce : </strong> {{benefice.espece|number_format(0,',','')}} Ar </p>
-                            <p><strong>Mobile money : </strong> {{benefice.mobileMoney|number_format(0,',','')}} Ar </p>
-                            <p><strong>Total : </strong> {{benefice.total|number_format(0,',','')}} Ar </p>
-                            <p><strong>Date : </strong> {{benefice.dateBenefice|date('d-m-Y')}} </p>
+                            <p><strong>Designation : </strong> {{Revenu.designation}} </p>
+                            <p><strong>Espèce : </strong> {{Revenu.espece|number_format(0,',','')}} Ar </p>
+                            <p><strong>Mobile money : </strong> {{Revenu.mobileMoney|number_format(0,',','')}} Ar </p>
+                            <p><strong>Total : </strong> {{Revenu.total|number_format(0,',','')}} Ar </p>
+                            <p><strong>Date : </strong> {{Revenu.dateRevenu|date('d-m-Y')}} </p>
                           </div>
                         </div>
                         
                     </div>
-                    <div class="detail-benefice">
+                    <div class="detail-revenu">
                       <h5 class="fw-bold mb-3 mt-5">Détail encaissement</h5>
                         <div class="row">
-                            {% for facture in benefice.factures %}
+                            {% for facture in Revenu.factures %}
                               {% set methodePaiement = facture.methodePaiements|length %}
                               <div class="col-md-6 col-12">
                                 <div class="card shadow p-3">
@@ -182,7 +182,7 @@
         $('#tab-depot').css('display', 'none');
         $('#tab-comptabilite').css('display', 'none');
         $('#tab-vente').css('display', 'none');
-        $('#tab-benefice').css('display', 'none');
+        $('#tab-revenu').css('display', 'none');
          $('#tab-fourchette').css('display', 'none');
          $('#tab-ventes').css('display', 'none');
          $('#tab-avoir').css('display', 'none');
@@ -198,10 +198,10 @@
     $(document).ready(function(){
         var anchorName = document.location.hash.substring(1);
 
-        $('#detail-benefice').hide();
+        $('#detail-revenu').hide();
 
         $('#edit-compta').on('click', function(){
-            $('#detail-benefice').show();
+            $('#detail-revenu').show();
             if (anchorName) {
                 window.location.hash = anchorName;
             }

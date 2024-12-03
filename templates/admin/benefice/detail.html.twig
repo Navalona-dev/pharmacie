@@ -17,22 +17,22 @@
             <div class="row">
                 <div class="col-md-6 col-12" style="border-right: solid 2px #5e1212;">
                     <div class="affaire">
-                        <span class="id-benefice" data-benefice="{{benefice.id}}"></span>
-                        <h4 class="fw-bold mb-3">Encaissement du : {{benefice.dateBenefice|date('d-m-Y')}} </h4>
+                        <span class="id-revenu" data-revenu="{{Revenu.id}}"></span>
+                        <h4 class="fw-bold mb-3">Encaissement du : {{Revenu.dateRevenu|date('d-m-Y')}} </h4>
                         <hr>
                         <div class="content">
                           <div class="alert alert-warning">
                             <p>
-                                <strong>Designation : </strong> {{benefice.designation}}
+                                <strong>Designation : </strong> {{Revenu.designation}}
                             </p>
                             <p>
-                                <strong>Paiement en espèce : </strong> {{benefice.espece|number_format(0,',',' ')}} Ariary
+                                <strong>Paiement en espèce : </strong> {{Revenu.espece|number_format(0,',',' ')}} Ariary
                             </p>
                             <p>
-                                <strong>Paiment par mobile money : </strong> {{benefice.mobileMoney|number_format(0,',',' ')}} Ariary
+                                <strong>Paiment par mobile money : </strong> {{Revenu.mobileMoney|number_format(0,',',' ')}} Ariary
                             </p>
                             <p>
-                                <strong>Total à gagné : </strong> {{benefice.total|number_format(0,',',' ')}} Ariary
+                                <strong>Total à gagné : </strong> {{Revenu.total|number_format(0,',',' ')}} Ariary
                             </p>
                             {% if application.fourchettes|length < 4 %}
                               <div class="alert alert-danger">
@@ -53,7 +53,7 @@
                                 {% if not existeDate %}
                                   <div class="d-flex justify-content-center">
                                       <a href="#" onclick="return newComptabilite()" class="btn btn-info btn-sm px-3">Créer comptabilité</a>
-                                      <a href="#" class="btn btn-info btn-sm px-3 mx-3 btn-edit-benefice">Modifier encaissement</a>
+                                      <a href="#" class="btn btn-info btn-sm px-3 mx-3 btn-edit-revenu">Modifier encaissement</a>
                                   </div>
                                 {% else %}
                                   <div class="alert alert-info">
@@ -83,7 +83,7 @@
                 <div class="col-md-6 col-12">
                   <div class="depense">
                     <div class="d-flex justify-content-between align-items-center">
-                      <h4 class="fw-bold mb-0">Dépenses du : {{benefice.dateBenefice|date('d-m-Y')}} </h4>
+                      <h4 class="fw-bold mb-0">Dépenses du : {{Revenu.dateRevenu|date('d-m-Y')}} </h4>
                       {% if not existeDate %}
                         <a href="#" onclick="return newDepense()" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle-fill"></i></a>
                       {% endif %}
@@ -188,7 +188,7 @@
         $('#tab-depot').css('display', 'none');
         $('#tab-comptabilite').css('display', 'none');
         $('#tab-vente').css('display', 'none');
-        $('#tab-benefice').css('display', 'block');
+        $('#tab-revenu').css('display', 'block');
          $('#tab-fourchette').css('display', 'none');
          $('#tab-ventes').css('display', 'none');
          $('#tab-avoir').css('display', 'none');
@@ -203,7 +203,7 @@
 
 <script>
      function createFactureDepense() {
-        const idBenefice = $('.id-benefice').data('benefice');
+        const idRevenu = $('.id-revenu').data('Revenu');
         if (confirm('Voulez vous vraiment créer cette facture?')) {
             setTimeout(function() {
                 $.ajax({
@@ -219,8 +219,8 @@
                             timeOut: 1000
                         };
                         toastr.success('Avec succèss', 'Création facture fait');
-                        window.location.hash = "tab-benefice";
-                        showTabBenefice(idBenefice);
+                        window.location.hash = "tab-revenu";
+                        showTabRevenu(idRevenu);
 
                         if (response.pdfUrl) {
                             window.open(response.pdfUrl, '_blank');
@@ -249,7 +249,7 @@
                     $("#blocModalDetailEmpty").empty();
                     $("#blocModalDetailEmpty").append(response.html);
                     $('#modalNewComptabilite').modal('show');
-                    window.location.hash = "tab-benefice";
+                    window.location.hash = "tab-revenu";
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     // Gérer l'erreur (par exemple, afficher un message d'erreur)

@@ -3,7 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Facture;
-use App\Entity\Benefice;
+use App\Entity\Revenu;
 use App\Entity\Comptabilite;
 use App\Form\ComptabiliteType;
 use App\Entity\MethodePaiement;
@@ -12,7 +12,7 @@ use App\Service\ApplicationManager;
 use App\Service\ComptabiliteService;
 use App\Repository\DepenseRepository;
 use App\Repository\FactureRepository;
-use App\Repository\BeneficeRepository;
+use App\Repository\RevenuRepository;
 use App\Repository\ComptabiliteRepository;
 use App\Repository\MethodePaiementRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +28,7 @@ class ComptabiliteController extends AbstractController
     private $factureRepository;
     private $comptabiliteService;
     private $methodePaiementRepo;
-    private $beneficeRepo;
+    private $revenuRepo;
     private $application;
     private $comptabiliteRepository;
 
@@ -38,7 +38,7 @@ class ComptabiliteController extends AbstractController
         ComptabiliteService $comptabiliteService,
         MethodePaiementRepository $methodePaiementRepo,
         ApplicationManager $applicationManager,
-        BeneficeRepository $beneficeRepo,
+        RevenuRepository $revenuRepo,
         ComptabiliteRepository $comptabiliteRepository
     )
     {
@@ -46,7 +46,7 @@ class ComptabiliteController extends AbstractController
         $this->factureRepository = $factureRepository;
         $this->comptabiliteService = $comptabiliteService;
         $this->methodePaiementRepo = $methodePaiementRepo;
-        $this->beneficeRepo = $beneficeRepo;
+        $this->RevenuRepo = $revenuRepo;
         $this->application = $applicationManager->getApplicationActive();
         $this->comptabiliteRepository = $comptabiliteRepository;
     }
@@ -93,14 +93,14 @@ class ComptabiliteController extends AbstractController
             $dateToday = new \DateTime();
             $dateTodayFormat = $dateToday->format('d-m-Y');
 
-            $benefices = $this->beneficeRepo->findAllDate();
-            $dateBenefices = [];
-            foreach ($benefices as $benefice) {
-                $dateBenefices[] = $benefice['dateBenefice']->format('d-m-Y');
+            $revenus = $this->RevenuRepo->findAllDate();
+            $dateRevenus = [];
+            foreach ($revenus as $revenu) {
+                $dateRevenus[] = $revenu['dateRevenu']->format('d-m-Y');
             }
     
             // Vérification si la date d'aujourd'hui existe dans les bénéfices
-            if (in_array($dateTodayFormat, $dateBenefices) || in_array($dateFacture, $dateBenefices)) {
+            if (in_array($dateTodayFormat, $dateRevenus) || in_array($dateFacture, $dateRevenus)) {
                 $existDate = true;
             }
     
@@ -170,14 +170,14 @@ class ComptabiliteController extends AbstractController
             $dateToday = new \DateTime();
             $dateTodayFormat = $dateToday->format('d-m-Y');
     
-            $benefices = $this->beneficeRepo->findAllDate();
-            $dateBenefices = [];
-            foreach ($benefices as $benefice) {
-                $dateBenefices[] = $benefice['dateBenefice']->format('d-m-Y');
+            $revenus = $this->RevenuRepo->findAllDate();
+            $dateRevenus = [];
+            foreach ($revenus as $revenu) {
+                $dateRevenus[] = $revenu['dateRevenu']->format('d-m-Y');
             }
     
             // Vérification si la date d'aujourd'hui existe dans les bénéfices
-            if (in_array($dateTodayFormat, $dateBenefices) || in_array($dateFacture, $dateBenefices)) {
+            if (in_array($dateTodayFormat, $dateRevenus) || in_array($dateFacture, $dateRevenus)) {
                 $existDate = true;
             }
     
@@ -227,7 +227,7 @@ class ComptabiliteController extends AbstractController
     public function create(Request $request)
     {
         $comptabilite = new Comptabilite();
-        $beneficeId = $request->getSession()->get('beneficeId');
+        $revenuId = $request->getSession()->get('RevenuId');
 
         $form = $this->createForm(ComptabiliteType::class, $comptabilite);
         $data = [];
@@ -236,12 +236,12 @@ class ComptabiliteController extends AbstractController
             $form->handleRequest($request);
 
             $totalDepense = $request->getSession()->get('totalDepense');
-            $totalBenefice = $request->getSession()->get('totalBenefice');
+            $totalRevenu = $request->getSession()->get('totalRevenu');
 
-            $benefice = $this->beneficeRepo->findOneBy(['id' => $beneficeId]);
+            $revenu = $this->RevenuRepo->findOneBy(['id' => $revenuId]);
 
-            $dateBenefice = $benefice->getDateBenefice();
-            $depenses = $this->depenseRepository->selectDepenseByDate($dateBenefice);
+            $dateRevenu = $revenu->getDateRevenu();
+            $depenses = $this->depenseRepository->selectDepenseByDate($dateRevenu);
 
             if ($form->isSubmitted() && $form->isValid()) {
                 
@@ -254,7 +254,7 @@ class ComptabiliteController extends AbstractController
                         mkdir($documentFolder, 0777, true);
                     }
                     
-                    list($pdfContent, $facture, $returnComptabilite) = $this->comptabiliteService->addComptabilite($comptabilite, $documentFolder, $request, $depenses, $benefice);
+                    list($pdfContent, $facture, $returnComptabilite) = $this->comptabiliteService->addComptabilite($comptabilite, $documentFolder, $request, $depenses, $revenu);
 
                     $filename = 'Comptabilite' . '-' . $facture->getNumero() . ".pdf";
                     $pdfPath = '/uploads/APP_'.$this->application->getId().'/factures/comptabilite/' . $filename;
@@ -274,8 +274,8 @@ class ComptabiliteController extends AbstractController
             $data["html"] = $this->renderView('admin/comptabilite/new.html.twig', [
                 'form' => $form->createView(),
                 'totalDepense' => $totalDepense,
-                'totalBenefice' => $totalBenefice,
-                'beneficeId' => $beneficeId
+                'totalRevenu' => $totalRevenu,
+                'RevenuId' => $revenuId
             ]);
            
             return new JsonResponse($data);
@@ -424,16 +424,16 @@ class ComptabiliteController extends AbstractController
     {
         $request->getSession()->set('typePage', 'detail');
         $request->getSession()->set('idComptabilite', $idComptabilite);
-        $idBenefice = $request->getSession()->get('beneficeId');
+        $idRevenu = $request->getSession()->get('RevenuId');
 
         $data = [];
         try {
         
-            //$benefice = $this->beneficeRepo->findOneBy(['id' => $idBenefice]);
+            //$revenu = $this->RevenuRepo->findOneBy(['id' => $idRevenu]);
             $comptabilite = $this->comptabiliteRepository->findOneBy(['id' => $idComptabilite]);
             $depenses = $comptabilite->getDepenses();
             //dd($comptabilite, count($depenses));
-            $benefice = $this->beneficeRepo->findOneBy(['id' => $idBenefice]);
+            $revenu = $this->RevenuRepo->findOneBy(['id' => $idRevenu]);
 
             $request->getSession()->set('existeCompta', $comptabilite);
 
@@ -441,7 +441,7 @@ class ComptabiliteController extends AbstractController
             $data["html"] = $this->renderView('admin/comptabilite/detail_comptabilite.html.twig', [
                 'comptabilite' => $comptabilite,
                 'depenses' => $depenses,
-                'benefice' => $benefice
+                'Revenu' => $revenu
             ]);
     
             // Retour de la réponse JSON avec le HTML généré

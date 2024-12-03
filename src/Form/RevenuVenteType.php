@@ -2,21 +2,17 @@
 
 namespace App\Form;
 
-use App\Entity\Benefice;
+use App\Entity\Revenu;
+use App\Entity\Application;
+use App\Entity\Comptabilite;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use App\Form\DataTransformer\FrenchToDateTimeTransformer;
 
-class BeneficeType extends AbstractType
+class RevenuVenteType extends AbstractType
 {
-    private $frenchTransformer ;
-
-    public function __construct(FrenchToDateTimeTransformer $frenchTransformer) {
-        $this->frenchTransformer = $frenchTransformer;
-    }
-    
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -27,22 +23,13 @@ class BeneficeType extends AbstractType
                 ],
                 'required' => true
             ])
-            ->add('dateBenefice', TextType::class, [
-                'attr' => [
-                    'class' => 'form-control form-control-md',
-                    'autocomplete' => 'off'
-                ],
-                'required' => true
-            ])
         ;
-        $builder->get('dateBenefice')->addModelTransformer($this->frenchTransformer);
-
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Benefice::class,
+            'data_class' => Revenu::class,
         ]);
     }
 }

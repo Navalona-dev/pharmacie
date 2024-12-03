@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <span class="id-benefice-compta" data-benefice="{{beneficeId}}"></span>
+                <span class="id-revenu-compta" data-revenu="{{RevenuId}}"></span>
                 {{ form_start(form, {'attr': {'id': 'newComptabilite', 'action': path('comptabilites_create') }}) }}
                    
                     <div class="form-group mb-3">
@@ -27,9 +27,9 @@
                     </div>
                     <div class="alert alert-info">
                         <h4 class="fw-bold text-center">Récapitulatif</h4>
-                        <p><strong>Gagnés : </strong> {{totalBenefice|number_format(0,',',' ')}} Ariary </p>
+                        <p><strong>Gagnés : </strong> {{totalRevenu|number_format(0,',',' ')}} Ariary </p>
                         <p><strong>Dépenses : </strong> {{totalDepense|number_format(0,',',' ')}} Ariary </p>
-                        <p><strong>Encaissé : </strong> {{(totalBenefice - totalDepense)|number_format(0,',',' ')}} Ariary </p>
+                        <p><strong>Encaissé : </strong> {{(totalRevenu - totalDepense)|number_format(0,',',' ')}} Ariary </p>
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary btn-sm px-5 mt-3" style="width: 100%;">Ajouter comptabilité</button>
@@ -60,7 +60,7 @@ $(document).ready(function() {
 });
   
     $(document).ready(function () {
-        const idBenefice = $('.id-benefice-compta').data('benefice');
+        const idRevenu = $('.id-revenu-compta').data('Revenu');
         
         $('#newComptabilite').on('submit', function (e) {
             e.preventDefault();
@@ -77,7 +77,7 @@ $(document).ready(function() {
                 contentType: false,
                 success: function (response) {
                     $('#modalNewComptabilite').modal('hide');
-                    var nextLink = $('#sidebar').find('li#benefice').find('a');
+                    var nextLink = $('#sidebar').find('li#Revenu').find('a');
                     setTimeout(function () {
                         toastr.options = {
                             closeButton: true,
@@ -86,9 +86,9 @@ $(document).ready(function() {
                             timeOut: 1000
                         };
                         toastr.success('Avec succèss', 'Enregistrement effectuée');
-                        window.location.hash = "tab-benefice";
+                        window.location.hash = "tab-revenu";
 
-                        showTabBenefice(idBenefice);
+                        showTabRevenu(idRevenu);
                         if (response.pdfUrl) {
                             window.open(response.pdfUrl, '_blank');
                         }

@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <span class="id-benefice-depense" data-benefice="{{beneficeId}}"></span>
+                <span class="id-revenu-depense" data-revenu="{{RevenuId}}"></span>
                 {% if comptabilite %}
                     <span class="id-compta-depense" data-compta="{{comptabilite.id}}"></span>
                 {% endif %}
@@ -66,7 +66,7 @@ $(document).ready(function() {
   
     $(document).ready(function () {
         var anchorName = document.location.hash.substring(1);
-        const idBenefice = $('.id-benefice-depense').data('benefice');
+        const idRevenu = $('.id-revenu-depense').data('Revenu');
         const idCompta = $('.id-compta-depense').data('compta');
        $('#newDepense').on('submit', function (e) {
             e.preventDefault();
@@ -93,8 +93,8 @@ $(document).ready(function() {
                         };
                         toastr.success('Avec succèss', 'Enregistrement effectuée');
 
-                        if(anchorName == "tab-benefice") {
-                            showTabBenefice(idBenefice);
+                        if(anchorName == "tab-revenu") {
+                            showTabRevenu(idRevenu);
                         } else if(anchorName == "tab-comptabilite") {
                             showTabComptabilite();
                         } else if(anchorName == "tab-comptabilite-detail") {

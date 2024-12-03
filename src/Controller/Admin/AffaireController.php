@@ -1014,8 +1014,13 @@ class AffaireController extends AbstractController
             }
             
             list($pdfContent, $facture) = $this->factureService->add($affaire, $documentFolder, $request, $applicationRevendeur);
+            $filename = null;
+            if($affaire->getCompte()->getIndiceFacture()) {
+                $filename = $affaire->getCompte()->getIndiceFacture() . '-' . $facture->getNumero() . ".pdf";
+            } else {
+                $filename = 'Facture' . '-' . $facture->getNumero() . ".pdf";
+            }
             
-            $filename = $affaire->getCompte()->getIndiceFacture() . '-' . $facture->getNumero() . ".pdf";
             $pdfPath = '/uploads/APP_'.$this->application->getId().'/factures/valide/' . $filename;
             
             // Sauvegarder le fichier PDF

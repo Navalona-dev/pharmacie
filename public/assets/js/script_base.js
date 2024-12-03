@@ -6,7 +6,7 @@ $(document).ready(function() {
     var idCompte = $('.id-compte').data('compte');
     var idProduit = $('.id-produit').data('produit');
     var idFacture = $('.id-facture').data('facture');
-    var idBenefice = $('.id-benefice').data('benefice');
+    var idRevenu = $('.id-revenu').data('Revenu');
     var idComptabilite = $('#elementIdCompta').data('comptabilite');
 
     if (anchorName === "tab-ventes") {
@@ -157,8 +157,8 @@ $(document).ready(function() {
         showTabComptabilite();
     }
 
-    if(anchorName === "tab-benefice") {
-        showTabBenefice(idBenefice);
+    if(anchorName === "tab-revenu") {
+        showTabRevenu(idRevenu);
     }
 
     if(anchorName === "tab-vente") {
@@ -460,7 +460,7 @@ function showTabVente() {
 
     $.ajax({
              type: 'post',
-             url: '/admin/benefice/',
+             url: '/admin/Revenu/',
              //data: {},
              success: function (response) {
                  $("#tab-vente").empty();
@@ -515,17 +515,17 @@ function showTabVente() {
          });
  }
 
-function showTabBenefice(id = null) {
+function showTabRevenu(id = null) {
     showSpinner();
     $.ajax({
             type: 'get',
-            url: '/admin/benefice/detail/'+id,
+            url: '/admin/Revenu/detail/'+id,
             //data: {id: id},
             success: function (response) {
-                $("#tab-benefice").empty();
-                $("#tab-benefice").append(response.html);
-                $("#tab-benefice").addClass('active');
-                $("#tab-benefice").css('display', 'block');
+                $("#tab-revenu").empty();
+                $("#tab-revenu").append(response.html);
+                $("#tab-revenu").addClass('active');
+                $("#tab-revenu").css('display', 'block');
                 $('.sidebar-nav a[href="#tab-dashboard"]').addClass('collapsed');
                 $('.sidebar-nav a[href="#tab-permission"]').addClass('collapsed');
                 $('.sidebar-nav a[href="#tab-privilege"]').addClass('collapsed');

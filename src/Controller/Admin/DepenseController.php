@@ -67,7 +67,7 @@ class DepenseController extends AbstractController
 
             $form->handleRequest($request);
 
-            $beneficeId = $request->getSession()->get('beneficeId');
+            $revenuId = $request->getSession()->get('RevenuId');
 
             if ($form->isSubmitted() && $form->isValid()) {
                 
@@ -81,7 +81,7 @@ class DepenseController extends AbstractController
             $data['exception'] = "";
             $data["html"] = $this->renderView('admin/depense/new.html.twig', [
                 'form' => $form->createView(),
-                'beneficeId' => $beneficeId, 
+                'RevenuId' => $revenuId, 
                 'comptabilite' => $existeCompta
             ]);
            
@@ -145,7 +145,7 @@ class DepenseController extends AbstractController
 
             $form->handleRequest($request);
 
-            $beneficeId = $request->getSession()->get('beneficeId');
+            $revenuId = $request->getSession()->get('RevenuId');
 
             if ($form->isSubmitted() && $form->isValid()) {
                 
@@ -160,7 +160,7 @@ class DepenseController extends AbstractController
             $data["html"] = $this->renderView('admin/depense/update.html.twig', [
                 'form' => $form->createView(),
                 'depense' => $depense,
-                'beneficeId' => $beneficeId,
+                'RevenuId' => $revenuId,
                 'comptabilite' => $existeCompta
             ]);
            

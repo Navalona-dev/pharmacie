@@ -1,5 +1,5 @@
 
-<div class="modal fade" id="modalNewBenefice" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="modalNewRevenu" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content p-4">
             <div class="modal-header modal-header-center">
@@ -8,7 +8,7 @@
             </div>
             <div class="modal-body">
                 
-                {{ form_start(form, {'attr': {'id': 'newBenefice', 'action': path('benefices_create') }}) }}
+                {{ form_start(form, {'attr': {'id': 'newRevenu', 'action': path('Revenus_create') }}) }}
                    
                     <div class="form-group mb-3">
                         <label for="" class="mb-2">Designation <sup class="text-danger">*</sup> </label>
@@ -17,8 +17,8 @@
                     </div>
                     <div class="form-group mb-3">
                         <label for="" class="mb-2">Date <sup class="text-danger">*</sup> </label>
-                        <span class="text-danger" style="font-size: 12px;"> {{form_errors(form.dateBenefice)}} </span>
-                        {{ form_widget(form.dateBenefice) }}
+                        <span class="text-danger" style="font-size: 12px;"> {{form_errors(form.dateRevenu)}} </span>
+                        {{ form_widget(form.dateRevenu) }}
                     </div>
                     <div class="alert alert-warning">
                         <h4 class="fw-bold text-center">Commandes</h4>
@@ -62,7 +62,7 @@ $(document).ready(function() {
   var dateNow = new Date();
   dateNow.setDate(dateNow.getDate() + 1)
 
-  $('#benefice_dateBenefice').datepicker({
+  $('#Revenu_dateRevenu').datepicker({
       format: dateFormat,
       todayHighlight: true,
       language: 'fr',
@@ -75,7 +75,7 @@ $(document).ready(function() {
     $(document).ready(function () {
         var anchorName = document.location.hash.substring(1);
     
-       $('#newBenefice').on('submit', function (e) {
+       $('#newRevenu').on('submit', function (e) {
             e.preventDefault();
             let form = $(this);
             
@@ -89,8 +89,8 @@ $(document).ready(function() {
                 processData: false,
                 contentType: false,
                 success: function (response) {
-                    $('#modalNewBenefice').modal('hide');
-                    var nextLink = $('#sidebar').find('li#benefice').find('a');
+                    $('#modalNewRevenu').modal('hide');
+                    var nextLink = $('#sidebar').find('li#Revenu').find('a');
                     setTimeout(function () {
                         toastr.options = {
                             closeButton: true,

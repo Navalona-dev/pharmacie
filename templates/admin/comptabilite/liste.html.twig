@@ -46,7 +46,7 @@
                         <td> {{comptabilite.dateComptabilite|date('d-m-Y')}} </td>
                         <td> {{comptabilite.reste|number_format(0,',',' ')}} Ar </td>
                         <td>
-                            {% for facture in comptabilite.benefice.factures %}
+                            {% for facture in comptabilite.Revenu.factures %}
                                 {% if facture.isEcheance is not null and facture.isEcheance == true %}
                                     FAC/VSM/{{facture.numero}}-E{{facture.echeanceNumero}}-{{ facture.date|date('y')}}
                                 {% elseif facture.isDepot is not null and facture.isDepot == true %}
@@ -56,7 +56,7 @@
                                 {% endif %} <br>
                             {% endfor %}
                         </td>
-                        <td> {{comptabilite.benefice.total|number_format(0,',',' ')}} Ar </td>
+                        <td> {{comptabilite.Revenu.total|number_format(0,',',' ')}} Ar </td>
                         <td>
                             {% set totalDepense = 0 %}
                             {% for depense in comptabilite.depenses %}
@@ -144,7 +144,7 @@
         $('#tab-depot').css('display', 'none');
         $('#tab-comptabilite').css('display', 'none');
         $('#tab-vente').css('display', 'none');
-        $('#tab-benefice').css('display', 'none');
+        $('#tab-revenu').css('display', 'none');
          $('#tab-fourchette').css('display', 'none');
          $('#tab-ventes').css('display', 'none');
          $('#tab-avoir').css('display', 'none');

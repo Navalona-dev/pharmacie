@@ -47,16 +47,16 @@ class Comptabilite
     private ?Application $application = null;
 
     /**
-     * @var Collection<int, Benefice>
+     * @var Collection<int, Revenu>
      */
-    #[ORM\ManyToMany(targetEntity: Benefice::class, inversedBy: 'comptabilites')]
-    private Collection $benefices;
+    #[ORM\ManyToMany(targetEntity: Revenu::class, inversedBy: 'comptabilites')]
+    private Collection $revenus;
 
     public function __construct()
     {
         $this->depenses = new ArrayCollection();
         $this->factureComptabilites = new ArrayCollection();
-        $this->benefices = new ArrayCollection();
+        $this->Revenus = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -192,25 +192,25 @@ class Comptabilite
     }
 
     /**
-     * @return Collection<int, Benefice>
+     * @return Collection<int, Revenu>
      */
-    public function getBenefices(): Collection
+    public function getRevenus(): Collection
     {
-        return $this->benefices;
+        return $this->Revenus;
     }
 
-    public function addBenefice(Benefice $benefice): static
+    public function addRevenu(Revenu $revenu): static
     {
-        if (!$this->benefices->contains($benefice)) {
-            $this->benefices->add($benefice);
+        if (!$this->Revenus->contains($revenu)) {
+            $this->Revenus->add($revenu);
         }
 
         return $this;
     }
 
-    public function removeBenefice(Benefice $benefice): static
+    public function removeRevenu(Revenu $revenu): static
     {
-        $this->benefices->removeElement($benefice);
+        $this->Revenus->removeElement($revenu);
 
         return $this;
     }

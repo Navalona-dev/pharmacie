@@ -3,7 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Depense;
-use App\Entity\Benefice;
+use App\Entity\Revenu;
 use App\Entity\Fourchette;
 use App\Entity\Comptabilite;
 use Doctrine\ORM\EntityRepository;

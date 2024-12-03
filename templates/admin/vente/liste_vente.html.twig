@@ -1,7 +1,12 @@
 <style>
     .nb-vente {
         color: #7a1820;
-        
+    }
+    .icon-edit i{
+        background-color: #7a1820;
+        padding: 9px 10px;
+        border-radius: 100%;
+        color: #fff;
     }
 </style>
 
@@ -15,41 +20,49 @@
     </nav>
 </div>
 <section class="section">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card">
-            <div class="card-body px-3 py-3 px-lg-3 py-lg-4">
-                <h3 class="fw-bold mb-4" style="font-size: 17px;">Vous avez <span class="nb-vente">{{listes|length}} </span>ventes pour aujourd'hui </h3>
-                <div class="row">
-                   
-                    {% for liste in listes %}
-
-                        {% set montantHt = methodePaiements[liste.id].espece + methodePaiements[liste.id].mVola + methodePaiements[liste.id].airtelMoney + methodePaiements[liste.id].orangeMoney %}
-                    <div class="col-md-4 col-12">
-                        <div class="card shadow p-3">
-                            <h4 class="text-center fw-bold" style="font-size: 16px;">
-                                {{liste.nom}}
-                            </h4>
-                            <p><strong>Espèce : </strong> {{methodePaiements[liste.id].espece|number_format(0,',',' ')}} Ar </p>
-                            <p><strong>Mvola : </strong> {{methodePaiements[liste.id].mVola|number_format(0,',',' ')}} Ar </p>
-                            <p><strong>AirtelMoneu : </strong> {{methodePaiements[liste.id].airtelMoney|number_format(0,',',' ')}} Ar </p>
-                            <p><strong>OrangeMoney : </strong> {{methodePaiements[liste.id].orangeMoney|number_format(0,',',' ')}} Ar </p>
-                            <p><strong>Remise : </strong>  {{totalRemises[liste.id]|number_format(0,',',' ')}} Ar </p>
-                            <p><strong>Total : </strong> {{montantHt|number_format(0,',',' ')}} Ar </p>
-                        </div>
+    <div class="card px-3 py-3 px-lg-3 py-lg-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between mb-5">
+                <h3 class="fw-bold" style="font-size: 17px;">Vous avez <span class="nb-vente">{{listes|length}} </span>ventes pour aujourd'hui </h3>
+                <h3 class="fw-bold" style="font-size: 17px;">Total vente : {{totalMontantHt|number_format(0,',',' ')}} Ar </h3>
+                {% if clotureVentes|length < 1 %}
+                    {{form_start(form, {'attr': {'id': 'newClotureVente', 'action': path('ventes_liste_vente') }})}}
+                        {{form_widget(form.nom)}}
+                        <button type="submit" class="btn btn-primary btn-sm px-3 btn-new-cloture-vente">Cloturer vente</button>
+                    {{form_end(form)}}
+                {% else %}
+                    <a href="#" class="btn btn-primary btn-sm px-3">Créer revenu</a>
+                {% endif %}
+            </div>
+            <div class="row">
+                
+                {% for liste in listes %}
+    
+                    {#{% set montantHt = methodePaiements[liste.id].espece + methodePaiements[liste.id].mVola + methodePaiements[liste.id].airtelMoney + methodePaiements[liste.id].orangeMoney %}#}
+                <div class="col-md-4 col-12">
+                    <div class="card shadow p-3">
+                        <h4 class="text-center fw-bold" style="font-size: 16px;">
+                            {{liste.nom}}
+                        </h4>
+                        <p><strong>Espèce : </strong> {{methodePaiements[liste.id].espece|number_format(0,',',' ')}} Ar </p>
+                        <p><strong>Mvola : </strong> {{methodePaiements[liste.id].mVola|number_format(0,',',' ')}} Ar </p>
+                        <p><strong>AirtelMoneu : </strong> {{methodePaiements[liste.id].airtelMoney|number_format(0,',',' ')}} Ar </p>
+                        <p><strong>OrangeMoney : </strong> {{methodePaiements[liste.id].orangeMoney|number_format(0,',',' ')}} Ar </p>
+                        <p><strong>Remise : </strong>  {{totalRemises[liste.id]|number_format(0,',',' ')}} Ar </p>
+                        <p><strong>Total : </strong> {{montantHt[liste.id]|number_format(0,',',' ')}} Ar </p>
+                        <a href="#" onclick="return openModalUpdateMethodePaiementVente({{methodePaiements[liste.id].id}})" class="icon-edit" title="Modifier méthode de paiement"><i class="bi bi-pencil-square"></i></a>
                     </div>
-                    {% else %}
-                        <div class="alert alert-warning">
-                            Aucune vente faite pour aujourd'hui
-                        </div>
-                    {% endfor %}
                 </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        Aucune vente faite pour aujourd'hui
+                    </div>
+                {% endfor %}
             </div>
         </div>
-      </div>
     </div>
-    <div id="modalRemiseCaisseEmpty"></div>
-    <div id="modalEcheanceCaisseEmpty"></div>
+    
+    <div id="modalUpdateMethodePaiementListeEmpty"></div>
 
 </section>
 
@@ -105,7 +118,7 @@
         $('#tab-depot').css('display', 'none');
         $('#tab-comptabilite').css('display', 'none');
         $('#tab-vente').css('display', 'none');
-        $('#tab-benefice').css('display', 'none');
+        $('#tab-revenu').css('display', 'none');
          $('#tab-fourchette').css('display', 'none');
         $('#tab-comptabilite-detail').css('display', 'none');
         $('#tab-comptabilite-liste').removeClass('active');
@@ -114,5 +127,62 @@
         $('#tab-liste-vente').css('display', 'block');
     });
   
+  </script>
+
+  <script>
+     function openModalUpdateMethodePaiementVente(id = null) {
+    var anchorName = document.location.hash.substring(1);
+          $.ajax({
+              url: '/admin/vente/update/methode/paiement/'+id,
+              type: 'GET',
+              //data: {isNew: isNew},
+              success: function (response) {
+                  $("#modalUpdateMethodePaiementListeEmpty").empty();
+                  $("#modalUpdateMethodePaiementListeEmpty").append(response.html);
+                  $('#modalUpdateMethodePaiementVente').modal('show');
+                  if (anchorName) {
+                      window.location.hash = anchorName;
+                  }
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  // Gérer l'erreur (par exemple, afficher un message d'erreur)
+                  alert('Erreur lors de la mise à jour de methode de paiement.');
+              }
+          });
+  }
+  </script>
+
+  <script>
+     $('.btn-new-cloture-vente').on('click', function (e) {
+        e.preventDefault(); // Empêche le comportement par défaut du bouton
+
+        // Génère un numéro de vente unique
+        const randomNumber = Math.floor(10000 + Math.random() * 90000);
+        const venteNom = `CLOTURE-${randomNumber}`;
+
+        // Remplit le champ "nom" avec la valeur générée
+        $('#cloture_vente_nom').val(venteNom);
+
+        // Récupère le formulaire
+        let form = $('#newClotureVente');
+
+        // Crée un FormData avec le contenu du formulaire
+        let formData = new FormData(form[0]);
+
+        // Effectue une requête AJAX pour envoyer les données
+        $.ajax({
+            url: form.attr('action'), // URL définie dans le formulaire
+            type: 'POST', // Méthode POST
+            data: formData,
+            processData: false, // Nécessaire pour FormData
+            contentType: false, // Nécessaire pour FormData
+            success: function (response) {
+               showTabListeVente();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Erreur lors de la création de la vente : ' + textStatus);
+            }
+        });
+    });
   </script>
 
