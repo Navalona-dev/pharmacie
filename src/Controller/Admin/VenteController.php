@@ -124,7 +124,7 @@ class VenteController extends AbstractController
             if ($form->isSubmitted() && $form->isValid()) {
                 if ($request->isXmlHttpRequest()) {
                     // encode the plain password
-                    $this->affaireService->ajout($affaire);
+                    $this->affaireService->ajout($affaire, $affaire->getNom());
 
                     $this->affaireService->update();
                    
@@ -909,6 +909,7 @@ class VenteController extends AbstractController
         
         return new JsonResponse($data);
     }
+
 
     #[Route('/echeance/{affaire}', name: '_echeance_create')]
     public function echeance(Affaire $affaire, Request $request): Response

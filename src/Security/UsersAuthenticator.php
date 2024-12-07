@@ -2,7 +2,9 @@
 
 namespace App\Security;
 
+use App\Entity\Session;
 use App\Form\LoginFormType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,10 +25,12 @@ class UsersAuthenticator extends AbstractLoginFormAuthenticator
     use TargetPathTrait;
 
     public const LOGIN_ROUTE = 'app_login';
+    private $entityManager;
 
-    public function __construct(private UrlGeneratorInterface $urlGenerator, FormFactoryInterface $formFactory)
+    public function __construct(private UrlGeneratorInterface $urlGenerator, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager)
     {
         $this->formFactory = $formFactory;
+        $this->entityManager = $entityManager;
     }
 
     public function authenticate(Request $request): Passport
@@ -54,10 +58,15 @@ class UsersAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        $session = $request->getSession();
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
-
+        $sessionEntity = $this->entityManager->getRepository(Session::class)->findOneBy(['isActive' => true]);
+        if ($sessionEntity != null) {
+            $session->set('currentSession', $sessionEntity->getId());
+            $session->set('dateCurrentSession', $sessionEntity->getDateDebut());
+        }
         // For example:
         return new RedirectResponse($this->urlGenerator->generate('app_admin'));
         // throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);

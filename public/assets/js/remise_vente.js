@@ -173,6 +173,47 @@ function saveRemise(type, id, isFrais = false) {
   return false;
 }
 
+function saveMethodePaiement(affaireId = null) {
+  $(".loadBody").css("display", "block");
+
+  var formData = new FormData($("#newMethodePaiement")[0]);
+
+  showSpinner();
+  
+  $.ajax({
+    type: "POST",
+    url: $("#newMethodePaiement").attr("action"),
+    data: formData,
+    processData: false,
+    contentType: false,
+    error: function (jqXHR, textStatus, errorMessage) {
+
+  console.log("ici");
+      console.log(errorMessage); // Optional
+    },
+    success: function (response) {
+
+  console.log(response);
+      //reloadTabFinanciere(response);
+
+      /*if (!isFrais) {
+        $("#modalRemise_" + type).modal("hide");
+      } else {
+        $("#modalFraisTechnique_" + type).modal("hide");
+      }*/
+      $("#modalNewMethodePaiementVente").modal("hide");
+      $("#tableCaisse").empty();
+      $("#tableCaisse").replaceWith(response);
+      hideSpinner();
+
+      //$(".loadBody").css("display", "none");
+
+      return false;
+    },
+  });
+
+  return false;
+}
 
 function deleteRemiseProduitAffaire(type, id, isFrais = false) {
   //$(".loadBody").css("display", "block");

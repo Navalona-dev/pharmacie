@@ -1,0 +1,45 @@
+<style>
+    .error-message {
+            color: red;
+            display: none; /* Cacher le message par défaut */
+        }
+</style>
+<div class="modal fade" id="modalSession" tabindex="-1" aria-labelledby="modalNewLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog ">
+        <div class="modal-content p-4 ">
+            <div class="modal-header modal-header-center">
+                <h5 class="modal-title fw-bold" id="modalNewLabel">Nouvelle session</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <hr>
+            </div>
+            <div class="modal-body">
+                
+                {{ form_start(form, {'attr': {'id': 'newSession', 'action': path('app_session_modal') }}) }}
+                  
+                   
+                    <div class="form-group mb-4 avance">
+                    <a > <i class="fas fa-user"></i> &nbsp;&nbsp;Utilisateur</a>
+                        {{form_widget(form.users)}}
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-sm px-5 mt-3" style="width: 100%;">Créer</button>
+                    </div>
+                {{ form_end(form) }}               
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script src="{{ asset('assets/js/script_utile.js')}}"></script>
+
+
+<script>
+    $(document).ready(function() {
+      $('.chosen-select').chosen({width: "100%"});
+    });
+
+   
+</script>
+
+{% endblock %}

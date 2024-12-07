@@ -184,6 +184,9 @@ class Affaire
     #[ORM\OneToMany(targetEntity: MethodePaiement::class, mappedBy: 'affaire')]
     private Collection $methodePaiements;
 
+    #[ORM\ManyToOne(inversedBy: 'affaires')]
+    private ?Session $session = null;
+
 
     public function __construct()
     {
@@ -783,6 +786,18 @@ class Affaire
                 $methodePaiement->setAffaire(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSession(): ?Session
+    {
+        return $this->session;
+    }
+
+    public function setSession(?Session $session): static
+    {
+        $this->session = $session;
 
         return $this;
     }

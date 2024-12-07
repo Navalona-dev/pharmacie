@@ -66,6 +66,17 @@
         <li><a class="dropdown-item" href="#" onclick="return newCompte(true, 2)">Ajouter un fournisseur</a></li>
       </ul>
     </div>
+   <div class="dropdown" style="margin-left: 50px; margin-right: 15px;">
+      <button class="btn btn-primary dropdown-toggle btn-sm px-4 btn-add-header" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-plus-circle"></i>
+        <span class="mx-2">Session {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %} {{ app.session.get('dateCurrentSession')|date('d-m-Y') }} {% endif %}</span>
+      </button>
+      <ul class="dropdown-menu">
+        {% if app.session.get('currentSession') is null and app.session.get('dateCurrentSession') is null %}<li><a class="dropdown-item" href="#" onclick="return setSession(true)">Créer une session</a></li>{% endif %}
+        {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %} <li><a class="dropdown-item" href="#" onclick="return setSession(false)">Fermer une session</a></li> {% endif %}
+      </ul>
+    </div>
+    {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %}
     {% if app_authorization.isUserGrantedPrivilege('responsable_vente') %}
     <a href="#tab-ventes" onclick="return showTabVentes()" class="btn btn-primary btn-sm px-3 ">Vente</a>
     {% endif %}
@@ -91,7 +102,7 @@
       <a href="#tab-liste-vente" onclick="return showTabListeVente()" class="btn btn-primary btn-sm px-3">Vente payer</a>
       {#</div>#}
     {% endif %}
-
+    {% endif %}
     <nav class="header-nav ms-auto">
       <ul class="d-flex align-items-center">
 

@@ -105,12 +105,19 @@ class User implements UserInterface, \Serializable, PasswordAuthenticatedUserInt
     #[ORM\ManyToMany(targetEntity: Compte::class, mappedBy: 'utilisateur')]
     private $comptes;
 
+    /**
+     * @var Collection<int, Session>
+     */
+    #[ORM\ManyToMany(targetEntity: Session::class, mappedBy: 'users')]
+    private Collection $sessions;
+
     public function __construct()
     {
         $this->privileges = new ArrayCollection();
         $this->DateCreation = new \DateTime('now',new \DateTimeZone('EAT'));
         $this->applications = new ArrayCollection();
         $this->comptes = new ArrayCollection();
+        $this->sessions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -307,18 +314,6 @@ class User implements UserInterface, \Serializable, PasswordAuthenticatedUserInt
         return $this;
     }
 
-    public function getNiveau(): ?string
-    {
-        return $this->niveau;
-    }
-
-    public function setNiveau(string $niveau): self
-    {
-        $this->niveau = $niveau;
-
-        return $this;
-    }
-
     public function getActivationToken(): ?string
     {
         return $this->activationToken;
@@ -505,6 +500,40 @@ class User implements UserInterface, \Serializable, PasswordAuthenticatedUserInt
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Session>
+     */
+    public function getSessions(): Collection
+    {
+        return $this->sessions;
+    }
+
+    public function addSession(Session $session): static
+    {
+        if (!$this->sessions->contains($session)) {
+            $this->sessions->add($session);
+            $session->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSession(Session $session): static
+    {
+        if ($this->sessions->removeElement($session)) {
+            $session->removeUser($this);
+        }
+
+        return $this;
+    }
+    
+    public function __toString()
+    {
+        //return sprintf('%s %s.', ucfirst(mb_strtolower($this->prenom)), mb_strtoupper(substr($this->nom, 0, 1)));
+        //return sprintf('%s %s', ucfirst(mb_strtolower($this->prenom)), mb_strtoupper($this->nom));
+        return sprintf('%s %s', $this->prenom, $this->nom);
     }
 
 }
