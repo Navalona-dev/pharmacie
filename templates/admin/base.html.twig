@@ -58,6 +58,79 @@
 
         </style>
 
+        <style>
+            .open-button {
+                background-color: #7e1111;
+                color: white;
+                border: none;
+                border-radius: 100%;
+                cursor: pointer;
+                opacity: 0.8;
+                position: fixed;
+                bottom: 5px;
+                left: 120px; /* Déplace le bouton à gauche */
+                top: 70px;
+                width: 40px;
+                height: 40px;
+                z-index: 99999;
+            }
+
+            .open-button:hover {
+                background-color: #7e1111 !important;
+                color: #fff;
+            }
+
+        /* The popup chat - hidden by default */
+        .chat-popup {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 120px !important; /* Déplace le popup à gauche */
+            top: 70px;
+            border: 3px solid #f1f1f1;
+            z-index: 999999;
+        }
+
+        /* Add styles to the form container */
+        .pop-up-container {
+            max-width: 300px;
+            padding: 10px;
+            background-color: white;
+        }
+
+        /* Full-width action-liste */
+        .pop-up-container .action-liste {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0 22px 0;
+            border: none;
+            background: #f1f1f1;
+            resize: none;
+            min-height: 200px;
+        }
+
+        /* Set a style for the submit/send button */
+        .pop-up-container .btn {
+            background-color: #7e1111 !important;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom:10px;
+            opacity: 0.8;
+        }
+
+        /* Add a red background color to the cancel button */
+        .pop-up-container .cancel {
+            background-color: #7e1111;
+        }
+
+        /* Add some hover effects to buttons */
+        .pop-up-container .btn:hover, .open-button:hover {
+        opacity: 1;
+        }
+        </style>
+
         {% block javascripts %}
             {{ encore_entry_script_tags('app') }}
         {% endblock %}
@@ -68,11 +141,32 @@
         {% include 'admin/partials/header.html.twig' %}
         
         <main id="main" class="main tab-content">
-            
             {% block body %}{% endblock %}
         </main>
         <div id="overlay" class="overlay" style="display: none;"></div>
         <div id="spinner" class="spinner" style="display: none;"></div>
+
+        <button class="open-button" onclick="openForm()" title="Session"><i class="bi bi-box-arrow-in-right"></i></button>
+        <div class="chat-popup" id="myForm">
+            <div class="pop-up-container">
+                {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %}
+                <h5 class="fw-bold">Session du {{ app.session.get('dateCurrentSession')|date('d-m-Y') }}</h5>
+                {% endif %}
+                <div class="action-liste">
+                    {% if app.session.get('currentSession') is null and app.session.get('dateCurrentSession') is null %}
+                        <a class="dropdown-item" href="{{ path('app_create_session_modal') }}">Créer une session</a>
+                    {% endif %}
+                    {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %} 
+                        {% if app.session.get('isMeInSession') == false %}  
+                            <a class="dropdown-item" href="{{ path('app_rattache_session_modal', {'id': app.session.get('currentSession')}) }}">Rattacher à cette session</a>
+                        {% endif %}
+                        <a class="dropdown-item" href="#" onclick="return setSession(false, '{{app.session.get('currentSession')}}')">Fermer une session</a>
+                    {% endif %}
+                </div>
+                <button type="button" class="btn btn-sm cancel" onclick="closeForm()">Fermer</button>
+            </div>
+        </div>
+
 
         <script src="{{ asset('assets/js/jquery-3.6.0.js') }}"></script>
         <script src="{{asset('assets/vendor/popper/popper.min.js')}}"></script>
@@ -98,6 +192,16 @@
         <script src="{{asset('assets/js/admin.js')}}"></script>
                     <!-- iCheck -->
     <script src="{{ asset('plugins/iCheck/icheck.min.js') }}"></script>
+
+    <script>
+        function openForm() {
+          document.getElementById("myForm").style.display = "block";
+        }
+        
+        function closeForm() {
+          document.getElementById("myForm").style.display = "none";
+        }
+        </script>
 
     </body>
 </html>
