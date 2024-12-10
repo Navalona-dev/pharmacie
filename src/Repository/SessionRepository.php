@@ -16,6 +16,15 @@ class SessionRepository extends ServiceEntityRepository
         parent::__construct($registry, Session::class);
     }
 
+    public function findByDateDebut($date): array
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('DATE(s.dateDebut) = :date')
+            ->setParameter('date', $date->format('Y-m-d'))
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Session[] Returns an array of Session objects
     //     */
