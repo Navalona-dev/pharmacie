@@ -66,7 +66,7 @@ class UsersAuthenticator extends AbstractLoginFormAuthenticator
         if ($sessionEntity != null) {
             $session->set('currentSession', $sessionEntity->getId());
             $session->set('dateCurrentSession', $sessionEntity->getDateDebut());
-        }
+        } 
         // For example:
         return new RedirectResponse($this->urlGenerator->generate('app_admin'));
         // throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);

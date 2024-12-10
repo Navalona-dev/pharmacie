@@ -27,6 +27,16 @@ class SessionService
         $this->entityManager = $entityManager;
     }
 
+    public function find($id)
+    {
+        return $this->entityManager->getRepository(Session::class)->find($id);
+    }
+
+    public function persist($entity)
+    {
+        $this->entityManager->persist($entity);
+    }
+    
     public function add($instance)
     {
         $datetime = new \DateTime();

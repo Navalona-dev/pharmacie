@@ -15,6 +15,7 @@ use App\Repository\Gomyclic\ApplicationRepository;
 use App\Controller\Gomyclic\EnvironnementController;
 use Symfony\Component\HttpFoundation\Session\Session;
 use App\Repository\Gomyclic\UserRepository;
+use App\Repository\SessionRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -37,16 +38,17 @@ class RequestListener implements EventSubscriberInterface
                                 TokenStorageInterface $tokenStorage,
                                 RouterInterface $router,
                                 EventDispatcherInterface $dispatcher,
+                                SessionRepository $sessionRepository
                                 //Security $security,
-                                //SessionInterface $session
+                                //
                                 )
     {
         $this->entityManager = $em;
-        //$this->session = $session;
         $this->tokenStorage = $tokenStorage;
         $this->router = $router;
         //$this->entityManager=$entityManager;
         $this->dispatcher = $dispatcher;
+        $this->sessionRepository = $sessionRepository;
         //$this->security = $dispatcher;
     }
     
@@ -58,11 +60,23 @@ class RequestListener implements EventSubscriberInterface
         $uri = $event->getRequest()->getUri();
         //escape url mise à jour element
         
+       
         $token=$this->tokenStorage->getToken();
        
         if($token){
+            $request = $event->getRequest();
             $this->user = $token->getUser();
-           
+            $session = $request->getSession();
+            if (null != $session->get('currentSession')) {
+                $sessionEntity = $this->sessionRepository->find($session->get('currentSession'));
+                if (null != $sessionEntity) {
+                    if (!$sessionEntity->getUsers()->contains($this->user)) {
+                        $session->set('isMeInSession', false);
+                    } else {
+                        $session->set('isMeInSession', true);
+                    }
+                }
+            }
             
             
                 if(!is_string($this->user)){

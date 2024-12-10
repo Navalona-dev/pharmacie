@@ -72,11 +72,13 @@
         <span class="mx-2">Session {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %} {{ app.session.get('dateCurrentSession')|date('d-m-Y') }} {% endif %}</span>
       </button>
       <ul class="dropdown-menu">
-        {% if app.session.get('currentSession') is null and app.session.get('dateCurrentSession') is null %}<li><a class="dropdown-item" href="#" onclick="return setSession(true)">Créer une session</a></li>{% endif %}
-        {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %} <li><a class="dropdown-item" href="#" onclick="return setSession(false)">Fermer une session</a></li> {% endif %}
+        {% if app.session.get('currentSession') is null and app.session.get('dateCurrentSession') is null %}<li><a class="dropdown-item" href="{{ path('app_create_session_modal') }}">Créer une session</a></li>{% endif %}
+        {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %} 
+       {% if app.session.get('isMeInSession') == false %}  <li><a class="dropdown-item" href="{{ path('app_rattache_session_modal', {'id': app.session.get('currentSession')}) }}">Rattacher à cet session</a></li> {% endif %}
+        <li><a class="dropdown-item" href="#" onclick="return setSession(false, '{{app.session.get('currentSession')}}')">Fermer une session</a></li> {% endif %}
       </ul>
     </div>
-    {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %}
+    {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null and app.session.get('isMeInSession') %}
     {% if app_authorization.isUserGrantedPrivilege('responsable_vente') %}
     <a href="#tab-ventes" onclick="return showTabVentes()" class="btn btn-primary btn-sm px-3 ">Vente</a>
     {% endif %}
@@ -99,8 +101,14 @@
         </ul>
       </button>
       <a href="#tab-avoir" onclick="return showTabAvoir()" class="btn btn-primary btn-sm px-3 mx-3">Avoir</a>
+      
       <a href="#tab-liste-vente" onclick="return showTabListeVente()" class="btn btn-primary btn-sm px-3">Vente payer</a>
+    
       {#</div>#}
+    {% endif %}
+    {% else %}
+    {% if app.session.get('isSessionClose') == true  %}
+      <a href="#tab-liste-vente" onclick="return showTabListeVente()" class="btn btn-primary btn-sm px-3">Vente payer</a>
     {% endif %}
     {% endif %}
     <nav class="header-nav ms-auto">

@@ -53,15 +53,71 @@ class SessionController extends AbstractController
             'controller_name' => 'SessionController',
         ]);
     }
+    
 
-    #[Route('/admin/session/new/ajax', name: 'app_session_modal')]
-    public function setSession(Request $request, SessionInterface $session): Response
+    #[Route('/admin/session/rattache/{id}', name: 'app_rattache_session_modal')]
+    public function rattacheSession(Session $sessionEntity, Request $request, SessionInterface $session): Response
+    {
+        try {
+            $user = $this->getUser();
+            $sessionEntity->addUser($user);
+            
+            $this->sessionService->persist($sessionEntity);
+            $this->sessionService->update();
+            $tabIUserInSession = $session->get('allIdUserInSession');
+            return $this->redirectToRoute('app_admin', [
+                
+            ]);
+
+        } catch (PropertyVideException $PropertyVideException) {
+            throw $this->createNotFoundException('Exception' . $PropertyVideException->getMessage());
+        }
+    }
+
+    #[Route('/admin/session/create/ajax', name: 'app_create_session_modal')]
+    public function createSession(Request $request, SessionInterface $session): Response
+    {
+        try {
+            $sessionEntity = new Session();
+            
+            $user = $this->getUser();
+            $sessionEntity->addUser($user);
+            $tabIUserInSession = [];
+            $sessionEntity = $this->sessionService->add($sessionEntity);
+            $session->set('currentSession', $sessionEntity->getId());
+            $session->set('dateCurrentSession', $sessionEntity->getDateDebut());
+            $session->set('isSessionClose', false);
+
+            return $this->redirectToRoute('app_admin', [
+                
+            ]);
+
+        } catch (PropertyVideException $PropertyVideException) {
+            throw $this->createNotFoundException('Exception' . $PropertyVideException->getMessage());
+        }
+    }
+
+    #[Route('/admin/session/{id}', name: 'app_session_modal')]
+    public function setSession(Session $sessionEntity, Request $request, SessionInterface $session): Response
     {
         try {
             $isNew = $request->get('isNew');
             if ($isNew != null && $isNew == "false") {
-                $session->set('currentSession', null);
-                $session->set('dateCurrentSession', null);
+
+                if (null != $session) {
+                    if ($sessionEntity != null) {
+                        $sessionEntity->setActive(false);
+                        $sessionEntity->setClose(true);
+                        $this->sessionService->persist($sessionEntity);
+                        $this->sessionService->update();
+                        $session->set('currentSession', null);
+                        $session->set('dateCurrentSession', null);
+                        $session->set('isSessionClose', true);
+                        return new JsonResponse([]);
+                    }
+                    
+                }
+                
                 return new JsonResponse([]);
             }
             $sessionEntity = new Session();
@@ -70,6 +126,7 @@ class SessionController extends AbstractController
 
             if($form->isSubmitted() && $form->isValid()) {  
                     $sessionEntity = $this->sessionService->add($sessionEntity);
+                    $tabIUserInSession = [];
                     $session->set('currentSession', $sessionEntity->getId());
                     $session->set('dateCurrentSession', $sessionEntity->getDateDebut());
                     return $this->redirectToRoute('app_admin', [

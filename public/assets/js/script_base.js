@@ -3036,14 +3036,13 @@ function showTabCaisse(id = null) {
 }
 
 
-function setSession(isNew = false) {
-    console.log(isNew);
+function setSession(isNew = false, idSession = null) {
     if (isNew == false) {
         if (confirm("Voulez vous fermer votre session ?")) {
             showSpinner();
             $.ajax({
                 type: "post",
-                url: "/admin/session/new/ajax",
+                url: "/admin/session/"+ idSession,
                 data: { isNew: isNew },
                 success: function (response) {
                     hideSpinner();
@@ -3055,12 +3054,12 @@ function setSession(isNew = false) {
         showSpinner();
             $.ajax({
                 type: "post",
-                url: "/admin/session/new/ajax",
+                url: "/admin/session/create/ajax",
                 data: { isNew: isNew },
                 success: function (response) {
-                    $("#modalSessionEmpty").empty();
-                    $("#modalSessionEmpty").append(response.html);
-                    $("#modalSession").modal("show");
+                    //$("#modalSessionEmpty").empty();
+                    //$("#modalSessionEmpty").append(response.html);
+                    //$("#modalSession").modal("show");
                     hideSpinner();
                     
                 },

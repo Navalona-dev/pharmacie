@@ -49,6 +49,9 @@ class Session
     #[ORM\OneToMany(targetEntity: Affaire::class, mappedBy: 'session')]
     private Collection $affaires;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isClose = null;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -194,6 +197,18 @@ class Session
                 $affaire->setSession(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isClose(): ?bool
+    {
+        return $this->isClose;
+    }
+
+    public function setClose(?bool $isClose): static
+    {
+        $this->isClose = $isClose;
 
         return $this;
     }
