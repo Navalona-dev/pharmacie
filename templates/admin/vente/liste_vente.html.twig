@@ -25,11 +25,14 @@
             <div class="d-flex justify-content-between mb-5">
                 <h3 class="fw-bold" style="font-size: 17px;">Vous avez <span class="nb-vente">{{listes|length}} </span>ventes pour aujourd'hui </h3>
                 <h3 class="fw-bold" style="font-size: 17px;">Total vente : {{totalMontantHt|number_format(0,',',' ')}} Ar </h3>
-                {% if clotureVentes|length < 1 %}
+                {#{% if clotureVentes|length < 1 %}
                     {{form_start(form, {'attr': {'id': 'newClotureVente', 'action': path('ventes_liste_vente') }})}}
                         {{form_widget(form.nom)}}
                         <button type="submit" class="btn btn-primary btn-sm px-3 btn-new-cloture-vente">Cloturer vente</button>
-                    {{form_end(form)}}
+                    {{form_end(form)}}#}
+                    {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %}
+                    <a class="btn btn-primary btn-sm px-4" href="#" onclick="return setSession(false, '{{app.session.get('currentSession')}}')">Cloturer vente</a> 
+                    
                 {% else %}
                     <a href="#" class="btn btn-primary btn-sm px-3">Créer revenu</a>
                 {% endif %}

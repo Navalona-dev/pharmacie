@@ -87,7 +87,6 @@
             bottom: 0;
             left: 120px !important; /* Déplace le popup à gauche */
             top: 70px;
-            border: 3px solid #f1f1f1;
             z-index: 999999;
         }
 
@@ -96,6 +95,7 @@
             max-width: 300px;
             padding: 10px;
             background-color: white;
+            border-radius: 20px 20px 0 0;
         }
 
         /* Full-width action-liste */
@@ -107,6 +107,7 @@
             background: #f1f1f1;
             resize: none;
             min-height: 200px;
+            border-radius: 10px;
         }
 
         /* Set a style for the submit/send button */
@@ -129,6 +130,9 @@
         .pop-up-container .btn:hover, .open-button:hover {
         opacity: 1;
         }
+        .action-liste .link:hover {
+            text-decoration: none !important;
+        }
         </style>
 
         {% block javascripts %}
@@ -147,20 +151,26 @@
         <div id="spinner" class="spinner" style="display: none;"></div>
 
         <button class="open-button" onclick="openForm()" title="Session"><i class="bi bi-box-arrow-in-right"></i></button>
-        <div class="chat-popup" id="myForm">
-            <div class="pop-up-container">
+        <div class="chat-popup" id="mySession">
+            <div class="pop-up-container card shadow">
                 {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %}
-                <h5 class="fw-bold">Session du {{ app.session.get('dateCurrentSession')|date('d-m-Y') }}</h5>
+                <h5 class="fw-bold my-3" style="font-size: 17px !important;">Session du {{ app.session.get('dateCurrentSession')|date('d-m-Y') }}</h5>
                 {% endif %}
                 <div class="action-liste">
                     {% if app.session.get('currentSession') is null and app.session.get('dateCurrentSession') is null %}
-                        <a class="dropdown-item" href="{{ path('app_create_session_modal') }}">Créer une session</a>
+                        <p>
+                            <a class="link" href="{{ path('app_create_session_modal') }}">Créer une session</a> 
+                        </p>
                     {% endif %}
                     {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %} 
                         {% if app.session.get('isMeInSession') == false %}  
-                            <a class="dropdown-item" href="{{ path('app_rattache_session_modal', {'id': app.session.get('currentSession')}) }}">Rattacher à cette session</a>
+                            <p>
+                                <a class="link" href="{{ path('app_rattache_session_modal', {'id': app.session.get('currentSession')}) }}">Rattacher à cette session</a> 
+                            </p>
                         {% endif %}
-                        <a class="dropdown-item" href="#" onclick="return setSession(false, '{{app.session.get('currentSession')}}')">Fermer une session</a>
+                        <p>
+                            <a class="link" href="#" onclick="return setSession(false, '{{app.session.get('currentSession')}}')">Fermer la session</a> 
+                        </p>
                     {% endif %}
                 </div>
                 <button type="button" class="btn btn-sm cancel" onclick="closeForm()">Fermer</button>
@@ -195,11 +205,11 @@
 
     <script>
         function openForm() {
-          document.getElementById("myForm").style.display = "block";
+          document.getElementById("mySession").style.display = "block";
         }
         
         function closeForm() {
-          document.getElementById("myForm").style.display = "none";
+          document.getElementById("mySession").style.display = "none";
         }
         </script>
 
