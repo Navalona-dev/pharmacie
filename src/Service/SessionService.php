@@ -5,10 +5,10 @@ use App\Service\AuthorizationManager;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
 use App\Exception\PropertyVideException;
 use App\Exception\ActionInvalideException;
 use App\Entity\Privilege;
+use App\Entity\Session;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManager;
 
@@ -36,7 +36,13 @@ class SessionService
     {
         $this->entityManager->persist($entity);
     }
-    
+
+    public function findByCurrentDate()
+    {
+        
+        return $this->entityManager->getRepository(Session::class)->findByDateDebut((new \DateTime()));
+    }
+
     public function add($instance)
     {
         $datetime = new \DateTime();

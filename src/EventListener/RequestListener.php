@@ -67,16 +67,21 @@ class RequestListener implements EventSubscriberInterface
             $request = $event->getRequest();
             $this->user = $token->getUser();
             $session = $request->getSession();
-            if (null != $session->get('currentSession')) {
-                $sessionEntity = $this->sessionRepository->find($session->get('currentSession'));
-                if (null != $sessionEntity) {
-                    if (!$sessionEntity->getUsers()->contains($this->user)) {
-                        $session->set('isMeInSession', false);
-                    } else {
-                        $session->set('isMeInSession', true);
-                    }
+            $sessionEntity = $this->sessionRepository->findByDateDebut(new \DateTime());
+           
+            if (null != $sessionEntity && count($sessionEntity) > 0) {
+                if (!$sessionEntity[0]->getUsers()->contains($this->user)) {
+                    $session->set('isMeInSession', false);
+                } else {
+                    $session->set('isMeInSession', true);
                 }
+                if ($sessionEntity[0]->isClose()) {
+                    $session->set('currentSession', null);
+                    $session->set('dateCurrentSession', null);
+                }
+                
             }
+            
             
             
                 if(!is_string($this->user)){
