@@ -111,6 +111,7 @@ class SessionController extends AbstractController
                         $this->sessionService->persist($sessionEntity);
                         $this->sessionService->update();
                         $session->set('currentSession', null);
+                        $session->set('sessionIdClose', $sessionEntity->getId());
                         $session->set('dateCurrentSession', null);
                         $session->set('isSessionClose', true);
                         return new JsonResponse([]);

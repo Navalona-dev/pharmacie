@@ -8,6 +8,12 @@
         border-radius: 100%;
         color: #fff;
     }
+
+    .total_vente span {
+        background-color: #7a1820;
+        padding: 10px 5px;
+        color: #fff;
+    }
 </style>
 
 <div class="pagetitle">
@@ -20,28 +26,37 @@
     </nav>
 </div>
 <section class="section">
+    <div class="card p-4">
+        <div class="row">
+            <div class="col-md-10 col-12">
+                <div class="info">
+                    <h3 class="fw-bold mb-4" style="font-size: 20px;">Vous avez <span class="nb-vente">{{listes|length}} </span>ventes pour aujourd'hui </h3>
+                    <p class="total_espece fw-bold" data-espece="{{totalEsepce}}">Espèce : {{totalEsepce|number_format(0,',',' ')}} Ar</p>
+                    <p class="total_mobile_money fw-bold" data-mobile="{{totalMobileMoney}}">Mobile money : {{totalMobileMoney|number_format(0,',',' ')}} Ar</p>
+                    <p class="fw-bold total_vente" data-total="{{totalMontantHt}}"><span>Total vente : {{totalMontantHt|number_format(0,',',' ')}} Ar</span> </p>
+
+                </div>
+            </div>
+            <div class="col-md-2 col-12">
+                <div class="form-group">
+                    {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %}
+                        <a class="btn btn-primary btn-sm px-4" href="#" onclick="return setSession(false, '{{app.session.get('currentSession')}}')">Cloturer vente</a> 
+                    {% else %}
+
+                        <a href="#" class="btn btn-primary btn-sm px-3">Créer revenu</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
     <div class="card px-3 py-3 px-lg-3 py-lg-4">
         <div class="card-body">
-            <div class="d-flex justify-content-between mb-5">
-                <h3 class="fw-bold" style="font-size: 17px;">Vous avez <span class="nb-vente">{{listes|length}} </span>ventes pour aujourd'hui </h3>
-                <h3 class="fw-bold" style="font-size: 17px;">Total vente : {{totalMontantHt|number_format(0,',',' ')}} Ar </h3>
-                {#{% if clotureVentes|length < 1 %}
-                    {{form_start(form, {'attr': {'id': 'newClotureVente', 'action': path('ventes_liste_vente') }})}}
-                        {{form_widget(form.nom)}}
-                        <button type="submit" class="btn btn-primary btn-sm px-3 btn-new-cloture-vente">Cloturer vente</button>
-                    {{form_end(form)}}#}
-                    {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %}
-                    <a class="btn btn-primary btn-sm px-4" href="#" onclick="return setSession(false, '{{app.session.get('currentSession')}}')">Cloturer vente</a> 
-                    
-                {% else %}
-                    <a href="#" class="btn btn-primary btn-sm px-3">Créer revenu</a>
-                {% endif %}
-            </div>
+            
             <div class="row">
                 
                 {% for liste in listes %}
     
-                    {#{% set montantHt = methodePaiements[liste.id].espece + methodePaiements[liste.id].mVola + methodePaiements[liste.id].airtelMoney + methodePaiements[liste.id].orangeMoney %}#}
                 <div class="col-md-4 col-12">
                     <div class="card shadow p-3">
                         <h4 class="text-center fw-bold" style="font-size: 16px;">
@@ -153,39 +168,5 @@
               }
           });
   }
-  </script>
-
-  <script>
-     $('.btn-new-cloture-vente').on('click', function (e) {
-        e.preventDefault(); // Empêche le comportement par défaut du bouton
-
-        // Génère un numéro de vente unique
-        const randomNumber = Math.floor(10000 + Math.random() * 90000);
-        const venteNom = `CLOTURE-${randomNumber}`;
-
-        // Remplit le champ "nom" avec la valeur générée
-        $('#cloture_vente_nom').val(venteNom);
-
-        // Récupère le formulaire
-        let form = $('#newClotureVente');
-
-        // Crée un FormData avec le contenu du formulaire
-        let formData = new FormData(form[0]);
-
-        // Effectue une requête AJAX pour envoyer les données
-        $.ajax({
-            url: form.attr('action'), // URL définie dans le formulaire
-            type: 'POST', // Méthode POST
-            data: formData,
-            processData: false, // Nécessaire pour FormData
-            contentType: false, // Nécessaire pour FormData
-            success: function (response) {
-               showTabListeVente();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert('Erreur lors de la création de la vente : ' + textStatus);
-            }
-        });
-    });
   </script>
 

@@ -23,6 +23,7 @@ use App\Repository\CompteRepository;
 use App\Form\ChangeCompteAffaireType;
 use App\Repository\AffaireRepository;
 use App\Repository\ProductRepository;
+use App\Repository\SessionRepository;
 use App\Service\FactureEcheanceService;
 use App\Exception\PropertyVideException;
 use App\Service\ProduitCategorieService;
@@ -100,13 +101,15 @@ class VenteController extends AbstractController
     }
     
     #[Route('/', name: '_liste')]
-    public function index(Request $request): Response
+    public function index(Request $request, SessionRepository $sessionRepo): Response
     {
         $data = [];
         try {
 
+            $sessionId = $request->getSession()->get('currentSession');
+            $session = $sessionRepo->findOneBy((['id' => $sessionId]));
 
-            $affaires = $this->affaireRepo->getAffaireToday();
+            $affaires = $this->affaireRepo->findBy(['session' => $session ]);
             //dd($affaires);
             
             $tabIdProduitCategorieInAffaires = [];
@@ -155,6 +158,7 @@ class VenteController extends AbstractController
             $affaire = new Affaire();
             $form = $this->createForm(AffaireType::class, $affaire);
             $form->handleRequest($request);
+            $sessionId = $request->getSession()->get('currentSession');
 
             if ($form->isSubmitted() && $form->isValid()) {
                 // Enregistre l'affaire dans la base de données
@@ -162,7 +166,7 @@ class VenteController extends AbstractController
 
                 $nom = $formData->getNom();
 
-                $this->affaireService->ajout($affaire, $nom);
+                $this->affaireService->ajout($affaire, $nom, $sessionId);
 
                 return new JsonResponse(['success' => true, 'message' => 'Vente enregistrée.']);
             }
@@ -209,17 +213,26 @@ class VenteController extends AbstractController
     }
 
     #[Route('/liste/vente', name: '_liste_vente')]
-    public function listeVente(Request $request): Response
+    public function listeVente(
+        Request $request,
+        SessionRepository $sessionRepo
+        ): Response
     {
         $data = [];
         try {
-            $clotureVentes = $this->clotureVenteRepo->ClotureVenteToday();
+
+            $sessionId = null;
+            
+            $sessionIdOpen = $request->getSession()->get('currentSession');
+            $sessionIdClose = $request->getSession()->get('sessionIdClose');
+
+            if($sessionIdOpen) {
+                $sessionId = $sessionIdOpen;
+            } elseif($sessionIdClose) {
+                $sessionId = $sessionIdClose;
+            }
     
-            $clotureVente = new ClotureVente();
-            $form = $this->createForm(ClotureVenteType::class, $clotureVente);
-            $form->handleRequest($request);
-    
-            $affaires = $this->affaireRepo->getAffaireTodayPayer();
+            $affaires = $this->affaireRepo->getAffaireTodayPayerBySession($sessionId);
     
             $montantHt = [];
             $totalMontantHt = 0; // Variable pour le total
@@ -227,6 +240,10 @@ class VenteController extends AbstractController
             $products = [];
             $methodePaiements = [];
             $totalRemises = [];
+            $totalMobileMoney = 0;
+            $totalEspece = 0;
+            $tabMobileMoney = [];
+            $tabEspece = [];
     
             foreach ($affaires as $affaire) {
                 // Récupérer les méthodes de paiement
@@ -248,6 +265,10 @@ class VenteController extends AbstractController
     
                     // Ajouter ce montant au total
                     $totalMontantHt += $montantHt[$affaire->getId()];
+                    $tabMobileMoney[$affaire->getId()] = $methodePaiement->getMvola() + $methodePaiement->getAirtelMoney() + $methodePaiement->getOrangeMoney();
+                    $totalMobileMoney += $tabMobileMoney[$affaire->getId()];
+                    $tabEspece[$affaire->getId()] = $methodePaiement->getEspece();
+                    $totalEspece += $tabEspece[$affaire->getId()];
                 }
     
                 // Calculer la remise totale pour cette affaire
@@ -260,23 +281,19 @@ class VenteController extends AbstractController
     
                 $totalRemises[$affaire->getId()] = $totalRemise; // Associer la remise totale à l'affaire
             }
-    
-            if ($form->isSubmitted() && $form->isValid()) {
-                $clotureVente->setCreatedAt(new \DateTime());
-                $clotureVente->setClose(true);
-                $clotureVente->setApplication($this->application);
-                $this->entityManager->persist($clotureVente);
-                $this->entityManager->flush();
-            }
-    
+
+            $sessionVenteId = $request->getSession()->get('sessionIdClose');
+            $sessionVente = $sessionRepo->findOneBy(['id' => $sessionVenteId]);
+
+
             $data["html"] = $this->renderView('admin/vente/liste_vente.html.twig', [
                 'listes' => $affaires,
                 'methodePaiements' => $methodePaiements,
                 'totalRemises' => $totalRemises,
-                'clotureVentes' => $clotureVentes,
-                'form' => $form->createView(),
                 'montantHt' => $montantHt,
-                'totalMontantHt' => $totalMontantHt // Passer le total au template
+                'totalMontantHt' => $totalMontantHt,
+                'totalMobileMoney' => $totalMobileMoney,
+                'totalEsepce' => $totalEspece
             ]);
     
             return new JsonResponse($data);
@@ -1027,7 +1044,7 @@ class VenteController extends AbstractController
 
             $totalRemise = $totalRemise + $remise;
 
-            $totalPuHt = $totalPuHt + $puHt;
+            $totalPuHt = $totalPuHt + ($puHt * $product->getQtt());
 
         }
 
@@ -1106,7 +1123,7 @@ class VenteController extends AbstractController
 
             $totalRemise = $totalRemise + $remise;
 
-            $totalPuHt = $totalPuHt + $puHt;
+            $totalPuHt = $totalPuHt + ($puHt * $product->getQtt());
 
         }
 

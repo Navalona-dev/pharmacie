@@ -7,6 +7,7 @@ use App\Entity\Affaire;
 use Psr\Log\LoggerInterface;
 use Doctrine\ORM\EntityManager;
 use App\Repository\CompteRepository;
+use App\Repository\SessionRepository;
 use App\Service\AuthorizationManager;
 use App\Exception\PropertyVideException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,6 +30,7 @@ class AffaireService
     private $logger;
     private $security;
     private $compteRepo;
+    private $sessionRepo;
 
     public function __construct(
         AuthorizationManager $authorization, 
@@ -37,7 +39,8 @@ class AffaireService
         ApplicationManager  $applicationManager,
         LoggerInterface $affaireLogger, 
         Security $security,
-        CompteRepository $compteRepo
+        CompteRepository $compteRepo,
+        SessionRepository $sessionRepo
         )
     {
         $this->tokenStorage = $TokenStorageInterface;
@@ -47,6 +50,7 @@ class AffaireService
         $this->logger = $affaireLogger;
         $this->security = $security;
         $this->compteRepo = $compteRepo;
+        $this->sessionRepo = $sessionRepo;
     }
 
     public function add($instance, $statut, $compte = null, $application = null, $depot = null)
@@ -151,7 +155,7 @@ class AffaireService
         return $this->entityManager->getRepository(Affaire::class)->getAllAffaires($statut);
     }
 
-    public function ajout($affaire, $nom)
+    public function ajout($affaire = null, $nom = null, $sessionId = null)
     {
         $comptes = $this->compteRepo->findBy(['genre' => 1]);
         $compte = null;
@@ -164,7 +168,11 @@ class AffaireService
             $compte->setApplication($this->application);
             $this->entityManager->persist($compte);
         }
-
+        
+        if($sessionId) {
+            $sessionAffaire = $this->sessionRepo->findOneBy(['id' => $sessionId]);
+            $affaire->setSession($sessionAffaire);
+        }
 
         $affaire->setNom($nom);
         $affaire->setApplication($this->application);

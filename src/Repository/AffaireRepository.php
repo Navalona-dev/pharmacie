@@ -958,7 +958,7 @@ class AffaireRepository extends ServiceEntityRepository
         return $qb->getResult();
     }
 
-    public function getAffaireTodayPayer()
+    public function getAffaireTodayPayerBySession($sessionAffaire)
     {
         // Récupérer la date actuelle
         $todayStart = new \DateTime('today 00:00:00');
@@ -966,13 +966,16 @@ class AffaireRepository extends ServiceEntityRepository
         
         // Créer la requête
         $qb = $this->createQueryBuilder('a')
-            ->andWhere('a.dateCreation >= :startDate') // Ajouter la condition de date de début
-            ->andWhere('a.dateCreation <= :endDate') // Ajouter la condition de date de fin
+            ->join('a.session', 's')
+            ->where('s.id = :sessionId')
+            //->andWhere('a.dateCreation >= :startDate') // Ajouter la condition de date de début
+            //->andWhere('a.dateCreation <= :endDate') // Ajouter la condition de date de fin
             ->andWhere('a.paiement = :paiement')
             ->andWhere('a.statut = :statut')
             ->andWhere('a.application = :application_id')
-            ->setParameter('startDate', $todayStart->format('Y-m-d H:i:s'))
-            ->setParameter('endDate', $todayEnd->format('Y-m-d H:i:s'))
+            ->setParameter('sessionId', $sessionAffaire)
+            //->setParameter('startDate', $todayStart->format('Y-m-d H:i:s'))
+            //->setParameter('endDate', $todayEnd->format('Y-m-d H:i:s'))
             ->setParameter('paiement', 'paye')  // Paiement 'non'
             ->setParameter('statut', 'commande')  // Statut 'commande'
             ->setParameter('application_id', $this->application->getId())
