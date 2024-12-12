@@ -181,6 +181,9 @@ class ProduitCategorie
     #[ORM\Column(nullable: true)]
     private ?float $qttReserverGros = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $maxPourcentage = null;
+
     public function __construct()
     {
         $this->produits = new ArrayCollection();
@@ -712,6 +715,18 @@ class ProduitCategorie
     public function setQttReserverGros(?float $qttReserverGros): static
     {
         $this->qttReserverGros = $qttReserverGros;
+
+        return $this;
+    }
+
+    public function getMaxPourcentage(): ?string
+    {
+        return $this->maxPourcentage;
+    }
+
+    public function setMaxPourcentage(?string $maxPourcentage): static
+    {
+        $this->maxPourcentage = $maxPourcentage;
 
         return $this;
     }

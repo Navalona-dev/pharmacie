@@ -44,10 +44,20 @@ class Stock
     #[ORM\OneToMany(targetEntity: Transfert::class, mappedBy: 'stock')]
     private Collection $transferts;
 
+    /**
+     * @var Collection<int, Compte>
+     */
+    #[ORM\ManyToMany(targetEntity: Compte::class, inversedBy: 'stocks')]
+    private Collection $comptes;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $pourcentageVente = null;
+
     public function __construct()
     {
         $this->datePeremptionProducts = new ArrayCollection();
         $this->transferts = new ArrayCollection();
+        $this->comptes = new ArrayCollection();
     }
 
     public static function newStock($instance = null)
@@ -180,6 +190,42 @@ class Stock
                 $transfert->setStock(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Compte>
+     */
+    public function getComptes(): Collection
+    {
+        return $this->comptes;
+    }
+
+    public function addCompte(Compte $compte): static
+    {
+        if (!$this->comptes->contains($compte)) {
+            $this->comptes->add($compte);
+        }
+
+        return $this;
+    }
+
+    public function removeCompte(Compte $compte): static
+    {
+        $this->comptes->removeElement($compte);
+
+        return $this;
+    }
+
+    public function getPourcentageVente(): ?string
+    {
+        return $this->pourcentageVente;
+    }
+
+    public function setPourcentageVente(?string $pourcentageVente): static
+    {
+        $this->pourcentageVente = $pourcentageVente;
 
         return $this;
     }

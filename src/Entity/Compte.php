@@ -136,6 +136,12 @@ class Compte
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $delaisPaiement = null;
 
+    /**
+     * @var Collection<int, Stock>
+     */
+    #[ORM\ManyToMany(targetEntity: Stock::class, mappedBy: 'comptes')]
+    private Collection $stocks;
+
     public function __construct()
     {
         $this->utilisateur = new ArrayCollection();
@@ -144,6 +150,7 @@ class Compte
         $this->compteApplications = new ArrayCollection();
         $this->produitCategories = new ArrayCollection();
         $this->factures = new ArrayCollection();
+        $this->stocks = new ArrayCollection();
         
     }
 
@@ -566,6 +573,33 @@ class Compte
     public function setDelaisPaiement(?string $delaisPaiement): static
     {
         $this->delaisPaiement = $delaisPaiement;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Stock>
+     */
+    public function getStocks(): Collection
+    {
+        return $this->stocks;
+    }
+
+    public function addStock(Stock $stock): static
+    {
+        if (!$this->stocks->contains($stock)) {
+            $this->stocks->add($stock);
+            $stock->addCompte($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStock(Stock $stock): static
+    {
+        if ($this->stocks->removeElement($stock)) {
+            $stock->removeCompte($this);
+        }
 
         return $this;
     }

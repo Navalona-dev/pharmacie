@@ -9,9 +9,10 @@
             <th>Nom</th>
             <th>Référence</th>
             <th>Stock restant</th>
-            <th>Prix vente de gros</th>
-            <th>Prix vente détail</th>
-            <th>Prix à changer?</th>
+            <th>Prix d'achat</th>
+            <th>Pourcentage</th>
+            <th>Prix de vente</th>
+            {#<th>Prix vente détail</th>#}
             {# 
             <th>PrixHt</th>
             <th>Tva</th>
@@ -58,15 +59,17 @@
                  {% if unite > 0 %} et {{unite|number_format(2,'.','')}} {{liste.uniteVenteGros}} {% endif %}
 
             </td>
+            <td> {{liste.prixAchat|number_format(0,',',' ')}} Ar </td>
+            <td> {{liste.maxPourcentage}} % </td>
             <td> {{liste.prixVenteGros|number_format(0, ',', ' ') }} Ar </td>
-            <td> {{liste.prixVenteDetail|number_format(0, ',', ' ') }} Ar </td>
+            {#<td> {{liste.prixVenteDetail|number_format(0, ',', ' ') }} Ar </td>
             <td>
                 {% if liste.isChangePrix == 0 or liste.isChangePrix is null %}
                     Non
                 {% else %}
                     <a href="#" onclick="return openModalUpdatePriceProduit({{liste.id}})">Oui</a>
                 {% endif %}
-            </td>
+            </td>#}
 
             {# 
             <td> {{liste.prixHt}} </td>

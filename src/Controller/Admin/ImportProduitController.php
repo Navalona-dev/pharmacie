@@ -95,7 +95,6 @@ class ImportProduitController extends AbstractController
                     
                     if ($dataCategorie !== null) {
                        
-                    //dd($dataCategorie, $categorieName,in_array($categorieName, array_column($categories, 'nom')), array_column($categories, 'nom'), $categories);
                         // Vérifie si $categorieName est dans $categories
                  
                         if ($existingCategorie == null) {
@@ -116,7 +115,7 @@ class ImportProduitController extends AbstractController
                     //dd($existingCategorie, $categorie);
 
                     //traiter le type
-                    $dataType = isset($dataProduct[2]) ? trim($dataProduct[2]) : null;
+                    $dataType = isset($dataProduct[2]) ? trim($dataProduct[1]) : null;
                     $nameType = $dataType;
                     if($dataType == null) {
                         $nameType = "Autre";
@@ -141,85 +140,128 @@ class ImportProduitController extends AbstractController
                         }
                     }
                    
-                    //traiter le compte
-                    $dataCompte = isset($dataProduct[1]) ? trim($dataProduct[1]) : null;
-                    
-                    $existingCompte = $this->compteRepository->findOneBy(['nom' => $dataCompte, 'application' => $this->application, 'genre' => 2]);
-                    
-                    if ($dataCompte !== null) {
-                        $compte = null;
-                        if ($existingCompte == null) {
-                            $compte = new Compte();
-                            $compte->setNom($dataCompte);
-                            $compte->setApplication($this->application);
-                            $compte->setDateCreation($date);
-                            $compte->setGenre(2);
-                            $compte->setCode($dataProduct[4]);
-                            $this->em->persist($compte);
-                        } else {
-                            $compte = $existingCompte;
-                        }
-                    }
-                    
-
                     //traiter le produit
-                    $dataReference = isset($dataProduct[4]) ? trim($dataProduct[4]) : null;
+                    $dataReference = isset($dataProduct[4]) ? trim($dataProduct[2]) : null;
                     
                     $existingProduitCategorie = $this->produitCategorieRepo->findOneBy(['reference' => $dataReference, 'application' => $this->application]);
                    
                     if($dataReference !== null) {
                         $produitCategorie = null;
+                        $stockRestant = 0;
+
                         if ($existingProduitCategorie == null) {
                             $produitCategorie = new ProduitCategorie();
     
                             $produitCategorie->setCategorie($categorie ?? null);
-                            $produitCategorie->addCompte($compte ?? null);
                             $produitCategorie->setType($type ?? null);
                             $produitCategorie->setNom($dataProduct[3]);
-                            $produitCategorie->setReference($dataProduct[4] ?? null);
-                            $produitCategorie->setPresentationGros($dataProduct[5] ?? null);
-                            $produitCategorie->setUniteVenteGros($dataProduct[6] ?? null);
-                            $produitCategorie->setVolumeGros(floatval($dataProduct[7] ?? 1.0));
-                            $produitCategorie->setPrixAchat(floatval($dataProduct[8] ?? 0.0));
+                            $produitCategorie->setReference($dataProduct[2] ?? null);
+                            $produitCategorie->setPresentationGros($dataProduct[4] ?? null);
+                            $produitCategorie->setUniteVenteGros($dataProduct[5] ?? null);
+                            $produitCategorie->setVolumeGros(floatval($dataProduct[6] ?? 1.0));
+                            $produitCategorie->setPrixAchat(floatval($dataProduct[7] ?? 0.0));
                             
-                            $produitCategorie->setPrixVenteGros(floatval($dataProduct[9] ?? 0.0));
-                            $produitCategorie->setPrixVenteDetail(floatval($dataProduct[10] ?? 0.0));
-                            $produitCategorie->setPresentationDetail($dataProduct[11]);
-                            $produitCategorie->setUniteVenteDetail($dataProduct[12]);
-                            $produitCategorie->setVolumeDetail(floatval($dataProduct[13]));
+                            $produitCategorie->setPresentationDetail($dataProduct[8]);
+                            $produitCategorie->setUniteVenteDetail($dataProduct[9]);
+                            $produitCategorie->setVolumeDetail(floatval($dataProduct[10]));
                             $produitCategorie->setApplication($this->application);
             
                             $produitCategorie->setDateCreation($date);
                             $produitCategorie->setStockMin(10);
                             $produitCategorie->setStockMax(50);
+
+                            //gerer les stocks, fournisseurs et dateperemption
+                            $stocksData = isset($dataProduct[11]) ? explode('|', $dataProduct[11]) : [];
+                            $datesPeremption = isset($dataProduct[12]) ? explode(',', $dataProduct[12]) : []; // Champs date séparés par des virgules
+                            $fournisseurs = isset($dataProduct[13]) ? explode(',', $dataProduct[13]) : [];
+                            $telephones = isset($dataProduct[14]) ? explode(',', $dataProduct[14]) : [];
+                            $nomenclatures = isset($dataProduct[15]) ? explode(',', $dataProduct[15]) : [];
                             
-                            $stock = new Stock();
-                            $stockRestant = isset($dataProduct[14]) ? trim($dataProduct[14]) : null;
-                            $stock->setDateCreation($date);
-                            if (null != $stockRestant) {
-                                $stock->setQtt(floatval($stockRestant));
-                                $stock->setQttRestant(floatval($stockRestant));
-                            } else {
-                                $stock->setQtt(0);
-                                $stock->setQttRestant(0);
-                            }
-                            if ($dataProduct[15] != "" && $dataProduct[15] != null) {
-                                $datePeremption = new DatePeremption();
-                                $datePeremptio = new \DateTime($dataProduct[15]);
-                                $datePeremption->setDate($datePeremptio);
-                                $datePeremption->setDateCreation($date);
+                            $pourcentagesVente = isset($dataProduct[16]) ? explode('|', $dataProduct[16]) : [];
+                            $prixAchat = floatval($dataProduct[7] ?? 0.0);
+                            // Convertir chaque pourcentage en flottant avant de trouver le maximum
+                            $pourcentagesVente = array_map(function($value) {
+                                return str_replace(',', '.', $value); // Remplacer les virgules par des points
+                            }, $pourcentagesVente);
+                            
+                            // Convertir en flottant et trouver le maximum
+                            $pourcentagesVenteNumeriques = array_map('floatval', $pourcentagesVente);
+                            $maxPourcentageVente = max($pourcentagesVenteNumeriques);
+                            
+
+                            // Calcul du montant à ajouter basé sur le prix d'achat et le pourcentage
+                            $montantAdditionnel = ($prixAchat * $maxPourcentageVente) / 100;
+
+                            // Calcul du prix de vente gros et détail
+                            $prixVenteGros = $prixAchat + $montantAdditionnel;
+                            $prixVenteDetail = $prixVenteGros;
+
+                            foreach ($stocksData as $key => $stockValue) {
+                                //1-date peremption
+
+                                $datePeremptionValue = isset($datesPeremption[$key]) ? trim($datesPeremption[$key]) : null;
+                                $datePeremption = null;
+                                if ($datePeremptionValue) {
+                                    $datePeremption = new DatePeremption();
+                                    $datePeremption->setDate(\DateTime::createFromFormat('d/m/Y', $datePeremptionValue));
+                                    $datePeremption->setDateCreation($date);
+                                    $this->em->persist($datePeremption);
+                                }
+
+                                //2-fournisseur
+                                $fournisseurValue = isset($fournisseurs[$key]) ? trim($fournisseurs[$key]) : null;
+                                $telephoneValue = isset($telephones[$key]) ? trim($telephones[$key]) : null;
+                                $nomenclatureValue = isset($nomenclatures[$key]) ? trim($nomenclatures[$key]) : null;
+
+                                $fournisseur = null;
+
+                                if ($nomenclatureValue) {
+                                    // Vérifier si le fournisseur existe déjà par sa nomenclature
+                                    $fournisseur = $this->em->getRepository(Compte::class)->findOneBy(['code' => $nomenclatureValue, 'application' => $this->application]);
+                                
+                                    if (!$fournisseur) {
+
+                                        // Si le fournisseur n'existe pas, on le crée
+                                        $fournisseur = new Compte();
+                                        $fournisseur->setNom($fournisseurValue);
+                                        $fournisseur->setGenre(2); // Exemple : Genre spécifique pour les fournisseurs
+                                        $fournisseur->setDateCreation(new \DateTime());
+                                        $fournisseur->setTelephone($telephoneValue);
+                                        $fournisseur->setCode($nomenclatureValue);
+                                        $fournisseur->setApplication($this->application);
+                                        $this->em->persist($fournisseur);
+
+                                    }
+                                }
+
+                                //3-stocks
+                                $stock = new Stock();
+                            
+                                $pourcentageVente = isset($pourcentagesVente[$key]) ? trim($pourcentagesVente[$key]) : null;
+                                $stock->setQtt(floatval($stockValue));
+                                $stock->setProduitCategorie($produitCategorie); 
+                                $stock->setDateCreation(new \DateTime()); 
+                                $stock->setQttRestant(floatval($stockValue));
+                                $stock->setPourcentageVente(floatval($pourcentagesVente));
+                            
+                                $stock->addCompte($fournisseur);
                                 $stock->setDatePeremption($datePeremption);
-                                $this->em->persist($datePeremption);
+                                $this->em->persist($stock);
+
+                                $stockRestant += $stock->getQtt();
+                                    
                             }
 
-                            $produitCategorie->setStockRestant(floatval($stockRestant));
-                            $produitCategorie->addStock($stock);
-                            $this->em->persist($stock);
+                            $produitCategorie->setPrixVenteGros($prixVenteGros);
+                            $produitCategorie->setMaxPourcentage($maxPourcentageVente);
+                            $produitCategorie->setPrixVenteDetail($prixVenteDetail);
+                            $produitCategorie->setStockRestant($stockRestant);
                             $this->em->persist($produitCategorie);
+                            //dd($produitCategorie,$prixVenteGros);
+
                             
                         } else {
                             $produitCategorie = $existingProduitCategorie;
-                            //$produitCategorie->getStock()
                         }
 
                         // Format stock
