@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use App\Entity\Compte;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\StockRepository;
 use App\Exception\PropertyVideException;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: StockRepository::class)]
 class Stock
@@ -44,20 +45,16 @@ class Stock
     #[ORM\OneToMany(targetEntity: Transfert::class, mappedBy: 'stock')]
     private Collection $transferts;
 
-    /**
-     * @var Collection<int, Compte>
-     */
-    #[ORM\ManyToMany(targetEntity: Compte::class, inversedBy: 'stocks')]
-    private Collection $comptes;
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $pourcentageVente = null;
+
+    #[ORM\ManyToOne(inversedBy: 'stocks')]
+    private ?Compte $compte = null;
 
     public function __construct()
     {
         $this->datePeremptionProducts = new ArrayCollection();
         $this->transferts = new ArrayCollection();
-        $this->comptes = new ArrayCollection();
     }
 
     public static function newStock($instance = null)
@@ -194,30 +191,6 @@ class Stock
         return $this;
     }
 
-    /**
-     * @return Collection<int, Compte>
-     */
-    public function getComptes(): Collection
-    {
-        return $this->comptes;
-    }
-
-    public function addCompte(Compte $compte): static
-    {
-        if (!$this->comptes->contains($compte)) {
-            $this->comptes->add($compte);
-        }
-
-        return $this;
-    }
-
-    public function removeCompte(Compte $compte): static
-    {
-        $this->comptes->removeElement($compte);
-
-        return $this;
-    }
-
     public function getPourcentageVente(): ?string
     {
         return $this->pourcentageVente;
@@ -226,6 +199,18 @@ class Stock
     public function setPourcentageVente(?string $pourcentageVente): static
     {
         $this->pourcentageVente = $pourcentageVente;
+
+        return $this;
+    }
+
+    public function getCompte(): ?Compte
+    {
+        return $this->compte;
+    }
+
+    public function setCompte(?Compte $compte): static
+    {
+        $this->compte = $compte;
 
         return $this;
     }

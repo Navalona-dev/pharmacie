@@ -31,9 +31,7 @@
                 {{ liste.datePeremption is not null ? liste.datePeremption.date|date('d-m-Y') : '' }}
             </td>
             <td>
-                {% for compte in liste.comptes %}
-                    {{compte.nom}} ( {{compte.code}} ) <br>
-                {% endfor %}
+                {{liste.compte.nom}} ( {{liste.compte.code}} ) <br>
             </td>
             <td> {{liste.dateCreation|date('d-m-Y')}} </td>
             

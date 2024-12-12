@@ -139,7 +139,7 @@ class Compte
     /**
      * @var Collection<int, Stock>
      */
-    #[ORM\ManyToMany(targetEntity: Stock::class, mappedBy: 'comptes')]
+    #[ORM\OneToMany(targetEntity: Stock::class, mappedBy: 'compte')]
     private Collection $stocks;
 
     public function __construct()
@@ -589,7 +589,7 @@ class Compte
     {
         if (!$this->stocks->contains($stock)) {
             $this->stocks->add($stock);
-            $stock->addCompte($this);
+            $stock->setCompte($this);
         }
 
         return $this;
@@ -598,11 +598,16 @@ class Compte
     public function removeStock(Stock $stock): static
     {
         if ($this->stocks->removeElement($stock)) {
-            $stock->removeCompte($this);
+            // set the owning side to null (unless already changed)
+            if ($stock->getCompte() === $this) {
+                $stock->setCompte(null);
+            }
         }
 
         return $this;
     }
+
+   
 
    
 }

@@ -244,7 +244,7 @@ class ImportProduitController extends AbstractController
                                 $stock->setQttRestant(floatval($stockValue));
                                 $stock->setPourcentageVente(floatval($pourcentagesVente));
                             
-                                $stock->addCompte($fournisseur);
+                                $stock->setCompte($fournisseur);
                                 $stock->setDatePeremption($datePeremption);
                                 $this->em->persist($stock);
 
