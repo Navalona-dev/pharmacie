@@ -11,33 +11,38 @@
                 <span class="qtt-restant" data-qttrestant="{{qttRestant}}"></span>
                 <span class="qtt" data-qtt="{{quantity}}"></span>
                 <span class="total-stock" data-totalstock="{{totalStock}}"></span>
+                <span class="qtt-stock" data-qtt="{{stock.qtt}}"></span>
 
                 <span class="volume-gros" data-volume="{{produitCategorie.volumeGros}}"></span>
                 <span class="presentation-gros" data-presentation="{{produitCategorie.presentationGros}}"></span>
                 <span class="unite-gros" data-unite="{{produitCategorie.uniteVenteGros}}"></span>
-                {{ form_start(form, {'attr': {'id': 'updateStock', 'action': path('stocks_edit', {'stock': id}) }}) }}
+                {{ form_start(form, {'attr': {'id': 'updateStock', 'action': path('stocks_edit', {'stock': stock.id}) }}) }}
                     <div class="form-group mb-3">
-                        <label for="" class="mb-2">Quantité ({{qttFinal}}) </label>
+                        <label for="" class="mb-2">Fournisseur</label>
+                        {{ form_widget(form.compte) }}
+                    </div>     
+                    <div class="form-group mb-3">
+                        <label for="" class="mb-2">Quantité (<span class="qtt-finale-gros"></span><span class="qtt-finale-detail"></span>)  </label>
                         <div class="row">
-                            <div class="col-10">
+                            <div class="col-9">
                                 {{ form_widget(form.qtt) }}
                             </div>
-                            <div class="col-2">
-                                ({{sacs}})
+                            <div class="col-3">
+                                <span class="value-qtt-stock"></span>
                             </div>
                         </div>
                          
-                        <span class="text-success text-qtt-stock"></span>
+                        {#<span class="text-success text-qtt-stock"></span>#}
                     </div>  
                     {% if produitCategorie.volumeGros > 1 %}
                         <div class="form-group mb-3">
                             <label for="" class="mb-2">Qtt en plus</label>
                             <div class="row">
-                                <div class="col-10">
+                                <div class="col-9">
                                     <input type="text" name="qtt-plus-stock-update" id="qtt-plus-stock-update" class="form-control form-control-md" autocomplete="off" readonly>
                                 </div>
-                                <div class="col-2">
-                                    ({{unite}})
+                                <div class="col-3">
+                                    <span class="value-qtt-plus"></span>
                                 </div>
                             </div>
                              
@@ -132,10 +137,58 @@
 
 <script>
     $(document).ready(function() {
-        var qttStock = $('#stock_qtt');
-        var volumeGros = $('.volume-gros').data('volume');
-        var presentationGros = $('.presentation-gros').data('presentation');
-        var uniteVenteGros = $('.unite-gros').data('unite');
+        let qttStock = $('#stock_qtt');
+        let volumeGros = $('.volume-gros').data('volume');
+        let presentationGros = $('.presentation-gros').data('presentation');
+        let uniteVenteGros = $('.unite-gros').data('unite');
+
+        
+        // Récupérez la valeur actuelle
+        let currentValue = qttStock.val();
+        
+        // Conservez uniquement la partie entière
+        let integerValue = Math.floor(parseFloat(currentValue));
+        
+        // Mettez à jour la valeur de l'input
+        qttStock.val(integerValue);
+
+        //qtt plus
+        let stockPlusInput = $('#qtt-plus-stock-update');
+        // Récupérez la valeur actuelle
+        let currentValuePlus = $('.qtt-stock').data('qtt');
+    
+        // Convertissez la valeur en un nombre flottant
+        let floatValue = parseFloat(currentValuePlus);
+        let stockPlusValue = null;
+        
+        if (!isNaN(floatValue)) {
+            // Conservez uniquement la partie après la virgule
+            let decimalPart = floatValue - Math.floor(floatValue);
+            let decimalValue = decimalPart.toFixed(1);
+            stockPlusValue = decimalValue * volumeGros;
+            
+            // Mettez à jour la valeur de l'input avec la partie décimale
+            stockPlusInput.val(stockPlusValue); // Un seul chiffre après la virgule
+        } else {
+            // Gérer les erreurs si la valeur est invalide
+            stockPlusInput.val('Erreur');
+        }
+
+        let qttFinaleGros = $('.qtt-finale-gros');
+        let qttFinaleDetail = $('.qtt-finale-detail');
+
+        let qttStockValue = $('.value-qtt-stock');
+        let qttStockPlus = $('.value-qtt-plus');
+
+        let qttFinaleGrosValue = integerValue + ' ' + presentationGros;
+
+        qttFinaleGros.text(qttFinaleGrosValue);
+        let qttFinaleDetailValue = ' et ' + stockPlusValue + ' ' + uniteVenteGros;
+        qttFinaleDetail.text(qttFinaleDetailValue);
+        qttStockValue.text('(' + qttFinaleGrosValue + ')');
+        qttStockPlus.text('(' + stockPlusValue + ' ' + uniteVenteGros + ')');
+
+
 
         $('#qtt-plus-stock-update').on('click', function() {
             if(qttStock.val() === "") {
@@ -150,6 +203,11 @@
             var initialQttStock = parseFloat(qttStock.val());
             // Enregistrer la valeur dans la session (si vous avez une fonction pour cela)
             sessionStorage.setItem('initialQttStock', initialQttStock);
+
+            let valueStock = $(this).val();
+            qttFinaleGros.text(valueStock + ' ' + presentationGros);
+            qttStockValue.text('(' + valueStock + ' ' + presentationGros + ')');
+
         });
 
         var typingTimer; // Timer variable
@@ -158,6 +216,9 @@
         $('#qtt-plus-stock-update').on('input', function() {
             clearTimeout(typingTimer); // Effacer le timer précédent
             var inputField = $(this);
+            let qttPlusValueStock = $(this).val();
+            qttFinaleDetail.text(' et ' + qttPlusValueStock + ' ' + uniteVenteGros);
+            qttStockPlus.text('(' + qttPlusValueStock + ' ' + uniteVenteGros + ')');
 
             typingTimer = setTimeout(function() {
                 // Convertir les valeurs en nombres
@@ -224,4 +285,91 @@
         }
         
     })
+</script>
+
+<script>
+    $(document).ready(function() {
+     const $chosenResults = $('#stock_compte_chosen .chosen-results');
+     const $chosenDrop = $('#stock_compte_chosen .chosen-drop');
+     const $selectElement = $('#stock_compte'); // Corrigé l'élément $selectElement pour qu'il pointe vers le bon select
+
+     $('#stock_compte_chosen .chosen-drop .chosen-search input').on('input', function() {
+         const inputValue = $(this).val().trim().toLowerCase();
+         let matchFound = false;
+
+         // Parcourir les options existantes pour vérifier s'il existe une correspondance partielle
+         $selectElement.find('option').each(function() {
+             const optionText = $(this).text().trim().toLowerCase();
+             if (optionText.startsWith(inputValue)) {
+                 matchFound = true;
+                 return false; // Si une correspondance est trouvée, on arrête la boucle
+             }
+         });
+
+         // Si l'input est vide, réinitialisez le résultat et supprimez le bouton "Créer"
+         if (inputValue === '') {
+             $chosenDrop.find('.btn-create-compte').remove(); // Supprimez le bouton "Créer"
+         } else {
+             // Si aucune correspondance n'a été trouvée, affichez le bouton "Créer"
+             if (!matchFound && !$chosenDrop.find('.btn-create-compte').length) {
+                 $chosenDrop.append(`<a href="#" id="btn-create-compte" class="btn-create-compte text-decoration-underline" style="margin-left:100px;">Créer</a>`);
+             } 
+             // Si une correspondance est trouvée, supprimez le bouton "Créer"
+             else if (matchFound) {
+                 $chosenDrop.find('.btn-create-compte').remove();
+             }
+         }
+
+         // Gérer le clic sur le bouton "Créer"
+         $(document).off('click', '#btn-create-compte').on('click', '#btn-create-compte', function(e) {
+             e.preventDefault(); // Empêche le comportement par défaut du lien
+             
+             const inputValue = $('#stock_compte_chosen .chosen-drop .chosen-search input').val().trim();
+             
+             // Ajouter une nouvelle option à l'élément <select> si la valeur n'est pas vide
+             if (inputValue !== '') {
+                 // Envoyer une requête AJAX pour créer le type
+                 $.ajax({
+                     url: 'admin/stock/add/compte',
+                     type: 'POST',
+                     data: { nom: inputValue },
+                     success: function(response) {
+                         const typeId = response.id; // Récupérer l'ID du type créé
+                         
+                         if (typeId) {
+                             // Ajouter une nouvelle option à l'élément <select>
+                             $selectElement.append(`<option value="${typeId}" selected>${inputValue}</option>`);
+                             
+                             // Mettre à jour Chosen pour refléter les modifications
+                             $selectElement.trigger("chosen:updated");
+
+                             // Mettre à jour l'affichage de l'option choisie
+                             $('#stock_compte_chosen .chosen-single span').text(inputValue);
+
+                             // Réinitialiser l'input et retirer les éléments non nécessaires
+                             $('#stock_compte_chosen .chosen-drop .chosen-search input').val('');
+                             $chosenResults.find('.no-results').remove(); // Retirer le message "No results match"
+                             $chosenDrop.find('.btn-create-compte').remove(); // Supprimer le bouton "Créer"
+                         }
+                     },
+                     error: function() {
+                         alert('Erreur lors de l\'ajout du fournisseur.');
+                     }
+                 });
+             }
+         });
+     });
+ });
+
+</script>
+
+<script>
+    $(document).ready(function () {
+    
+
+});
+
+
+
+
 </script>

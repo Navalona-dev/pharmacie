@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Stock;
+use App\Entity\Compte;
 use App\Form\StockType;
 use App\Helpers\Helpers;
 use App\Entity\Transfert;
@@ -63,6 +64,54 @@ class StockController extends AbstractController
         $this->produitCategorieRepo = $produitCategorieRepo;
     }
 
+    #[Route('/add/compte', name: '_add_compte')]
+    public function addCompte(Request $request)
+    {
+        $data = []; 
+    
+        try {
+            // Récupérez le nom envoyé via la requête AJAX
+            $nom = $request->request->get('nom'); 
+    
+            // Créez une nouvelle instance de type
+            $compte = new Compte();
+
+            // Extraire les deux premières lettres et convertir en majuscules
+            $prefix = strtoupper(substr($nom, 0, 2)); 
+
+            // Générer 5 chiffres aléatoires
+            $suffix = random_int(10000, 99999); 
+
+            // Combiner les deux pour former le code
+            $code = $prefix . '-' . $suffix;
+            
+            // Si vous avez un setter pour le nom dans compte, utilisez-le
+            $compte->setNom($nom); 
+            $compte->setApplication($this->application);
+            $compte->setGenre(2);
+            $compte->setCode($code);
+            $compte->setDateCreation(new \DateTime());
+    
+            $this->em->persist($compte);
+            $this->em->flush();
+
+            $data['id'] = $compte->getId();
+    
+            return new JsonResponse($data);
+        } catch (PropertyVideException $PropertyVideException) {
+            $data['exception'] = $PropertyVideException->getMessage();
+            $data["html"] = "";
+            return new JsonResponse($data);
+        } catch (UniqueConstraintViolationException $UniqueConstraintViolationException) {
+            return new JsonResponse(['error' => 'Ce nom de catégorie existe déjà.'], 400);
+        } catch (\Exception $Exception) {
+            $data['exception'] = $Exception->getMessage();
+            return new JsonResponse($data);
+        }
+        
+        return new JsonResponse($data);
+    }
+
     #[Route('/new', name: '_create')]
     public function create(Request $request, StockService $stockService, ProduitCategorieRepository $produitCategorieRepo)
     {
@@ -72,7 +121,9 @@ class StockController extends AbstractController
 
         try {
             $stock = new Stock();
-            $form = $this->createForm(StockType::class, $stock);
+            $form = $this->createForm(StockType::class, $stock, [
+                'application' => $this->application
+            ]);
 
             $form->handleRequest($request);
 
@@ -196,7 +247,9 @@ class StockController extends AbstractController
         $session->set('stock', $stock->getId());
         $data = [];
         try {
-            $form = $this->createForm(StockType::class, $stock, []);
+            $form = $this->createForm(StockType::class, $stock, [
+                'application' => $this->application
+            ]);
 
             $form->handleRequest($request);
 
@@ -268,7 +321,6 @@ class StockController extends AbstractController
 
             $data["html"] = $this->renderView('admin/stock/modal_update.html.twig', [
                 'form' => $form->createView(),
-                'id' => $stock->getId(),
                 'oldQtt' => $stock->getQtt(),
                 'totalStock' => $totalStock,
                 'produitCategorie' => $produitCategorie,
@@ -278,7 +330,8 @@ class StockController extends AbstractController
                 'qttRestant' => ($produitCategorie->getStockRestant() != null ? $produitCategorie->getStockRestant() : 0),
                 'qttFinal' => $qttFinal,
                 'sacs' => $sacs . $produitCategorie->getPresentationGros(),
-                'unite' => $unite . $produitCategorie->getUniteVenteGros()
+                'unite' => $unite . $produitCategorie->getUniteVenteGros(),
+                'stock' => $stock
             ]);
 
 

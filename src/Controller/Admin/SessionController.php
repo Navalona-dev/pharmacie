@@ -5,19 +5,20 @@ namespace App\Controller\Admin;
 use App\Entity\Affaire;
 use App\Entity\Session;
 use App\Form\SessionType;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\AccesService;
+use App\Service\SessionService;
+use App\Service\ApplicationManager;
+use App\Service\ApplicationService;
+use App\Repository\SessionRepository;
+use App\Exception\PropertyVideException;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\ApplicationRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use App\Exception\PropertyVideException;
-use App\Repository\ApplicationRepository;
-use App\Service\AccesService;
-use App\Service\ApplicationManager;
-use App\Service\ApplicationService;
-use App\Service\SessionService;
-use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class SessionController extends AbstractController
 {
@@ -28,6 +29,7 @@ class SessionController extends AbstractController
     private $affaireRepo;
     private $entityManager;
     private $sessionService;
+    private $sessionRepo;
     
     public function __construct(
         ApplicationService $applicationService, 
@@ -35,7 +37,8 @@ class SessionController extends AbstractController
         AccesService $accesService,
         ApplicationRepository $applicationRepo,
         EntityManagerInterface $entityManager,
-        SessionService $sessionService
+        SessionService $sessionService,
+        SessionRepository $sessionRepo
 
         )
     {
@@ -44,14 +47,29 @@ class SessionController extends AbstractController
         $this->application = $applicationManager->getApplicationActive();
         $this->entityManager = $entityManager;
         $this->sessionService = $sessionService;
+        $this->sessionRepo = $sessionRepo;
     }
 
     #[Route('/admin/session', name: 'app_admin_session')]
     public function index(): Response
     {
-        return $this->render('admin/session/index.html.twig', [
-            'controller_name' => 'SessionController',
-        ]);
+        $data = [];
+        try {
+
+            $sessions = $this->sessionRepo->findByApplication($this->application->getId());
+
+            $data["html"] = $this->renderView('admin/session/index.html.twig', [
+                'listes' => $sessions,
+            ]);
+
+            return new JsonResponse($data);
+        } catch (\Exception $Exception) {
+            $data["exception"] = $Exception->getMessage();
+            $data["html"] = "";
+            $this->createNotFoundException('Exception' . $Exception->getMessage());
+        }
+        return new JsonResponse($data);
+
     }
     
 
@@ -79,9 +97,15 @@ class SessionController extends AbstractController
     {
         try {
             $sessionEntity = new Session();
+
+            $now = new \DateTime();
+            $dateOnly = $now->format('d-m-Y');
+            $nom = 'Session du ' . $dateOnly; 
             
             $user = $this->getUser();
             $sessionEntity->addUser($user);
+            $sessionEntity->setApplication($this->application);
+            $sessionEntity->setNom($nom);
             $tabIUserInSession = [];
             $sessionEntity = $this->sessionService->add($sessionEntity);
             $session->set('currentSession', $sessionEntity->getId());
@@ -106,8 +130,14 @@ class SessionController extends AbstractController
 
                 if (null != $session) {
                     if ($sessionEntity != null) {
+
+                        $now = new \DateTime();
+                        $hourOnly = $now->format('H:i:s'); 
+
                         $sessionEntity->setActive(false);
                         $sessionEntity->setClose(true);
+                        $sessionEntity->setDateFin(new \DateTime());
+                        $sessionEntity->setHeureFin(\DateTime::createFromFormat('H:i:s', $hourOnly));
                         $this->sessionService->persist($sessionEntity);
                         $this->sessionService->update();
                         $session->set('currentSession', null);

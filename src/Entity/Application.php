@@ -149,6 +149,12 @@ class Application
     #[ORM\OneToMany(targetEntity: ClotureVente::class, mappedBy: 'application')]
     private Collection $clotureVentes;
 
+    /**
+     * @var Collection<int, Session>
+     */
+    #[ORM\OneToMany(targetEntity: Session::class, mappedBy: 'application')]
+    private Collection $sessions;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -166,6 +172,7 @@ class Application
         $this->comptabilites = new ArrayCollection();
         $this->methodePaiements = new ArrayCollection();
         $this->clotureVentes = new ArrayCollection();
+        $this->sessions = new ArrayCollection();
     }
 
     public function __toString()
@@ -773,6 +780,36 @@ class Application
             // set the owning side to null (unless already changed)
             if ($clotureVente->getApplication() === $this) {
                 $clotureVente->setApplication(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Session>
+     */
+    public function getSessions(): Collection
+    {
+        return $this->sessions;
+    }
+
+    public function addSession(Session $session): static
+    {
+        if (!$this->sessions->contains($session)) {
+            $this->sessions->add($session);
+            $session->setApplication($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSession(Session $session): static
+    {
+        if ($this->sessions->removeElement($session)) {
+            // set the owning side to null (unless already changed)
+            if ($session->getApplication() === $this) {
+                $session->setApplication(null);
             }
         }
 

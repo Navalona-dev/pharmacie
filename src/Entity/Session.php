@@ -52,6 +52,9 @@ class Session
     #[ORM\Column(nullable: true)]
     private ?bool $isClose = null;
 
+    #[ORM\ManyToOne(inversedBy: 'sessions')]
+    private ?Application $application = null;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -209,6 +212,18 @@ class Session
     public function setClose(?bool $isClose): static
     {
         $this->isClose = $isClose;
+
+        return $this;
+    }
+
+    public function getApplication(): ?Application
+    {
+        return $this->application;
+    }
+
+    public function setApplication(?Application $application): static
+    {
+        $this->application = $application;
 
         return $this;
     }

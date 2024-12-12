@@ -235,17 +235,6 @@ class StockService
                     $stock->setQttRestant($newQttRestant);
                 }
 
-                // Calculez le nouveau stock restant après soustraction de l'ancienne quantité
-                /*if ($oldQtt <= $oldStockRestant) {
-                    $stockRestant = $oldStockRestant - $oldQtt;
-                    $newQtt = $stock->getQtt();
-                    $stockRestant = $stockRestant + $newQtt;
-
-                } else {
-                    $stocktoAdd = $oldQtt - $oldStockRestant;
-                    $stockRestant = $oldStockRestant + $stocktoAdd;
-
-                }*/
                 if ($oldQtt <= $oldStockRestant) {
                     $stockRestant = $oldStockRestant - $oldQtt;
                     $newQtt = $stock->getQtt();
