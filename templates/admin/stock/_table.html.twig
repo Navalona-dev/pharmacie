@@ -4,8 +4,9 @@
             <th>Action</th>
             <th>Quantité</th>
             <th>Quantité restant</th>
-            <th>Date de création</th>
             <th>Date de peremption</th>
+            <th>Fournisseur</th>
+            <th>Date de création</th>
         </tr>
         {% elseif type == "tbody" %}
         <tr id="tbody_stock" class="text-nowrap">
@@ -26,10 +27,16 @@
                 {% set unite = decimal * liste.produitCategorie.volumeGros %}
                 {{sacs}} {{liste.produitCategorie.presentationGros}} {% if unite > 0 %} et {{unite|number_format(2,'.','')}} {{liste.produitCategorie.uniteVenteGros}} {% endif %}
             </td>
-            <td> {{liste.dateCreation|date('d-m-Y')}} </td>
             <td>
                 {{ liste.datePeremption is not null ? liste.datePeremption.date|date('d-m-Y') : '' }}
             </td>
+            <td>
+                {% for compte in liste.comptes %}
+                    {{compte.nom}} ( {{compte.code}} ) <br>
+                {% endfor %}
+            </td>
+            <td> {{liste.dateCreation|date('d-m-Y')}} </td>
+            
             
         </tr>
          {% endif %}
