@@ -194,7 +194,6 @@ class ImportProduitController extends AbstractController
 
                             // Calcul du prix de vente gros et détail
                             $prixVenteGros = $prixAchat + $montantAdditionnel;
-                            $prixVenteDetail = $prixVenteGros;
 
                             foreach ($stocksData as $key => $stockValue) {
                                 //1-date peremption
@@ -251,6 +250,9 @@ class ImportProduitController extends AbstractController
                                 $stockRestant += $stock->getQtt();
                                     
                             }
+
+                            $volumeGros = floatval($dataProduct[6] ?? 1.0);
+                            $prixVenteDetail = $prixVenteGros / $volumeGros;
 
                             $produitCategorie->setPrixVenteGros($prixVenteGros);
                             $produitCategorie->setMaxPourcentage($maxPourcentageVente);

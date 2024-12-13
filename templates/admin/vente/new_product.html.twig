@@ -34,10 +34,21 @@
                         <div class="form-group mb-3">
                             <label for="" class="mb-2">Type de vente</label>
                             {{form_widget(form.typeVente)}}
+                            <select name="type_vente" id="type_vente" class="form-control form-control-md">
+                                <option value="" selected disabled>Selectionner un type de vente</option>
+                                <option value="gros"> {{produitCategory.presentationGros|capitalize}} </option>
+                                <option value="detail"> {{produitCategory.uniteVenteGros|capitalize}} </option>
+                            </select>
                         </div>
                         <div class="form-group mb-3">
                             <label for="" class="mb-2">Quantité <span class="quantity"></span> </label>
                             {{form_widget(form.qtt)}}
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="" class="mb-2">Prix</label>
+                            <input type="text" name="price" id="price" class="form-control form-control-md">
+                            <span class="prix-gros" data-gros="{{produitCategory.prixVenteGros}}"></span>
+                            <span class="prix-detail" data-detail="{{produitCategory.prixVenteDetail}}"></span>
                         </div>
                         <div class="form-group mb-3">
                             <button type="submit" class="btn btn-primary btn-sm px-3">Ajouter</button>
@@ -56,21 +67,27 @@
 <script>
 
 $(document).ready(function() {
+
+
     // Vérifier si les champs existent
     const typeVenteField = $('#product_typeVente');
     const qttField = $('#product_qtt');
+    let typeVal = '';
+
+    let prixGros = $('.prix-gros').data('gros');
+    let PrixDetail = $('.prix-detail').data('detail');
+
+    $('#type_vente').on('change', function() {
+        typeVal = $(this).val();
+        typeVenteField.val(typeVal);
+        qttField.removeAttr('readonly').removeClass('readonly');
+        if(qttField.val()) {
+            updateQuantityText();
+        }
+
+    })
 
     if (typeVenteField.length && qttField.length) {
-        // Écouter les changements dans le type de vente
-        let typeVal = '';
-
-        typeVenteField.on('change', function() {
-            typeVal = $(this).val();
-            qttField.removeAttr('readonly').removeClass('readonly');
-            if(qttField.val()) {
-                updateQuantityText();
-            }
-        });
 
         qttField.on('click', function() {
             if(!typeVal) {
@@ -91,6 +108,16 @@ $(document).ready(function() {
 
         // Écouter les changements dans le champ quantité
         qttField.on('input', function() {
+            let qttValue = $(this).val();
+            let price = 0;
+            if(typeVal == "gros") {
+                price = qttValue * prixGros;
+            } else if(typeVal == "detail") {
+                price = qttValue * PrixDetail;
+
+            }
+            $('#price').val(price + ' Ar');
+
             updateQuantityText();
         });
 
@@ -165,4 +192,6 @@ function updateQuantityText() {
 
    
 </script>
+
+
 {% endblock %}

@@ -12,6 +12,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class ProductType extends AbstractType
 {
@@ -26,7 +27,13 @@ class ProductType extends AbstractType
                 ],
                 'required' => true
             ])
-            ->add('typeVente', ChoiceType::class, [
+            ->add('typeVente', HiddenType::class, [
+                'attr' => [
+                    'class' => 'form-control from-control-md',
+                ],
+                'required' => true
+            ])
+            /*->add('typeVente', ChoiceType::class, [
                 'choices'  => [
                     'Gros' => 'gros',
                     'Detail' => 'detail',
@@ -36,7 +43,7 @@ class ProductType extends AbstractType
                 ],
                 'placeholder' => 'Selectionner un type',
                 'required' => true
-            ])
+            ])*/
         ;
     }
 

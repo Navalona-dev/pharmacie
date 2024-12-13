@@ -152,27 +152,41 @@
         // Mettez à jour la valeur de l'input
         qttStock.val(integerValue);
 
-        //qtt plus
         let stockPlusInput = $('#qtt-plus-stock-update');
         // Récupérez la valeur actuelle
         let currentValuePlus = $('.qtt-stock').data('qtt');
-    
-        // Convertissez la valeur en un nombre flottant
-        let floatValue = parseFloat(currentValuePlus);
         let stockPlusValue = null;
-        
-        if (!isNaN(floatValue)) {
-            // Conservez uniquement la partie après la virgule
-            let decimalPart = floatValue - Math.floor(floatValue);
-            let decimalValue = decimalPart.toFixed(1);
-            stockPlusValue = decimalValue * volumeGros;
-            
-            // Mettez à jour la valeur de l'input avec la partie décimale
-            stockPlusInput.val(stockPlusValue); // Un seul chiffre après la virgule
+
+        if (!isNaN(currentValuePlus)) {
+            // Convertissez la valeur en chaîne pour manipulation
+            let currentValueStr = currentValuePlus.toString();
+
+            // Séparer la partie entière et la partie décimale
+            let [integerPart, decimalPart] = currentValueStr.split('.');
+
+            // Si la partie décimale existe
+            if (decimalPart) {
+                // Récupérez la partie décimale exactement
+                let exactDecimal = `0.${decimalPart}`;
+
+                // Convertir en flottant pour calculs
+                stockPlusValue = parseFloat(exactDecimal) * volumeGros;
+
+                // Affichez le résultat dans l'input
+                stockPlusInput.val(stockPlusValue);
+                console.log('Partie exacte après la virgule :', exactDecimal);
+                console.log('Valeur calculée avec volumeGros :', stockPlusValue);
+            } else {
+                // Si aucune partie décimale, valeur par défaut
+                stockPlusInput.val(0);
+                console.log('Aucune partie décimale trouvée.');
+            }
         } else {
             // Gérer les erreurs si la valeur est invalide
             stockPlusInput.val('Erreur');
+            console.log('Valeur invalide détectée.');
         }
+
 
         let qttFinaleGros = $('.qtt-finale-gros');
         let qttFinaleDetail = $('.qtt-finale-detail');
@@ -187,8 +201,6 @@
         qttFinaleDetail.text(qttFinaleDetailValue);
         qttStockValue.text('(' + qttFinaleGrosValue + ')');
         qttStockPlus.text('(' + stockPlusValue + ' ' + uniteVenteGros + ')');
-
-
 
         $('#qtt-plus-stock-update').on('click', function() {
             if(qttStock.val() === "") {
@@ -363,13 +375,4 @@
 
 </script>
 
-<script>
-    $(document).ready(function () {
-    
 
-});
-
-
-
-
-</script>

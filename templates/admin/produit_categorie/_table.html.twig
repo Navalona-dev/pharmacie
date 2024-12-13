@@ -11,8 +11,9 @@
             <th>Stock restant</th>
             <th>Prix d'achat</th>
             <th>Pourcentage</th>
-            <th>Prix de vente</th>
-            {#<th>Prix vente détail</th>#}
+            <th>Volume de gros</th>
+            <th>Prix de vente Gros</th>
+            <th>Prix vente détail</th>
             {# 
             <th>PrixHt</th>
             <th>Tva</th>
@@ -61,9 +62,10 @@
             </td>
             <td> {{liste.prixAchat|number_format(0,',',' ')}} Ar </td>
             <td> {{liste.maxPourcentage}} % </td>
-            <td> {{liste.prixVenteGros|number_format(0, ',', ' ') }} Ar </td>
-            {#<td> {{liste.prixVenteDetail|number_format(0, ',', ' ') }} Ar </td>
-            <td>
+            <td> {{liste.volumeGros}} {{liste.uniteVenteGros}} / {{liste.presentationGros}} </td>
+            <td> {{liste.prixVenteGros|number_format(0, ',', ' ') }} Ar / {{liste.presentationGros}} </td>
+            <td> {{liste.prixVenteDetail|number_format(0, ',', ' ') }} Ar / {{liste.uniteVenteGros}} </td>
+            {#<td>
                 {% if liste.isChangePrix == 0 or liste.isChangePrix is null %}
                     Non
                 {% else %}
