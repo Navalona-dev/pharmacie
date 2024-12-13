@@ -223,7 +223,8 @@ class StockController extends AbstractController
         /*if (!$this->accesService->insufficientPrivilege('oatf')) {
             return $this->redirectToRoute('index_front'); // To DO page d'alerte insufisance privilege
         }*/
-        $oldQtt = (integer) $request->get('oldQtt');
+        $oldQtt = (float) $request->get('oldQtt');
+        $qttPlus = (float) $request->get('qtt-plus-stock-update');
         $totalStock = $request->get('totalStock');
         $quantity = $request->get('quantity');
         $qttVendu = $request->get('qttVendu');
@@ -261,7 +262,7 @@ class StockController extends AbstractController
 
                     $qtt = $formData->getQtt();
 
-                    $stockService->edit($stock, $produitCategorie, $oldQtt, $datePeremption, $qtt);
+                    $stockService->edit($stock, $produitCategorie, $oldQtt, $datePeremption, $qtt, $qttPlus);
                     
                     $stockRestant = $produitCategorie->getStockRestant();
                     $sousUnite = 0;
