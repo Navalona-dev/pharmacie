@@ -54,6 +54,31 @@ class VenteService
         return $methodePaiement;
     }
 
+    public function addRevenu($revenu = null, $designation = null, $dateRevenu = null, $espece = null, $mobileMoney = null, $montantHt = null, $sessionId = null)
+    {
+        $session = this->sessionRepo->findOneBy(['id' => $sessionId]);
+        
+        $revenu->setDesignation($designation);
+        if($dateRevenu) {
+            $revenu->setDateRevenu($dateRevenu);
+        } else {
+            if($session) {
+                $revenu->setSession($session);
+                $revenu->setDateRevenu($session->getDateFin());
+            }
+        }
+        $revenu->setDateCreation(new \DateTime());
+        $revenu->setEspece($espece);
+        $revenu->setMobileMoney($mobileMoney);
+        $revenu->setTotal($montantHt);
+        $revenu->setApplication($this->application);
+
+        $this->entityManager->persist($revenu);
+        $this->entityManager->flush();
+
+        return $methodePaiement;
+    }
+
     public function remove($entity)
     {
         $this->entityManager->remove($entity);

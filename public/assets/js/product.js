@@ -156,6 +156,7 @@ function updateTable(id = null) {
             const produits = response.produits;
             const montantHt = response.montantHt;
 
+            // Mise à jour du tableau des produits
             if (produits.length > 0) {
                 produits.forEach(function(produit) {
                     produitTableBody += `
@@ -173,34 +174,37 @@ function updateTable(id = null) {
                         </tr>
                     `;
                 });
-            } else {
-                produitTableBody += `
-                    <tr>
-                        <td colspan="7">Aucun produit trouvé</td>
-                    </tr>
-                `;
-            }
-            
-            // Mettez à jour le corps du tableau
-            $('.detail tbody').html(produitTableBody);
 
-            console.log(affaire.id);
-
-            if(montantHt > 0) {
+                // Affiche le montant HT et les boutons d'action
                 $('.montant-total').show();
-                 // Mettez à jour l'affichage du montant HT
                 $('.montant-ht').text(montantHt);
 
-                let htmlContent = '';
-                htmlContent += `<a href="#" onclick="return validerCommande(${id})" class="btn btn-primary btn-sm px-3">Valider</a>`;
-
+                let htmlContent = `
+                    <a href="#" onclick="return validerCommande(${id})" class="btn btn-primary btn-sm px-3">Valider</a>
+                `;
                 $('.btn-action').html(htmlContent);
+
+            } else {
+                // Tableau vide : message "Aucun produit trouvé"
+                produitTableBody += `
+                    <tr>
+                        <td colspan="7" class="text-center">Aucun produit trouvé</td>
+                    </tr>
+                `;
+
+                // Cache le montant HT et réinitialise les boutons d'action
+                $('.montant-total').hide();
+                $('.montant-ht').text(''); // Réinitialise le texte
+                $('.btn-action').html(''); // Supprime les boutons
             }
 
+            // Met à jour le tableau
+            $('.detail tbody').html(produitTableBody);
         },
         error: function (jqXHR, textStatus, errorThrown) {
             alert('Erreur lors de la récupération des produits : ' + textStatus);
         }
     });
 }
+
 

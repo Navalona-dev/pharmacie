@@ -118,7 +118,7 @@ class Affaire
     private $etatCommande;
 
     #[ORM\Column(type: "boolean", nullable: true)]
-    private $isValide;
+    private $isValid;
 
     #[ORM\Column(type: "float", nullable: true)]
     private $remise;
@@ -171,9 +171,6 @@ class Affaire
     
     #[ORM\Column(nullable: true)]
     private ?bool $depot = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?bool $isValid = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateValidation = null;
@@ -414,18 +411,6 @@ class Affaire
     public function setEtatCommande(?float $etatCommande): self
     {
         $this->etatCommande = $etatCommande;
-
-        return $this;
-    }
-
-    public function getIsValide(): ?bool
-    {
-        return $this->isValide;
-    }
-
-    public function setIsValide(?bool $isValide): self
-    {
-        $this->isValide = $isValide;
 
         return $this;
     }
@@ -736,7 +721,7 @@ class Affaire
         return $this;
     }
 
-    public function isValid(): ?bool
+    public function getIsValid(): ?bool
     {
         return $this->isValid;
     }

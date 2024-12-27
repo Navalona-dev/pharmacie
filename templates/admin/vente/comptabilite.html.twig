@@ -1,0 +1,154 @@
+<style>
+    .nb-vente {
+        color: #7a1820;
+    }
+    .icon-edit i{
+        background-color: #7a1820;
+        padding: 9px 10px;
+        border-radius: 100%;
+        color: #fff;
+    }
+
+    .total_vente span {
+        background-color: #7a1820;
+        padding: 10px 5px;
+        color: #fff;
+    }
+
+    .icon-new {
+        padding: 10px 12px;
+        border-radius: 100%;
+        background-color: #1d7154;
+        color: #fff;
+    }
+</style>
+
+<div class="pagetitle">
+    <h1>Comptabilité </h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{path('app_admin')}}">Tableau de board</a></li>
+        <li class="breadcrumb-item active">Comptabilité</li>
+      </ol>
+    </nav>
+</div>
+<section class="section">
+    <div class="card px-3 py-3 px-lg-3 py-lg-4">
+        <div class="card-body">
+           <div class="row">
+            <div class="col-md-3 col-12" style="border-right: 1px solid #1d7154;">
+                <h3 style="font-size: 16px;" class="fw-bold mb-3">Revenu</h3>
+                <hr>
+                {% set total = 0 %}
+                {% for revenu in revenus %}
+                    {% set total = total + revenu.total %}
+                {% endfor %}
+                <p class="d-flex justify-content-center align-items-center text-danger fw-bold"> {{total|number_format(0,',',' ')}} Ar </p>
+            </div>
+            <div class="col-md-9 col-12">
+                <div class="d-flex justify-content-end">
+                    <h3 style="font-size: 16px;" class="fw-bold mb-3 flex-grow-1">Dépenses</h3>
+                    <a href="#" onclick="return newDepense()"><i class="bi bi-plus-circle-fill icon-new"></i></a>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Designation</th>
+                            <th>Quantité</th>
+                            <th>PuHt</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for depense in depenses %}
+                        <tr>
+                            <td> {{depense.designation}} </td>
+                            <td> {{depense.nombre}} </td>
+                            <td> {{depense.prix}} </td>
+                            <td> {{depense.total}} </td>
+                            <td>
+                                <a href="#" onclick="return updateDepense({{depense.id}})" class="text-primary"><i class="bi bi-pencil-square"></i></a>
+                                <a href="#" onclick=" return deleteDepense({{depense.id}})" class="text-danger"><i class="bi bi-trash-fill"></i></a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+           </div>
+        </div>
+    </div>
+    
+</section>
+
+<script src="{{ asset('assets/js/product.js?version=1.4')}}"></script>
+<script src="{{ asset('assets/js/remise_vente.js?version=1.1')}}"></script>
+
+  <script>
+  
+    $(document).ready(function() {
+        $('#tab-fiche-fournisseur').removeClass('active').empty();
+        $('#tab-quantite-vendu').removeClass('active').empty();
+        $('#tab-notification').removeClass('active').empty();
+        $('#tab-historique-produit').removeClass('active').empty();
+        $('#tab-historique-affaire').removeClass('active').empty();
+        $('#tab-produit-date-peremption').removeClass('active').empty();
+        $('#tab-inventaire-produit').css('display','none');
+
+        $('.tab-user').addClass('active');
+        $('.tab-permission').removeClass('active');
+        $('.tab-privilege').removeClass('active');
+        $('.tab-cat-permission').removeClass('active');
+        $('#tab-dashboard').removeClass('active');
+        $('#tab-profile').removeClass('active');
+        $('#tab-utilisateur').addClass('active');
+        $('#tab-permission').removeClass('active');
+        $('#tab-privilege').removeClass('active');
+        $('#tab-categorie-permission').removeClass('active');
+        $('#tab-application').removeClass('active');
+        $('.tab-categorie').removeClass('active');
+        $('#tab-produit-categorie').removeClass('active');
+        $('.tab-produit-categorie').removeClass('active');
+        $('#tab-categorie').removeClass('active');  
+         $('#tab-compte_1').removeClass('active');
+        $('#tab-compte_2').removeClass('active');
+        $('#tab-produit-type').removeClass('active');
+        $('#tab-transfert-produit').css('display', 'none');
+        $('#affaires_client').removeClass('active').empty();
+        $('#affaires_fournisseur').removeClass('active').empty();
+        $('#tab-info-affaire').removeClass('active').empty();
+        $('#tab-financier-affaire').removeClass('active').empty();
+        $('#tab-fiche-client').removeClass('active').empty();
+        $('#tab-facture').css('display', 'none');
+        $('#tab-facture-affaire').css('display', 'none');
+        $('.tab-import-produit').css('display', 'none');
+        $('#tab-import-produit').css('display', 'none');
+        $('#tab-nouveau-facture').css('display','none');
+        $('#tab-stock').removeClass('active');
+        $('#tab-devis').css('display','none');
+        $('#tab-commande').css('display','none');
+        $('#tab-echeance').css('display','none');
+        $('#tab-produit-image').removeClass('active');
+        $('#tab-stock').removeClass('active');
+        $('#tab-depot').css('display', 'none');
+        $('#tab-comptabilite').css('display', 'none');
+        $('#tab-vente').css('display', 'none');
+        $('#tab-revenu').css('display', 'none');
+         $('#tab-fourchette').css('display', 'none');
+        $('#tab-comptabilite-detail').css('display', 'none');
+        $('#tab-comptabilite-liste').removeClass('active');
+        $('#tab-avoir').css('display', 'none');
+        $('#tab-caisse').css('display', 'none');
+        $('#tab-depense-vente').css('display', 'none');
+        $('#tab-comptabilite-vente').css('display', 'block');
+        $('#tab-session').css('display', 'none');
+        $('#tab-liste-vente').css('display', 'none');
+    });
+  
+  </script>
+
+
+
+
+

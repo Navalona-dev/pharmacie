@@ -49,6 +49,9 @@ class Depense
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateDepense = null;
 
+    #[ORM\ManyToOne(inversedBy: 'depenses')]
+    private ?Session $session = null;
+
     public function __construct()
     {
         $this->factureDepenses = new ArrayCollection();
@@ -194,6 +197,18 @@ class Depense
     public function setDateDepense(?\DateTimeInterface $dateDepense): static
     {
         $this->dateDepense = $dateDepense;
+
+        return $this;
+    }
+
+    public function getSession(): ?Session
+    {
+        return $this->session;
+    }
+
+    public function setSession(?Session $session): static
+    {
+        $this->session = $session;
 
         return $this;
     }

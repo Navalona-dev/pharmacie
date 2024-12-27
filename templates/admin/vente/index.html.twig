@@ -43,7 +43,7 @@
         <div class="card">
             <div class="card-body px-3 py-3 px-lg-3 py-lg-4">
                 <div class="row">
-                    <div class="col-md-10 col-12 vente-liste">
+                    <div class="col-md-9 col-12 vente-liste">
                         <div class="mb-4">
                             {{form_start(form, {'attr': {'id': 'newVente', 'action': path('ventes_new_commande') }})}}
                                 <div class="form-group form-nom">
@@ -120,12 +120,17 @@
                            
                         </div>
                     </div>
-                    <div class="col-md-2 col-12">
+                    <div class="col-md-3 col-12">
                         <div class="card p-3 card-ticket">
                             <h5 class="fw-bold text-center">Tickets</h5>
                             <div class="list-affaire">
                                 {% for affaire in affaires %}
-                                <p class="text-black-50 ticket-name" style="cursor: pointer;" data-id="{{affaire.id}}" data-nom="{{affaire.nom}}">{{affaire.nom}}</p>
+                                <p class="text-black-50 ticket-name" style="cursor: pointer;" data-id="{{affaire.id}}" data-nom="{{affaire.nom}}">
+                                    {{affaire.nom}} 
+                                    {% if affaire.isValid != 1 %}
+                                        <sup class="text-danger fw-bold">*</sup>
+                                    {% endif %}
+                                </p>
                             {% endfor %}
                             </div>
                         </div>
@@ -138,7 +143,7 @@
     <div id="blocModalVentesEmpty"></div>
 </section>
 
-<script src="{{ asset('assets/js/product.js?version=1.4')}}"></script>
+<script src="{{ asset('assets/js/product.js?version=1.5')}}"></script>
 <script src="{{ asset('assets/js/remise_vente.js?version=1.1')}}"></script>
 
   <script>
@@ -198,6 +203,8 @@
         $('#tab-comptabilite-liste').removeClass('active');
         $('#tab-avoir').css('display', 'none');
         $('#tab-caisse').css('display', 'none');
+        $('#tab-depense-vente').css('display', 'none');
+        $('#tab-comptabilite-vente').css('display', 'none');
         $('#tab-session').css('display', 'none');
         $('#tab-liste-vente').css('display', 'none');
 
@@ -278,8 +285,15 @@ $(document).ready(function () {
                     success: function (data) {
                         let htmlContent = '';
                         data.forEach(function(affaire) {
-                            htmlContent += `<p><a href="#" class="text-black-50 ticket-name" style="cursor: pointer;" data-id="${affaire.id}" data-nom="${affaire.nom}">${affaire.nom}</a></p>`;
+                            htmlContent += `<p>
+                                <a href="#" class="text-black-50 ticket-name" style="cursor: pointer;" 
+                                    data-id="${affaire.id}" 
+                                    data-nom="${affaire.nom}">
+                                    ${affaire.nom} ${affaire.isValid != true ? '<sup class="text-danger fw-bold">*</sup>' : ''}
+                                </a>
+                            </p>`;
                         });
+
 
                         $('.list-affaire').html(htmlContent);
                     },

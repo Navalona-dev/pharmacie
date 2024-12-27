@@ -42,8 +42,19 @@
                     {% if app.session.get('currentSession') is not null and app.session.get('dateCurrentSession') is not null %}
                         <a class="btn btn-primary btn-sm px-4" href="#" onclick="return setSession(false, '{{app.session.get('currentSession')}}')">Cloturer vente</a> 
                     {% else %}
-
-                        <a href="#" class="btn btn-primary btn-sm px-3">Créer revenu</a>
+                        {{form_start(form, {'attr': {'id': 'newRevenu', 'action': path('ventes_new_revenu') }})}}
+                        <div class="content-form">
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Designation</label>
+                                {{form_widget(form.designation)}}
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="" class="mb-2">Date</label>
+                                {{form_widget(form.dateRevenu)}}
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm px-3 btn-new-revenu">Créer revenu</button>
+                        {{form_end(form)}}
                     {% endif %}
                 </div>
             </div>
@@ -142,6 +153,8 @@
         $('#tab-comptabilite-liste').removeClass('active');
         $('#tab-avoir').css('display', 'none');
         $('#tab-caisse').css('display', 'none');
+        $('#tab-depense-vente').css('display', 'none');
+        $('#tab-comptabilite-vente').css('display', 'none');
         $('#tab-session').css('display', 'none');
         $('#tab-liste-vente').css('display', 'block');
     });
@@ -169,5 +182,51 @@
               }
           });
   }
+  </script>
+
+  <script>
+    $('.content-form').hide();
+     // Lorsque le bouton est cliqué
+     $('.btn-new-revenu').on('click', function (e) {
+        e.preventDefault(); // Empêche le comportement par défaut du bouton
+
+        // Récupérer la date actuelle
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Les mois commencent à 0
+        const year = today.getFullYear();
+
+        // Formater la date en ddmmyyyy
+        const formattedDate = day + '-' + month + '-' + year;
+
+        // Générer le nom avec la date et un numéro aléatoire
+
+        const revenuNom = `REVENU du ${formattedDate}`;
+
+        // Remplit le champ "nom" avec la valeur générée
+        $('#revenu_designation').val(revenuNom);
+
+        // Récupère le formulaire
+        let form = $('#newRevenu');
+
+        // Crée un FormData avec le contenu du formulaire
+        let formData = new FormData(form[0]);
+
+        // Effectue une requête AJAX pour envoyer les données
+        $.ajax({
+            url: form.attr('action'), // URL définie dans le formulaire
+            type: 'POST', // Méthode POST
+            data: formData,
+            processData: false, // Nécessaire pour FormData
+            contentType: false, // Nécessaire pour FormData
+            success: function (response) {
+                document.location.hash = "tab-depense-vente";
+                showTabDepenseVente();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Erreur lors de la création de la vente : ' + textStatus);
+            }
+        });
+    });
   </script>
 

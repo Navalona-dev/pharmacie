@@ -62,4 +62,20 @@ class DepenseRepository extends ServiceEntityRepository
                return $qb;
     }
 
+    public function selectDepenseBySession($sessionId)
+    {
+        $qb = $this->createQueryBuilder('d')
+                    ->select('d.id, d.dateCreation, d.dateDepense, d.total, d.prix, d.designation, d.nombre')
+                    ->leftJoin('d.session', 's')
+                    ->where('s.id = :sessionId')
+                    ->andWhere('d.application = :application_id')
+                    ->setParameter('sessionId', $sessionId)   
+                    ->setParameter('application_id', $this->application->getId())
+                    ->getQuery()
+                    //->getSql();
+                    ->getResult();
+
+               return $qb;
+    }
+
 }

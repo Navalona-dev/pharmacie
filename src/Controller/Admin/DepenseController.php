@@ -61,6 +61,8 @@ class DepenseController extends AbstractController
 
         $depense = new Depense();
 
+        $sessionId = $request->getSession()->get('sessionIdClose');
+
         $form = $this->createForm(DepenseType::class, $depense);
         $data = [];
         try {
@@ -73,7 +75,7 @@ class DepenseController extends AbstractController
                 
                 if ($request->isXmlHttpRequest()) {
                     
-                    $this->depenseService->add($depense, $existeCompta);
+                    $this->depenseService->add($depense, $existeCompta, $sessionId);
                     return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
                 }
             }

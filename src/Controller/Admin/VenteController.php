@@ -3,8 +3,10 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Compte;
+use App\Entity\Revenu;
 use App\Entity\Affaire;
 use App\Entity\Product;
+use App\Form\RevenuType;
 use App\Form\AffaireType;
 use App\Form\ProductType;
 use App\Entity\ClotureVente;
@@ -20,8 +22,10 @@ use App\Service\ApplicationManager;
 use App\Service\ApplicationService;
 use App\Form\AddFactureEcheanceType;
 use App\Repository\CompteRepository;
+use App\Repository\RevenuRepository;
 use App\Form\ChangeCompteAffaireType;
 use App\Repository\AffaireRepository;
+use App\Repository\DepenseRepository;
 use App\Repository\ProductRepository;
 use App\Repository\SessionRepository;
 use App\Service\FactureEcheanceService;
@@ -59,6 +63,9 @@ class VenteController extends AbstractController
     private $venteService;
     private $methodePaiementRepo;
     private $clotureVenteRepo;
+    private $depenseRepo;
+    private $revenuRepo;
+    private $sessionRepo;
     
     public function __construct(
         ApplicationService $applicationService, 
@@ -77,7 +84,10 @@ class VenteController extends AbstractController
         FactureEcheanceService $factureEcheanceService,
         VenteService $venteService,
         MethodePaiementRepository $methodePaiementRepo,
-        ClotureVenteRepository $clotureVenteRepo
+        ClotureVenteRepository $clotureVenteRepo,
+        DepenseRepository $depenseRepo,
+        RevenuRepository $revenuRepo,
+        SessionRepository $sessionRepo
 
         )
     {
@@ -98,6 +108,9 @@ class VenteController extends AbstractController
         $this->venteService = $venteService;
         $this->methodePaiementRepo = $methodePaiementRepo;
         $this->clotureVenteRepo = $clotureVenteRepo;
+        $this->depenseRepo = $depenseRepo;
+        $this->revenuRepo = $revenuRepo;
+        $this->sessionRepo = $sessionRepo;
     }
     
     #[Route('/', name: '_liste')]
@@ -187,6 +200,7 @@ class VenteController extends AbstractController
             $response[] = [
                 'id' => $affaire->getId(),
                 'nom' => $affaire->getNom(),
+                'isValid' => $affaire->getIsValid(),
             ];
         }
 
@@ -202,6 +216,28 @@ class VenteController extends AbstractController
            
             $data["html"] = $this->renderView('admin/vente/annuler_vente.html.twig', [
                 //'listes' => $categories,
+            ]);
+           
+            return new JsonResponse($data);
+        } catch (\Exception $Exception) {
+            $data["exception"] = $Exception->getMessage();
+            $this->createNotFoundException('Exception' . $Exception->getMessage());
+        }
+        return new JsonResponse($data);
+    }
+
+    #[Route('/depense', name: '_depense')]
+    public function depense(Request $request): Response
+    {
+        $data = [];
+        try {
+
+            $sessionId = $request->getSession()->get('sessionIdClose');
+            
+            $depenses = $this->depenseRepo->selectDepenseBySession($sessionId);
+           
+            $data["html"] = $this->renderView('admin/vente/depense.html.twig', [
+                'listes' => $depenses,
             ]);
            
             return new JsonResponse($data);
@@ -285,6 +321,14 @@ class VenteController extends AbstractController
             $sessionVenteId = $request->getSession()->get('sessionIdClose');
             $sessionVente = $sessionRepo->findOneBy(['id' => $sessionVenteId]);
 
+            //gerer revenu
+            $revenu = new Revenu();
+            $form = $this->createForm(RevenuType::class, $revenu, []);
+            $form->handleRequest($request);
+
+            $request->getSession()->set('espece', $totalEspece);
+            $request->getSession()->set('mobileMoney', $totalMobileMoney);
+            $request->getSession()->set('total', $totalMontantHt);
 
             $data["html"] = $this->renderView('admin/vente/liste_vente.html.twig', [
                 'listes' => $affaires,
@@ -293,7 +337,8 @@ class VenteController extends AbstractController
                 'montantHt' => $montantHt,
                 'totalMontantHt' => $totalMontantHt,
                 'totalMobileMoney' => $totalMobileMoney,
-                'totalEsepce' => $totalEspece
+                'totalEsepce' => $totalEspece,
+                'form' => $form->createView()
             ]);
     
             return new JsonResponse($data);
@@ -303,8 +348,65 @@ class VenteController extends AbstractController
         }
         return new JsonResponse($data);
     }
-    
 
+    #[Route('/comptabilite', name: '_comptabilite')]
+    public function comptabilite(Request $request): Response
+    {
+        $data = [];
+        try {
+
+            $sessionId = $request->getSession()->get('sessionIdClose');
+
+            $session = $this->sessionRepo->findOneBy(['id' => $sessionId]);
+
+            $revenus = $this->revenuRepo->findBy(['session' => $session]);
+            $depenses = $this->depenseRepo->findBy(['session' => $session]);
+            
+            $data["html"] = $this->renderView('admin/vente/comptabilite.html.twig', [
+                'revenus' => $revenus,
+                'depenses' => $depenses
+            ]);
+           
+            return new JsonResponse($data);
+        } catch (\Exception $Exception) {
+            $data["exception"] = $Exception->getMessage();
+            $this->createNotFoundException('Exception' . $Exception->getMessage());
+        }
+        return new JsonResponse($data);
+    }
+    
+    #[Route('/new/revenu', name: '_new_revenu', methods: ['POST'])]
+    public function newRevenu(Request $request): JsonResponse
+    {
+        $data = [];
+        try {
+
+            $espece = $request->getSession()->get('espece');
+            $mobileMoney = $request->getSession()->get('mobileMoney');
+            $montantHt = $request->getSession()->get('total');
+            $sessionId = $request->getSession()->get('sessionIdClose');
+
+            $revenu = new Revenu();
+            $form = $this->createForm(RevenuType::class, $revenu);
+            $form->handleRequest($request);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                // Enregistre l'affaire dans la base de données
+                $formData = $form->getData();
+
+                $designation = $formData->getDesignation();
+                $dateRevenu = $formData->getDateRevenu();
+
+                $this->venteService->addRevenu($revenu, $designation, $dateRevenu, $espece, $mobileMoney, $montantHt, $sessionId);
+
+                return new JsonResponse(['success' => true, 'message' => 'Revenu enregistrée.']);
+            }
+
+            return new JsonResponse(['success' => false, 'message' => 'Formulaire invalide.']);
+        } catch (\Exception $exception) {
+            return new JsonResponse(['success' => false, 'message' => $exception->getMessage()]);
+        }
+    }
 
     /**
      * @param Request $request
@@ -660,7 +762,12 @@ class VenteController extends AbstractController
     {
         $data = [];
         try {
+
            $affaire = $this->affaireRepo->findOneBy(['id' => $id]);
+
+           if (!$affaire) {
+                throw $this->createNotFoundException("Affaire avec ID $id introuvable.");
+            }
 
            $products = $affaire->getProducts();
            $montantHt = 0;

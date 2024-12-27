@@ -5,10 +5,11 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Twig\Environment;
 use App\Entity\Facture;
-use App\Entity\FactureDepense;
 use App\Entity\Comptabilite;
+use App\Entity\FactureDepense;
 use App\Service\ApplicationManager;
 use App\Repository\DepenseRepository;
+use App\Repository\SessionRepository;
 use App\Service\AuthorizationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
@@ -23,6 +24,7 @@ class DepenseService
     private $security;
     private $twig;
     private $depenseRepo;
+    private $sessionRepo;
 
     public function __construct(
         AuthorizationManager $authorization, 
@@ -31,7 +33,8 @@ class DepenseService
         ApplicationManager  $applicationManager,
         Security $security,
         Environment $twig,
-        DepenseRepository $depenseRepo
+        DepenseRepository $depenseRepo,
+        SessionRepository $sessionRepo
 
     )
     {
@@ -42,13 +45,20 @@ class DepenseService
         $this->security = $security;
         $this->twig = $twig;
         $this->depenseRepo = $depenseRepo;
+        $this->sessionRepo = $sessionRepo;
 
     }
 
-    public function add($depense = null, $existeCompta = null)
+    public function add($depense = null, $existeCompta = null, $sessionId = null)
     {
         $depense->setDateCreation(new \DateTime);
         $depense->setApplication($this->application);
+        
+        if($sessionId) {
+            $session = $this->sessionRepo->findOneBy(['id' => $sessionId]);
+            $depense->setSession($session);
+        }
+      
         //dd($existeCompta);
         if ($existeCompta) {
             // Charger `Comptabilite` depuis le repository pour s'assurer qu'il est géré
@@ -60,6 +70,7 @@ class DepenseService
             }
     
             // Ajouter la dépense sans persister une nouvelle entité
+           
             $existingCompta->addDepense($depense);
             $depense->addComptabilite($existingCompta);
         }

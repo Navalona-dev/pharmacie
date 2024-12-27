@@ -52,6 +52,9 @@ class Comptabilite
     #[ORM\ManyToMany(targetEntity: Revenu::class, inversedBy: 'comptabilites')]
     private Collection $revenus;
 
+    #[ORM\ManyToOne(inversedBy: 'comptabilites')]
+    private ?Session $session = null;
+
     public function __construct()
     {
         $this->depenses = new ArrayCollection();
@@ -211,6 +214,18 @@ class Comptabilite
     public function removeRevenu(Revenu $revenu): static
     {
         $this->Revenus->removeElement($revenu);
+
+        return $this;
+    }
+
+    public function getSession(): ?Session
+    {
+        return $this->session;
+    }
+
+    public function setSession(?Session $session): static
+    {
+        $this->session = $session;
 
         return $this;
     }

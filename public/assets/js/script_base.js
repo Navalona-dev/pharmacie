@@ -17,6 +17,10 @@ $(document).ready(function() {
         showTabSession();
     }
 
+    if (anchorName === "tab-depense-vente") {
+        showTabDepenseVente();
+    }
+
     if (anchorName === "tab-avoir") {
         showTabAvoir();
     }
@@ -185,6 +189,10 @@ $(document).ready(function() {
         showTabCaisse(idAffaire);
     }
 
+    if(anchorName == "tab-comptabilite-vente") {
+        showTabComptabiliteVente();
+    }
+
 
 });
 
@@ -224,6 +232,67 @@ function showTabComptabiliteDetail(id = null) {
 
                  setTimeout(function() {
                     
+                    hideSpinner();
+                }, 2000);
+             },
+             error: function () {
+                // $(".loadBody").css('display', 'none');
+                 $(".chargementError").css('display', 'block');
+                 hideSpinner();
+             }
+
+         });
+ }
+
+ function showTabDepenseVente() {
+    showSpinner();
+    
+    $.ajax({
+             type: 'post',
+             url: '/admin/vente/depense',
+             //data: {},
+             success: function (response) {
+                 $("#tab-depense-vente").empty();
+                 $("#tab-depense-vente").append(response.html);
+                 $('.sidebar-nav a[href="#tab-depense-vente"]').tab('show');
+                 $("#tab-depense-vente").addClass('active');
+                 $('.sidebar-nav a[href="#tab-dashboard"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-depense-vente"]').removeClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-permission"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-privilege"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-application"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-utilisateur"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-categorie-permission"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-produit-categorie"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-compte_1"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-compte_2"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-produit-type"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-import-produit"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-transfert-produit"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-facture"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-historique-affaire"]').removeClass('active');
+                 $('.sidebar-nav a[href="#tab-historique-produit"]').removeClass('active');    
+                $('.sidebar-nav #historique a').addClass('collapsed');
+                $('.sidebar-nav a[href="#tab-devis"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-commande"]').addClass('collapsed');
+
+                 $(".loadBody").css('display', 'none');
+
+                 setTimeout(function() {
+                    if ($.fn.dataTable.isDataTable('#table-depense-vente')) {
+                        // Si déjà initialisé, détruire puis réinitialiser pour éviter les réinitialisations multiples
+                        $('#table-depense-vente').DataTable().clear().destroy();
+                    }
+                    $('#table-depense-vente').DataTable({
+                        responsive: true,
+                        language: {
+                          url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json',
+                      },
+                        border: false,
+                        scrollX: '100%',
+                        pageLength: 10,
+                        scrollCollapse: false,
+                      });
                     hideSpinner();
                 }, 2000);
              },
@@ -2985,6 +3054,7 @@ function validerCommande(id = null) {
                     // Notifiez le caissier directement ici si besoin
                     notifyCashier(response.affaireId, countAffaires, newAffaires);
                     financier(id);
+                    showTabVentes();
                 }
                 if (anchorName) {
                     window.location.hash = anchorName;
@@ -3024,20 +3094,6 @@ function notifyCashier(affaireId, countAffaires, newAffaires) {
     if (affaire) {
         const totalNotifications = notificationList.children('.notification-item').length;
         
-        /*notificationList.append(`
-            <a href="#tab-financier-affaire" onclick="return financier(${affaireId})">
-                <li><hr class="dropdown-divider"></li>
-                <li class="notification-item item-commande">
-                    <div>
-                        <h4 class="text-black"><i class="bi bi-check-circle text-success"></i>Commande validée</h4>
-                        <p>${affaire.nom}</p>
-                        ${affaire.dateValidation ? `<p>${affaire.dateValidation}</p>` : ''}
-                    </div>
-                </li>
-            </a>
-            
-        `);*/
-
         notificationList.append(`
             <a href="#tab-caisse" onclick="return showTabCaisse(${affaireId})">
                 <li><hr class="dropdown-divider"></li>
@@ -3477,6 +3533,53 @@ function showTabListeVente() {
 
         });
 }
+
+function showTabComptabiliteVente() {
+    showSpinner();
+
+    $.ajax({
+             type: 'post',
+             url: '/admin/vente/comptabilite',
+             //data: {},
+             success: function (response) {
+                 $("#tab-comptabilite-vente").empty();
+                 $("#tab-comptabilite-vente").append(response.html);
+                 $('.sidebar-nav a[href="#tab-comptabilite-vente"]').tab('show');
+                 $("#tab-comptabilite-vente").addClass('active');
+                 $('.sidebar-nav a[href="#tab-dashboard"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-permission"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-utilisateur"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-comptabilite-vente"]').removeClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-categorie-permission"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-privilege"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-categorie"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-produit-categorie"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-compte_1"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-compte_2"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-produit-type"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-import-produit"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-transfert-produit"]').addClass('collapsed');
+                 $('.sidebar-nav a[href="#tab-facture"]').addClass('collapsed');     
+                 $('.sidebar-nav a[href="#tab-historique-affaire"]').removeClass('active');
+                 $('.sidebar-nav a[href="#tab-historique-produit"]').removeClass('active');    
+                $('.sidebar-nav #historique a').addClass('collapsed');
+
+                 $(".loadBody").css('display', 'none');
+
+                  // Réinitialiser le DataTable avec un léger retard
+                setTimeout(function() {
+                   
+                    hideSpinner();
+                }, 2000);
+             },
+             error: function () {
+                // $(".loadBody").css('display', 'none');
+                 $(".chargementError").css('display', 'block');
+                 hideSpinner();
+             }
+
+         });
+ }
 
 
  

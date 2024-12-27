@@ -1000,9 +1000,11 @@ class AffaireController extends AbstractController
         
     }
 
-    #[Route('/paiement/{affaire}', name: '_paiement')]
-    public function payer(Affaire $affaire, Request $request): Response
+    #[Route('/paiement/{affaireId}', name: '_paiement')]
+    public function payer(int $affaireId, Request $request, AffaireRepository $affaireRepo): Response
     {
+        $affaire = $affaireRepo->findOneBy(['id' => $affaireId]);
+
         $applicationRevendeur = $affaire->getApplicationRevendeur();
 
         if (count($affaire->getProducts()) > 0) {
@@ -1014,6 +1016,7 @@ class AffaireController extends AbstractController
             }
             
             list($pdfContent, $facture) = $this->factureService->add($affaire, $documentFolder, $request, $applicationRevendeur);
+            
             $filename = null;
             if($affaire->getCompte()->getIndiceFacture()) {
                 $filename = $affaire->getCompte()->getIndiceFacture() . '-' . $facture->getNumero() . ".pdf";

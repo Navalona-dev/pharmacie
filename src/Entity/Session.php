@@ -55,10 +55,31 @@ class Session
     #[ORM\ManyToOne(inversedBy: 'sessions')]
     private ?Application $application = null;
 
+    /**
+     * @var Collection<int, Revenu>
+     */
+    #[ORM\OneToMany(targetEntity: Revenu::class, mappedBy: 'session')]
+    private Collection $revenus;
+
+    /**
+     * @var Collection<int, Depense>
+     */
+    #[ORM\OneToMany(targetEntity: Depense::class, mappedBy: 'session')]
+    private Collection $depenses;
+
+    /**
+     * @var Collection<int, Comptabilite>
+     */
+    #[ORM\OneToMany(targetEntity: Comptabilite::class, mappedBy: 'session')]
+    private Collection $comptabilites;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->affaires = new ArrayCollection();
+        $this->revenus = new ArrayCollection();
+        $this->depenses = new ArrayCollection();
+        $this->comptabilites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -224,6 +245,96 @@ class Session
     public function setApplication(?Application $application): static
     {
         $this->application = $application;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Revenu>
+     */
+    public function getRevenus(): Collection
+    {
+        return $this->revenus;
+    }
+
+    public function addRevenu(Revenu $revenu): static
+    {
+        if (!$this->revenus->contains($revenu)) {
+            $this->revenus->add($revenu);
+            $revenu->setSession($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRevenu(Revenu $revenu): static
+    {
+        if ($this->revenus->removeElement($revenu)) {
+            // set the owning side to null (unless already changed)
+            if ($revenu->getSession() === $this) {
+                $revenu->setSession(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Depense>
+     */
+    public function getDepenses(): Collection
+    {
+        return $this->depenses;
+    }
+
+    public function addDepense(Depense $depense): static
+    {
+        if (!$this->depenses->contains($depense)) {
+            $this->depenses->add($depense);
+            $depense->setSession($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDepense(Depense $depense): static
+    {
+        if ($this->depenses->removeElement($depense)) {
+            // set the owning side to null (unless already changed)
+            if ($depense->getSession() === $this) {
+                $depense->setSession(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comptabilite>
+     */
+    public function getComptabilites(): Collection
+    {
+        return $this->comptabilites;
+    }
+
+    public function addComptabilite(Comptabilite $comptabilite): static
+    {
+        if (!$this->comptabilites->contains($comptabilite)) {
+            $this->comptabilites->add($comptabilite);
+            $comptabilite->setSession($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComptabilite(Comptabilite $comptabilite): static
+    {
+        if ($this->comptabilites->removeElement($comptabilite)) {
+            // set the owning side to null (unless already changed)
+            if ($comptabilite->getSession() === $this) {
+                $comptabilite->setSession(null);
+            }
+        }
 
         return $this;
     }
